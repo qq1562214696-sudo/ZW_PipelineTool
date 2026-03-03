@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZW_PipelineTool", "ZW_PipelineTool.csproj", "{824BDC0A-541B-CF04-9978-71E0C6B25700}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{824BDC0A-541B-CF04-9978-71E0C6B25700}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{824BDC0A-541B-CF04-9978-71E0C6B25700}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{824BDC0A-541B-CF04-9978-71E0C6B25700}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{824BDC0A-541B-CF04-9978-71E0C6B25700}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0FD653D4-C17E-4496-B5E0-3C5CC32A732D}
+	EndGlobalSection
+EndGlobal
