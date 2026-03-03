@@ -71,3 +71,6 @@ d:\360MoveData\Users\s\Desktop\ZW_PipelineTool\obj\Debug\net10.0\refint\ZW_Pipel
 d:\360MoveData\Users\s\Desktop\ZW_PipelineTool\obj\Debug\net10.0\ZW_PipelineTool.pdb
 D:\360MoveData\Users\s\Desktop\ZW_PipelineTool\obj\Debug\net10.0\ZW_PipelineTool.genruntimeconfig.cache
 D:\360MoveData\Users\s\Desktop\ZW_PipelineTool\obj\Debug\net10.0\ref\ZW_PipelineTool.dll
+d:\360MoveData\Users\s\Desktop\ZW_PipelineTool\obj\Debug\net10.0\ZW_PipelineTool.sourcelink.json
+d:\360MoveData\Users\s\Desktop\ZW_PipelineTool\bin\Debug\net10.0\DialogHost.Avalonia.dll
+d:\360MoveData\Users\s\Desktop\ZW_PipelineTool\bin\Debug\net10.0\MsBox.Avalonia.dll
