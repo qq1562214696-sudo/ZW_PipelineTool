@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "f6xeEOHG9lw=",
+  "dgSpecHash": "9ZbQ/TiAXuI=",
   "success": true,
   "projectFilePath": "D:\\360MoveData\\Users\\s\\Desktop\\ZW_PipelineTool\\ZW_PipelineTool.csproj",
   "expectedPackageFiles": [
@@ -27,11 +27,20 @@
     "C:\\Users\\s\\.nuget\\packages\\harfbuzzsharp.nativeassets.win32\\8.3.1.1\\harfbuzzsharp.nativeassets.win32.8.3.1.1.nupkg.sha512",
     "C:\\Users\\s\\.nuget\\packages\\messagebox.avalonia\\3.3.1.1\\messagebox.avalonia.3.3.1.1.nupkg.sha512",
     "C:\\Users\\s\\.nuget\\packages\\microcom.runtime\\0.11.0\\microcom.runtime.0.11.0.nupkg.sha512",
+    "C:\\Users\\s\\.nuget\\packages\\microsoft.extensions.dependencyinjection\\10.0.3\\microsoft.extensions.dependencyinjection.10.0.3.nupkg.sha512",
+    "C:\\Users\\s\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\10.0.3\\microsoft.extensions.dependencyinjection.abstractions.10.0.3.nupkg.sha512",
+    "C:\\Users\\s\\.nuget\\packages\\microsoft.extensions.logging\\10.0.3\\microsoft.extensions.logging.10.0.3.nupkg.sha512",
+    "C:\\Users\\s\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\10.0.3\\microsoft.extensions.logging.abstractions.10.0.3.nupkg.sha512",
+    "C:\\Users\\s\\.nuget\\packages\\microsoft.extensions.options\\10.0.3\\microsoft.extensions.options.10.0.3.nupkg.sha512",
+    "C:\\Users\\s\\.nuget\\packages\\microsoft.extensions.primitives\\10.0.3\\microsoft.extensions.primitives.10.0.3.nupkg.sha512",
     "C:\\Users\\s\\.nuget\\packages\\skiasharp\\2.88.9\\skiasharp.2.88.9.nupkg.sha512",
     "C:\\Users\\s\\.nuget\\packages\\skiasharp.nativeassets.linux\\2.88.9\\skiasharp.nativeassets.linux.2.88.9.nupkg.sha512",
     "C:\\Users\\s\\.nuget\\packages\\skiasharp.nativeassets.macos\\2.88.9\\skiasharp.nativeassets.macos.2.88.9.nupkg.sha512",
     "C:\\Users\\s\\.nuget\\packages\\skiasharp.nativeassets.webassembly\\2.88.9\\skiasharp.nativeassets.webassembly.2.88.9.nupkg.sha512",
     "C:\\Users\\s\\.nuget\\packages\\skiasharp.nativeassets.win32\\2.88.9\\skiasharp.nativeassets.win32.2.88.9.nupkg.sha512",
+    "C:\\Users\\s\\.nuget\\packages\\socketioclient\\4.0.1\\socketioclient.4.0.1.nupkg.sha512",
+    "C:\\Users\\s\\.nuget\\packages\\socketioclient.common\\4.0.0\\socketioclient.common.4.0.0.nupkg.sha512",
+    "C:\\Users\\s\\.nuget\\packages\\socketioclient.serializer\\4.0.0.1\\socketioclient.serializer.4.0.0.1.nupkg.sha512",
     "C:\\Users\\s\\.nuget\\packages\\tmds.dbus.protocol\\0.21.2\\tmds.dbus.protocol.0.21.2.nupkg.sha512"
   ],
   "logs": []

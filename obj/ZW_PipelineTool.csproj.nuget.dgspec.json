@@ -67,6 +67,10 @@
             "MessageBox.Avalonia": {
               "target": "Package",
               "version": "[3.3.1.1, )"
+            },
+            "SocketIOClient": {
+              "target": "Package",
+              "version": "[4.0.1, )"
             }
           },
           "imports": [

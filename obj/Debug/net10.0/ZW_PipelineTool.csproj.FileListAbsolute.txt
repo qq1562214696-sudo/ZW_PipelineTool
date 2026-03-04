@@ -74,3 +74,12 @@ D:\360MoveData\Users\s\Desktop\ZW_PipelineTool\obj\Debug\net10.0\ref\ZW_Pipeline
 d:\360MoveData\Users\s\Desktop\ZW_PipelineTool\obj\Debug\net10.0\ZW_PipelineTool.sourcelink.json
 d:\360MoveData\Users\s\Desktop\ZW_PipelineTool\bin\Debug\net10.0\DialogHost.Avalonia.dll
 d:\360MoveData\Users\s\Desktop\ZW_PipelineTool\bin\Debug\net10.0\MsBox.Avalonia.dll
+D:\360MoveData\Users\s\Desktop\ZW_PipelineTool\bin\Debug\net10.0\Microsoft.Extensions.DependencyInjection.dll
+D:\360MoveData\Users\s\Desktop\ZW_PipelineTool\bin\Debug\net10.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+D:\360MoveData\Users\s\Desktop\ZW_PipelineTool\bin\Debug\net10.0\Microsoft.Extensions.Logging.dll
+D:\360MoveData\Users\s\Desktop\ZW_PipelineTool\bin\Debug\net10.0\Microsoft.Extensions.Logging.Abstractions.dll
+D:\360MoveData\Users\s\Desktop\ZW_PipelineTool\bin\Debug\net10.0\Microsoft.Extensions.Options.dll
+D:\360MoveData\Users\s\Desktop\ZW_PipelineTool\bin\Debug\net10.0\Microsoft.Extensions.Primitives.dll
+D:\360MoveData\Users\s\Desktop\ZW_PipelineTool\bin\Debug\net10.0\SocketIOClient.dll
+D:\360MoveData\Users\s\Desktop\ZW_PipelineTool\bin\Debug\net10.0\SocketIOClient.Common.dll
+D:\360MoveData\Users\s\Desktop\ZW_PipelineTool\bin\Debug\net10.0\SocketIOClient.Serializer.dll

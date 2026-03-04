@@ -1,49 +1,18 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="650"
         x:Class="ZW_PipelineTool.MainWindow"
         Title="ZW 流水线工具"
-        ExtendClientAreaToDecorationsHint="False"
-        ExtendClientAreaChromeHints="NoChrome"
-        WindowStartupLocation="CenterScreen">
+        Width="400" Height="250"
+        WindowStartupLocation="CenterScreen"
+        Topmost="True">  <!-- 默认置顶，可由 CheckBox 动态控制 -->
 
-    <Border Padding="15" Background="#F5F5F5">
-        <Grid RowDefinitions="Auto,Auto,*,Auto" ColumnDefinitions="*">
-            <!-- 标题 -->
-            <TextBlock Grid.Row="0" Text="ZW 流水线工具" 
-                       FontSize="28" FontWeight="Bold" Foreground="#333"
-                       HorizontalAlignment="Center" Margin="0,0,0,25"/>
-
-            <!-- 操作按钮区域 -->
-            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="20" Margin="0,0,0,20">
-                <Button Content="选择文件夹并处理" 
-                        x:Name="ProcessButton"
-                        Click="OnProcessButtonClick"
-                        Padding="25,12" MinWidth="220" FontSize="16" Background="#4CAF50" Foreground="White"/>
-                
-                <Button Content="测试功能" 
-                        Click="OnTestButtonClick"
-                        Padding="20,10" MinWidth="140"/>
-            </StackPanel>
-
-            <!-- 日志显示区 -->
-            <Border Grid.Row="2" BorderBrush="#DDD" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,15">
-                <ScrollViewer>
-                    <ListBox x:Name="logList" 
-                             Background="Transparent" 
-                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
-                </ScrollViewer>
-            </Border>
-
-            <!-- 状态栏 -->
-            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="30">
-                <TextBlock x:Name="statusText" 
-                           Text="状态：就绪" FontSize="14" Foreground="#555"/>
-                <TextBlock x:Name="pathDisplay" 
-                           FontSize="12" Foreground="Gray" TextWrapping="Wrap"/>
-            </StackPanel>
-        </Grid>
-    </Border>
+    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="20">
+        <TextBox Name="MaxPathTextBox" Width="300" IsReadOnly="True"
+                 Watermark="拖入 Max 可执行文件或快捷方式"
+                 DragDrop.AllowDrop="True"
+                 DragDrop.Drop="MaxPathTextBox_Drop"/>
+        <Button Content="初始化" Click="OnInitializeClick" Padding="20,10" Width="200"/>
+        <Button Content="测试" Click="OnTestClick" Padding="20,10" Width="200"/>
+        <CheckBox Content="窗口置顶" Checked="ToggleTopmost_Checked" Unchecked="ToggleTopmost_Unchecked" IsChecked="True"/>
+    </StackPanel>
 </Window>

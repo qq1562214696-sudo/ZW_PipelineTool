@@ -1,7 +1,11 @@
 {
-  "Width": 1561,
-  "Height": 750,
-  "PositionX": 2122,
-  "PositionY": 145,
-  "WindowState": 0
+  "Width": 429,
+  "Height": 418,
+  "PositionX": 1395,
+  "PositionY": 427,
+  "WindowState": 0,
+  "QF": {
+    "Max\u8DEF\u5F84": "D:/3ds Max 2022",
+    "SourceAgentPath": "D:\\360MoveData\\Users\\s\\Desktop\\ZW_PipelineTool\\QF\\MaxAgent.py"
+  }
 }
