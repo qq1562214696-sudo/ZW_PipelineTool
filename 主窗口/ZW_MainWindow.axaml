@@ -1,0 +1,9 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ZW_PipelineTool.MainWindow"
+        Title="ZW 流水线工具"
+        Width="400" Height="400"
+        WindowStartupLocation="CenterScreen"
+        Topmost="True">  <!-- 默认置顶，可由 CheckBox 动态控制 -->
+        <CheckBox Content="窗口置顶" Checked="ToggleTopmost_Checked" Unchecked="ToggleTopmost_Unchecked" IsChecked="True"/>
+</Window>
