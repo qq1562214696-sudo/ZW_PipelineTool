@@ -13,7 +13,11 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ZW_PipelineTool")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
+<<<<<<< HEAD
 [assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a980defc2acb3ec81183040dd183982ed3545d15")]
+=======
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c45a8520a4a2ceaa0e43576c65b6bc929e0645d4")]
+>>>>>>> parent of 47cf5d7 (最新)
 [assembly: System.Reflection.AssemblyProductAttribute("ZW_PipelineTool")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ZW_PipelineTool")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
