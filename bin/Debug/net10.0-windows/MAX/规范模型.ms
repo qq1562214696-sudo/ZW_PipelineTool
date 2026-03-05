@@ -1,29 +1,35 @@
--- 规范模型.ms（完整版，已修复所有顶层 local 错误）
+-- 规范模型.ms（完整版，包含所有依赖）
 
--- 全局变量和函数
+-- 全局变量和函数（从原脚本复制，确保独立运行）
 fn setupBackgroundPlane =
 (
 	try
 	(
+		-- 1. 查找名为"原画"的对象
 		local bgPlane = getNodeByName "原画" exact:true
 		if bgPlane == undefined do return false
 		
+		-- 检查对象是否为平面类型
 		if not (isKindOf bgPlane Plane) do return false
 		
+		-- 2. 获取max文件所在目录并向上查找PSD文件
 		if maxFileName == "" do return false
 		
 		local maxFileDir = maxFilePath
 		local maxFileNameOnly = getFilenameFile maxFileName
 		
+		-- 向上查找最多5级父目录
 		local currentDir = maxFileDir
 		local psdFile = undefined
 		local levelsChecked = 0
 		
 		while levelsChecked < 5 and currentDir != "" do
 		(
+			-- 获取父级目录
 			currentDir = getFilenamePath (pathConfig.removePathLeaf currentDir)
 			if currentDir == "" do exit
 			
+			-- 在父级目录中查找包含max文件名的PSD文件
 			local psdFiles = getFiles (currentDir + "\\*.psd")
 			
 			for file in psdFiles do
@@ -42,6 +48,7 @@ fn setupBackgroundPlane =
 		
 		if psdFile == undefined do return false
 		
+		-- 3. 创建材质并应用贴图
 		local bgMaterial = Standard()
 		bgMaterial.name = "原画材质"
 		
@@ -52,8 +59,10 @@ fn setupBackgroundPlane =
 		bgMaterial.diffuseMapEnable = true
 		bgMaterial.showInViewport = true
 		
+		-- 应用材质到原画对象
 		bgPlane.material = bgMaterial
 		
+		-- 获取PSD图片尺寸并调整平面大小
 		try
 		(
 			local bmp = openBitMap psdFile
@@ -63,49 +72,64 @@ fn setupBackgroundPlane =
 				local heightInPixels = bmp.height
 				close bmp
 				
+				-- 计算尺寸（像素/1000 米）
 				local widthInMeters = widthInPixels / 1000.0
 				local heightInMeters = heightInPixels / 1000.0
 				
+				-- 调整平面大小
 				bgPlane.length = heightInMeters
 				bgPlane.width = widthInMeters
 			)
 		)
-		catch()
+		catch
+		(
+			-- 读取尺寸失败，不做调整
+		)
 		
+		-- 冻结原画对象
 		bgPlane.isFrozen = true
 		
 		return true
 	)
-	catch return false
+	catch
+	(
+		return false
+	)
 )
 
 fn ResetPivotFn Obj =
 (
+	--目标矩阵
 	local target = matrix3 [1,0,0] [0,0,1] [0,-1,0] [0,0,0]
 
-	local ChldTms = in coordSys target (for Chld in Obj.children collect Chld.transform)
+	--保存子物体的transforms矩阵
+	local ChldTms = in coordSys target ( for Chld in Obj.children collect Chld.transform )
 
+	--当前物体的transform矩阵
 	local TmScale = scaleMatrix Obj.objectOffsetScale
 	local TmRot = Obj.objectOffsetRot as matrix3
 	local TmPos = transMatrix Obj.objectOffsetPos
 	local TmOffset = TmScale * TmRot * TmPos
 
+	--新的偏移transform矩阵
 	TmOffset *= obj.transform * inverse target
 
+	--应用矩阵
 	Obj.transform = target
 
+	--重置偏移
 	Obj.objectOffsetPos = TmOffset.translation
 	Obj.objectOffsetRot = TmOffset.rotation
 	Obj.objectOffsetScale = TmOffset.scale
 
-	for i = 1 to Obj.children.count do 
-		Obj.children[i].transform = ChldTms[i] * inverse target * Obj.transform
+	--重制子物体的transform
+	for i = 1 to Obj.children.count do Obj.children[i].transform = ChldTms[i] * inverse target * Obj.transform
 )
 
--- 主逻辑（所有顶层变量不再用 local）
+-- 主逻辑（原 standardizeBtn）
 setupBackgroundPlane()
 
-pureMaxFileName = getFilenameFile (maxFilePath + maxFileName)
+local pureMaxFileName = getFilenameFile (maxFilePath + maxFileName)
 		
 if matchPattern pureMaxFileName pattern:"*_fin" ignoreCase:true do
 (
@@ -123,7 +147,7 @@ for i in 1 to 24 do
 	meditMaterials[i] = Standard()
 )
 
-firstMat = Standard()
+local firstMat = Standard()
 firstMat.name = pureMaxFileName + "_D"
 firstMat.showInViewport = true
 
@@ -169,7 +193,10 @@ undo on
 
 	for obj in objects where matchPattern obj.name pattern:"Mesh*" ignoreCase:true do
 	(
-		if obj.parent != undefined do obj.parent = undefined
+		if obj.parent != undefined do
+		(
+			obj.parent = undefined
+		)
 	)
 
 	local allPolyObjects = for obj in objects where classOf obj == Editable_Poly collect obj
@@ -184,8 +211,11 @@ undo on
 	if allPolyObjects.count > 0 do
 	(
 		local oldSelection = selection as array
+		
 		select allPolyObjects
+		
 		macros.run "Animation Tools" "DeleteSelectedAnimation"
+		
 		select oldSelection
 	)
 	
@@ -212,11 +242,21 @@ undo on
 	local linkTarget = undefined
 
 	if hasRoot and not hasBip and nodeObj == undefined then
+	(
 		linkTarget = rootObj
+	)
 	else if not hasRoot and nodeObj != undefined and not hasBip then
+	(
 		linkTarget = nodeObj
+	)
 	else if hasRoot and hasBip then
+	(
 		linkTarget = bipObj
+	)
+	else
+	(
+		-- 其他情况，不链接
+	)
 
 	if linkTarget != undefined do
 	(
@@ -224,7 +264,9 @@ undo on
 		for m in allMeshes do
 		(
 			if m != linkTarget and m.parent != linkTarget do
+			(
 				m.parent = linkTarget
+			)
 		)
 	)
 )
