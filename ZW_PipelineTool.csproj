@@ -1,4 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>
@@ -6,6 +7,12 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <UseWindowsForms>true</UseWindowsForms>
+
+    <!-- ★ 关键：单文件 + 自包含 Runtime + 嵌入内容文件夹 -->
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>  <!-- 64位 Windows，换 win-x86 如果目标是32位 -->
+    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>  <!-- 嵌入 MAX/ 等，运行时自动解压 -->
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,7 +20,7 @@
     <PackageReference Include="Avalonia.Desktop" Version="11.3.12" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.12" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.12" />
-    <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+    <!-- Avalonia.Diagnostics 只在 Debug 保留 -->
     <PackageReference Include="Avalonia.Diagnostics" Version="11.3.12">
       <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
@@ -26,16 +33,17 @@
     <PackageReference Include="SocketIOClient" Version="4.0.1" />
   </ItemGroup>
 
-  <!-- copy MAX scripts to output folder so they are available at runtime -->
+  <!-- 优化：统一复制 MAX/ 文件夹（包括 .ms/.mcr/其他文件），支持 publish -->
   <ItemGroup>
-    <Content Include="MAX\**\*.ms">
+    <None Include="MAX\**\*.*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="MAX\**\*.mcr">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </None>
   </ItemGroup>
-  <!-- include Avalonia XAML files so they are compiled and accessible at runtime -->
+
+  <!-- Avalonia XAML 资源 -->
   <ItemGroup>
-    <AvaloniaResource Include="**\\*.xaml" />
-  </ItemGroup></Project>
+    <AvaloniaResource Include="**\*.xaml" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,2 @@
+D:\360MoveData\Users\s\Desktop\ZW_PipelineTool\bin\Release\net10.0-windows\win-x64\publish\ZW_PipelineTool.pdb
+D:\360MoveData\Users\s\Desktop\ZW_PipelineTool\bin\Release\net10.0-windows\win-x64\publish\ZW_PipelineTool.exe
