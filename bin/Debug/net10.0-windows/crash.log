@@ -1,0 +1,16 @@
+[2026-03-05 16:47:35] AppDomain 未捕获异常:
+System.PlatformNotSupportedException: Operation is not supported on this platform.
+   at Avalonia.Threading.Dispatcher.MainLoop(CancellationToken cancellationToken)
+   at Avalonia.Controls.ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime.StartCore(String[] args)
+   at Avalonia.Controls.ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime.Start(String[] args)
+   at Avalonia.ClassicDesktopStyleApplicationLifetimeExtensions.StartWithClassicDesktopLifetime(AppBuilder builder, String[] args, Action`1 lifetimeBuilder)
+   at ZW_PipelineTool.Program.Main(String[] args) in d:\360MoveData\Users\s\Desktop\ZW_PipelineTool\其他\Program.cs:line 13
+
+[2026-03-05 16:48:07] AppDomain 未捕获异常:
+System.PlatformNotSupportedException: Operation is not supported on this platform.
+   at Avalonia.Threading.Dispatcher.MainLoop(CancellationToken cancellationToken)
+   at Avalonia.Controls.ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime.StartCore(String[] args)
+   at Avalonia.Controls.ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime.Start(String[] args)
+   at Avalonia.ClassicDesktopStyleApplicationLifetimeExtensions.StartWithClassicDesktopLifetime(AppBuilder builder, String[] args, Action`1 lifetimeBuilder)
+   at ZW_PipelineTool.Program.Main(String[] args) in d:\360MoveData\Users\s\Desktop\ZW_PipelineTool\其他\Program.cs:line 13
+

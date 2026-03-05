@@ -1,0 +1,28 @@
+[2026-03-05 16:50:08] AppDomain 未捕获异常:
+System.PlatformNotSupportedException: Operation is not supported on this platform.
+   at Avalonia.Threading.Dispatcher.MainLoop(CancellationToken cancellationToken)
+   at Avalonia.Controls.ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime.StartCore(String[] args)
+   at Avalonia.Controls.ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime.Start(String[] args)
+   at Avalonia.ClassicDesktopStyleApplicationLifetimeExtensions.StartWithClassicDesktopLifetime(AppBuilder builder, String[] args, Action`1 lifetimeBuilder)
+   at ZW_PipelineTool.Program.Main(String[] args) in D:\360MoveData\Users\s\Desktop\ZW_PipelineTool\其他\Program.cs:line 13
+
+[2026-03-05 16:51:46] AppDomain 未捕获异常:
+System.PlatformNotSupportedException: Operation is not supported on this platform.
+   at Avalonia.Threading.Dispatcher.MainLoop(CancellationToken cancellationToken)
+   at Avalonia.Controls.ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime.StartCore(String[] args)
+   at Avalonia.Controls.ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime.Start(String[] args)
+   at Avalonia.ClassicDesktopStyleApplicationLifetimeExtensions.StartWithClassicDesktopLifetime(AppBuilder builder, String[] args, Action`1 lifetimeBuilder)
+   at ZW_PipelineTool.Program.Main(String[] args) in D:\360MoveData\Users\s\Desktop\ZW_PipelineTool\其他\Program.cs:line 23
+
+[2026/3/5 16:52:48] UI start failed: System.PlatformNotSupportedException: Operation is not supported on this platform.
+   at Avalonia.Threading.Dispatcher.MainLoop(CancellationToken cancellationToken)
+   at Avalonia.Controls.ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime.StartCore(String[] args)
+   at Avalonia.Controls.ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime.Start(String[] args)
+   at Avalonia.ClassicDesktopStyleApplicationLifetimeExtensions.StartWithClassicDesktopLifetime(AppBuilder builder, String[] args, Action`1 lifetimeBuilder)
+   at ZW_PipelineTool.Program.Main(String[] args) in D:\360MoveData\Users\s\Desktop\ZW_PipelineTool\其他\Program.cs:line 26
+[2026/3/5 16:55:19] UI start failed: System.PlatformNotSupportedException: Operation is not supported on this platform.
+   at Avalonia.Threading.Dispatcher.MainLoop(CancellationToken cancellationToken)
+   at Avalonia.Controls.ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime.StartCore(String[] args)
+   at Avalonia.Controls.ApplicationLifetimes.ClassicDesktopStyleApplicationLifetime.Start(String[] args)
+   at Avalonia.ClassicDesktopStyleApplicationLifetimeExtensions.StartWithClassicDesktopLifetime(AppBuilder builder, String[] args, Action`1 lifetimeBuilder)
+   at ZW_PipelineTool.Program.Main(String[] args) in D:\360MoveData\Users\s\Desktop\ZW_PipelineTool\其他\Program.cs:line 28
