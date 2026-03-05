@@ -262,132 +262,38 @@ public partial class MainWindow : Window
         WindowStartupLocation = WindowStartupLocation.Manual;
     }
 
-    // ==================== 执行 MaxScript ====================
+    // MaxScript 相关（保持不变）
     private void OnScriptButton_Click(object? sender, RoutedEventArgs e)
     {
-        try
-        {
-            if (sender is not Button button || button.Content is not string scriptName || string.IsNullOrWhiteSpace(scriptName))
-                return;
+        if (sender is not Button button || button.Content is not string scriptName || string.IsNullOrWhiteSpace(scriptName))
+            return;
 
-            Log($"点击按钮：{scriptName}");
-            RunMaxScript(scriptName);
-        }
-        catch (Exception ex)
-        {
-            Log($"按钮执行异常: {ex.Message}\n{ex}");
-            // 可选：弹出提示
-            // MessageBox.Show(ex.Message, "执行失败", MessageBox.Avalonia.MessageBoxButtons.OK);
-        }
+        Log($"点击按钮：{scriptName}");
+        RunMaxScript(scriptName);
     }
 
     private void RunMaxScript(string scriptName)
     {
-        try
+        string projectRoot = AppContext.BaseDirectory;
+        string maxFolder = Path.Combine(projectRoot, "MAX");
+
+        string msPath = Path.Combine(maxFolder, scriptName + ".ms");
+        if (File.Exists(msPath))
         {
-            string projectRoot = AppContext.BaseDirectory;
-            string maxFolder = Path.Combine(projectRoot, "MAX");
-
-            if (!Directory.Exists(maxFolder))
-            {
-                Log($"MAX 文件夹不存在: {maxFolder}");
-                return;
-            }
-
-            string msPath = Path.Combine(maxFolder, scriptName + ".ms");
-            if (File.Exists(msPath))
-            {
-                Log($"找到并发送: {scriptName}.ms");
-                SendMsTo3dsMax(msPath);
-                return;
-            }
-
-            string mcrPath = Path.Combine(maxFolder, scriptName + ".mcr");
-            if (File.Exists(mcrPath))
-            {
-                Log($"找到并发送: {scriptName}.mcr");
-                SendMsTo3dsMax(mcrPath);
-                return;
-            }
-
-            Log($"未找到脚本: {scriptName} (.ms 或 .mcr)");
+            Log($"找到脚本：{scriptName}.ms");
+            SendMsTo3dsMax(msPath);
+            return;
         }
-        catch (Exception ex)
+
+        string mcrPath = Path.Combine(maxFolder, scriptName + ".mcr");
+        if (File.Exists(mcrPath))
         {
-            Log($"RunMaxScript 异常: {ex.Message}");
+            Log($"找到脚本：{scriptName}.mcr");
+            SendMsTo3dsMax(mcrPath);
+            return;
         }
-    }
 
-    private void SendMsTo3dsMax(string scriptPath)
-    {
-        try
-        {
-            if (!File.Exists(scriptPath))
-            {
-                Log("脚本文件不存在");
-                return;
-            }
-
-            IntPtr hMax = FindWindow("3DSMAX", null);
-            if (hMax == IntPtr.Zero) hMax = FindWindow(null, "3ds Max");
-
-            if (hMax == IntPtr.Zero)
-            {
-                Log("未找到 3ds Max 窗口，请先打开 3ds Max！");
-                return;
-            }
-
-            Log("找到 3ds Max 窗口，准备发送...");
-
-            SetForegroundWindow(hMax);
-
-            if (!GetWindowRect(hMax, out RECT rect))
-            {
-                Log("无法获取 3ds Max 窗口位置");
-                return;
-            }
-
-            int centerX = rect.Left + (rect.Right - rect.Left) / 2;
-            int centerY = rect.Top + (rect.Bottom - rect.Top) / 2;
-
-            string pathWithDoubleNull = scriptPath + "\0\0";
-            byte[] pathBytes = Encoding.Unicode.GetBytes(pathWithDoubleNull);
-
-            int dfSize = Marshal.SizeOf<DROPFILES>();
-            int totalSize = dfSize + pathBytes.Length;
-
-            IntPtr hGlobal = Marshal.AllocHGlobal(totalSize);
-            if (hGlobal == IntPtr.Zero)
-            {
-                Log("内存分配失败");
-                return;
-            }
-
-            try
-            {
-                var df = new DROPFILES
-                {
-                    pFiles = (uint)dfSize,
-                    pt = new POINT { X = centerX, Y = centerY },
-                    fNC = false,
-                    fWide = true
-                };
-
-                Marshal.StructureToPtr(df, hGlobal, false);
-                Marshal.Copy(pathBytes, 0, hGlobal + dfSize, pathBytes.Length);
-
-                bool posted = PostMessage(hMax, WM_DROPFILES, hGlobal, IntPtr.Zero);
-                Log(posted ? "WM_DROPFILES 发送成功！" : "PostMessage 返回 false");
-            }
-            finally
-            {
-                Marshal.FreeHGlobal(hGlobal);
-            }
-        }
-        catch (Exception ex)
-        {
-            Log($"SendMsTo3dsMax 异常: {ex.Message}\n{ex}");
-        }
+        Log($"未找到脚本：{scriptName} (.ms 或 .mcr)");
     }
 
     [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
@@ -418,6 +324,74 @@ public partial class MainWindow : Window
     }
 
     private const uint WM_DROPFILES = 0x0233;
+
+    private void SendMsTo3dsMax(string scriptPath)
+    {
+        if (!File.Exists(scriptPath))
+        {
+            Log("文件不存在（异常情况）");
+            return;
+        }
+
+        IntPtr hMax = FindWindow("3DSMAX", null);
+        if (hMax == IntPtr.Zero) hMax = FindWindow(null, "3ds Max");
+        if (hMax == IntPtr.Zero)
+        {
+            Log("未找到 3ds Max 窗口");
+            return;
+        }
+
+        Log("找到 3ds Max 窗口，尝试发送");
+
+        SetForegroundWindow(hMax);
+
+        if (!GetWindowRect(hMax, out RECT rect))
+        {
+            Log("无法获取窗口位置");
+            return;
+        }
+
+        int centerX = rect.Left + (rect.Right - rect.Left) / 2;
+        int centerY = rect.Top + (rect.Bottom - rect.Top) / 2;
+
+        string pathWithDoubleNull = scriptPath + "\0\0";
+        byte[] pathBytes = Encoding.Unicode.GetBytes(pathWithDoubleNull);
+
+        int dfSize = Marshal.SizeOf<DROPFILES>();
+        int totalSize = dfSize + pathBytes.Length;
+
+        IntPtr hGlobal = Marshal.AllocHGlobal(totalSize);
+        if (hGlobal == IntPtr.Zero)
+        {
+            Log("内存分配失败");
+            return;
+        }
+
+        try
+        {
+            var df = new DROPFILES
+            {
+                pFiles = (uint)dfSize,
+                pt = new POINT { X = centerX, Y = centerY },
+                fNC = false,
+                fWide = true
+            };
+
+            Marshal.StructureToPtr(df, hGlobal, false);
+            Marshal.Copy(pathBytes, 0, hGlobal + dfSize, pathBytes.Length);
+
+            bool posted = PostMessage(hMax, WM_DROPFILES, hGlobal, IntPtr.Zero);
+            Log(posted ? "已发送 WM_DROPFILES 消息" : "PostMessage 返回 false");
+        }
+        catch (Exception ex)
+        {
+            Log($"发送过程中异常：{ex.Message}");
+        }
+        finally
+        {
+            Marshal.FreeHGlobal(hGlobal);
+        }
+    }
 }
 
 public class 窗口数据

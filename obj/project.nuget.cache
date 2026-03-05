@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "xF4Ln84sMfE=",
+  "dgSpecHash": "Hk+it3NDoeo=",
   "success": true,
   "projectFilePath": "D:\\360MoveData\\Users\\s\\Desktop\\ZW_PipelineTool\\ZW_PipelineTool.csproj",
   "expectedPackageFiles": [
@@ -41,15 +41,7 @@
     "C:\\Users\\s\\.nuget\\packages\\socketioclient\\4.0.1\\socketioclient.4.0.1.nupkg.sha512",
     "C:\\Users\\s\\.nuget\\packages\\socketioclient.common\\4.0.0\\socketioclient.common.4.0.0.nupkg.sha512",
     "C:\\Users\\s\\.nuget\\packages\\socketioclient.serializer\\4.0.0.1\\socketioclient.serializer.4.0.0.1.nupkg.sha512",
-    "C:\\Users\\s\\.nuget\\packages\\system.diagnostics.diagnosticsource\\10.0.3\\system.diagnostics.diagnosticsource.10.0.3.nupkg.sha512",
-    "C:\\Users\\s\\.nuget\\packages\\system.io.pipelines\\10.0.3\\system.io.pipelines.10.0.3.nupkg.sha512",
-    "C:\\Users\\s\\.nuget\\packages\\system.text.encodings.web\\10.0.3\\system.text.encodings.web.10.0.3.nupkg.sha512",
-    "C:\\Users\\s\\.nuget\\packages\\system.text.json\\10.0.3\\system.text.json.10.0.3.nupkg.sha512",
-    "C:\\Users\\s\\.nuget\\packages\\tmds.dbus.protocol\\0.21.2\\tmds.dbus.protocol.0.21.2.nupkg.sha512",
-    "C:\\Users\\s\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.23\\microsoft.netcore.app.ref.8.0.23.nupkg.sha512",
-    "C:\\Users\\s\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.23\\microsoft.windowsdesktop.app.ref.8.0.23.nupkg.sha512",
-    "C:\\Users\\s\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\8.0.23\\microsoft.aspnetcore.app.ref.8.0.23.nupkg.sha512",
-    "C:\\Users\\s\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\8.0.23\\microsoft.netcore.app.host.win-x64.8.0.23.nupkg.sha512"
+    "C:\\Users\\s\\.nuget\\packages\\tmds.dbus.protocol\\0.21.2\\tmds.dbus.protocol.0.21.2.nupkg.sha512"
   ],
   "logs": []
 }

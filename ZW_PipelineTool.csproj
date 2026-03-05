@@ -1,13 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>   <!-- windows-only framework -->
+    <TargetFramework>net10.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <UseWindowsForms>true</UseWindowsForms>
-    <UseWPF>false</UseWPF>                       <!-- explicitly disable WPF -->
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier> <!-- restrict build to Windows x64 -->
   </PropertyGroup>
 
   <ItemGroup>
