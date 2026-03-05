@@ -243,13 +243,43 @@ public partial class MainWindow : Window
 
     // ── MaxScript 按钮执行 ────────────────────────────────────────
 
-    private void OnScriptButton_Click(object? sender, RoutedEventArgs e)
+    private async void OnScriptButton_Click(object? sender, RoutedEventArgs e)
     {
-        if (sender is not Button button || button.Content is not string scriptName || string.IsNullOrWhiteSpace(scriptName))
-            return;
+        if (sender is not Button button) return;
 
-        Log($"点击按钮：{scriptName}");
-        RunMaxScript(scriptName);
+        // 从 Tag 获取脚本文件名
+        string? scriptFileName = button.Tag?.ToString()?.Trim();
+
+        if (string.IsNullOrWhiteSpace(scriptFileName))
+        {
+            Log($"按钮缺少 Tag 属性，无法确定脚本：{button.Content}");
+            return;
+        }
+
+        try
+        {
+            // 用 EXE 所在目录作为基准（打包后安全）
+            string exeDir = AppDomain.CurrentDomain.BaseDirectory;
+            string scriptPath = Path.Combine(exeDir, "MAX", scriptFileName);
+
+            if (!File.Exists(scriptPath))
+            {
+                Log($"脚本文件不存在：{scriptPath}");
+                Log("请检查：");
+                Log("1. MAX 文件夹是否在 EXE 同级目录");
+                Log($"2. 是否包含文件：{scriptFileName}");
+                Log("3. 项目 csproj 已设置 <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>");
+                return;
+            }
+
+            Log($"准备发送脚本到 3ds Max：{scriptFileName} ({button.Content})");
+            SendMsTo3dsMax(scriptPath);
+            Log($"脚本已发送：{scriptFileName}（等待 3ds Max 执行）");
+        }
+        catch (Exception ex)
+        {
+            Log($"发送脚本失败：{ex.Message}");
+        }
     }
 
     private void RunMaxScript(string scriptName)

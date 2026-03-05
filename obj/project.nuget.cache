@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "Hk+it3NDoeo=",
+  "dgSpecHash": "CW+XVgarSao=",
   "success": true,
   "projectFilePath": "D:\\360MoveData\\Users\\s\\Desktop\\ZW_PipelineTool\\ZW_PipelineTool.csproj",
   "expectedPackageFiles": [
@@ -19,7 +19,9 @@
     "C:\\Users\\s\\.nuget\\packages\\avalonia.themes.simple\\11.3.12\\avalonia.themes.simple.11.3.12.nupkg.sha512",
     "C:\\Users\\s\\.nuget\\packages\\avalonia.win32\\11.3.12\\avalonia.win32.11.3.12.nupkg.sha512",
     "C:\\Users\\s\\.nuget\\packages\\avalonia.x11\\11.3.12\\avalonia.x11.11.3.12.nupkg.sha512",
+    "C:\\Users\\s\\.nuget\\packages\\costura.fody\\6.0.0\\costura.fody.6.0.0.nupkg.sha512",
     "C:\\Users\\s\\.nuget\\packages\\dialoghost.avalonia\\0.8.1\\dialoghost.avalonia.0.8.1.nupkg.sha512",
+    "C:\\Users\\s\\.nuget\\packages\\fody\\6.8.2\\fody.6.8.2.nupkg.sha512",
     "C:\\Users\\s\\.nuget\\packages\\harfbuzzsharp\\8.3.1.1\\harfbuzzsharp.8.3.1.1.nupkg.sha512",
     "C:\\Users\\s\\.nuget\\packages\\harfbuzzsharp.nativeassets.linux\\8.3.1.1\\harfbuzzsharp.nativeassets.linux.8.3.1.1.nupkg.sha512",
     "C:\\Users\\s\\.nuget\\packages\\harfbuzzsharp.nativeassets.macos\\8.3.1.1\\harfbuzzsharp.nativeassets.macos.8.3.1.1.nupkg.sha512",

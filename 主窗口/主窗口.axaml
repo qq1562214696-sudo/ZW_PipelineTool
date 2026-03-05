@@ -14,17 +14,24 @@
                 Unchecked="ToggleTopmost_Unchecked" 
                 IsChecked="True"/>
 
-      <!-- MaxScript 按钮区域 -->
-      <TextBlock Text="QF 工具" FontSize="14" FontWeight="Bold" Margin="0,5,0,0"/>
-      <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto" Margin="0,5,0,10">
-        <Button Grid.Row="0" Grid.Column="0" Content="规范模型" Click="OnScriptButton_Click" Margin="2"/>
-        <Button Grid.Row="0" Grid.Column="1" Content="导出FBX(当前)" Click="OnScriptButton_Click" Margin="2"/>
-        <Button Grid.Row="0" Grid.Column="2" Content="导出（贴图+FBX）" Click="OnScriptButton_Click" Margin="2"/>
-        <Button Grid.Row="1" Grid.Column="0" Content="选择多边面" Click="OnScriptButton_Click" Margin="2"/>
-        <Button Grid.Row="1" Grid.Column="1" Content="选择法线翻转的面" Click="OnScriptButton_Click" Margin="2"/>
-        <Button Grid.Row="1" Grid.Column="2" Content="面数检查" Click="OnScriptButton_Click" Margin="2"/>
-        <Button Grid.Row="2" Grid.Column="0" Content="Mesh01_重命名" Click="OnScriptButton_Click" Margin="2"/>
-      </Grid>
+  <!-- MaxScript 按钮区域 -->
+  <TextBlock Text="QF 工具" FontSize="14" FontWeight="Bold" Margin="0,5,0,0"/>
+  <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto" Margin="0,5,0,10">
+    <Button Grid.Row="0" Grid.Column="0" Content="规范模型" 
+            Tag="规范模型.ms" Click="OnScriptButton_Click" Margin="2"/>
+    <Button Grid.Row="0" Grid.Column="1" Content="导出FBX(当前)" 
+            Tag="导出FBX(当前).ms" Click="OnScriptButton_Click" Margin="2"/>
+    <Button Grid.Row="0" Grid.Column="2" Content="导出（贴图+FBX）" 
+            Tag="导出（贴图+FBX）.ms" Click="OnScriptButton_Click" Margin="2"/>
+    <Button Grid.Row="1" Grid.Column="0" Content="选择多边面" 
+            Tag="选择多边面.ms" Click="OnScriptButton_Click" Margin="2"/>
+    <Button Grid.Row="1" Grid.Column="1" Content="选择法线翻转的面" 
+            Tag="选择法线翻转的面.ms" Click="OnScriptButton_Click" Margin="2"/>
+    <Button Grid.Row="1" Grid.Column="2" Content="面数检查" 
+            Tag="面数检查.ms" Click="OnScriptButton_Click" Margin="2"/>
+    <Button Grid.Row="2" Grid.Column="0" Content="Mesh01_重命名" 
+            Tag="Mesh01_重命名.ms" Click="OnScriptButton_Click" Margin="2"/>
+  </Grid>
 
       <!-- 日志区域：加 ScrollViewer + 固定高度，内容超长自动滚动 -->
       <Expander Header="日志（可复制）" IsExpanded="True" Margin="0,10,0,0">
