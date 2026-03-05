@@ -15,7 +15,7 @@
                 IsChecked="True"/>
 
       <!-- MaxScript 按钮区域 -->
-      <TextBlock Text="MaxScript 工具" FontSize="14" FontWeight="Bold" Margin="0,5,0,0"/>
+      <TextBlock Text="QF 工具" FontSize="14" FontWeight="Bold" Margin="0,5,0,0"/>
       <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto" Margin="0,5,0,10">
         <Button Grid.Row="0" Grid.Column="0" Content="规范模型" Click="OnScriptButton_Click" Margin="2"/>
         <Button Grid.Row="0" Grid.Column="1" Content="导出FBX(当前)" Click="OnScriptButton_Click" Margin="2"/>

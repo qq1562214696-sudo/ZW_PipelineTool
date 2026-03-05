@@ -1,5 +1,5 @@
 -- 面数检查.ms（完整版，包含所有依赖）
-
+(
 -- 预设的面数限制表：根据文件名前缀确定限制
 local limitTable = #(
 	#("Head",              1000),
@@ -159,3 +159,4 @@ if prefixNum == 0 then
 
 -- 显示结果
 messageBox finalMsg title:"面数检查完成" beep:isOverLimit
+)

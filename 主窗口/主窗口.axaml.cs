@@ -10,7 +10,6 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using System.Text.Json;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Avalonia.Platform.Storage;
 using Avalonia.Controls.Primitives;
 
@@ -36,16 +35,16 @@ public partial class MainWindow : Window
         InitializeComponent();
         LoadWindowSettings();
 
-        // 启用窗口拖放 + 注册事件（关键！必须 AddHandler）
+        // 启用拖放支持
         DragDrop.SetAllowDrop(this, true);
         this.AddHandler(DragDrop.DragEnterEvent, Window_DragEnter);
         this.AddHandler(DragDrop.DragOverEvent, Window_DragOver);
         this.AddHandler(DragDrop.DropEvent, Window_Drop);
 
-        // 窗口打开后应用位置
+        // 窗口打开后定位
         Opened += (s, e) =>
         {
-            ApplyWindowSettings();  // 先应用保存的位置
+            ApplyWindowSettings();
 
             if (_窗口数据.x坐标 <= 0 && _窗口数据.y坐标 <= 0)
             {
@@ -58,6 +57,7 @@ public partial class MainWindow : Window
         };
 
         Closing += (s, e) => SaveWindowSettings();
+
         _logBox = this.FindControl<TextBox>("LogBox");
     }
 
@@ -66,7 +66,8 @@ public partial class MainWindow : Window
     private void ToggleTopmost_Checked(object? sender, RoutedEventArgs e) => Topmost = true;
     private void ToggleTopmost_Unchecked(object? sender, RoutedEventArgs e) => Topmost = false;
 
-    // 拖放事件
+    // ── 拖放相关 ────────────────────────────────────────────────
+
     private void Window_DragEnter(object? sender, DragEventArgs e)
     {
         e.DragEffects = DragDropEffects.Copy;
@@ -122,11 +123,13 @@ public partial class MainWindow : Window
             Log("无效的文件夹路径");
             return;
         }
+
         Log($"开始规范整理：{folderPath}");
-        await QF_ProcessFolderNorm(folderPath);  // 调用你的 QF 处理逻辑
+        await QF_ProcessFolderNorm(folderPath);  // ← 你的自定义处理逻辑
     }
 
-    // 窗口位置保存/加载
+    // ── 窗口位置与状态保存/加载 ─────────────────────────────────
+
     private void SaveWindowSettings()
     {
         try
@@ -238,7 +241,8 @@ public partial class MainWindow : Window
         WindowStartupLocation = WindowStartupLocation.Manual;
     }
 
-    // MaxScript 按钮点击事件（保持你的原逻辑）
+    // ── MaxScript 按钮执行 ────────────────────────────────────────
+
     private void OnScriptButton_Click(object? sender, RoutedEventArgs e)
     {
         if (sender is not Button button || button.Content is not string scriptName || string.IsNullOrWhiteSpace(scriptName))
@@ -272,7 +276,7 @@ public partial class MainWindow : Window
         Log($"未找到脚本：{scriptName} (.ms 或 .mcr)");
     }
 
-    // P/Invoke 发送脚本到 3ds Max（保持原样）
+    // P/Invoke 相关定义
     [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
     private static extern IntPtr FindWindow(string? lpClassName, string? lpWindowName);
 
@@ -283,6 +287,7 @@ public partial class MainWindow : Window
     private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
 
     [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
     private static extern bool SetForegroundWindow(IntPtr hWnd);
 
     [StructLayout(LayoutKind.Sequential)]
@@ -291,86 +296,106 @@ public partial class MainWindow : Window
     [StructLayout(LayoutKind.Sequential)]
     private struct POINT { public int X, Y; }
 
+    // 修正：Windows BOOL 为 4 字节，使用 int 代替 bool
     [StructLayout(LayoutKind.Sequential)]
     private struct DROPFILES
     {
         public uint pFiles;
         public POINT pt;
-        public bool fNC;
-        public bool fWide;
+        public int fNC;   // BOOL -> int (0 false, non-zero true)
+        public int fWide; // BOOL -> int (0 false, non-zero true)
     }
 
     private const uint WM_DROPFILES = 0x0233;
 
+    /// <summary>
+    /// 通过模拟拖放 .ms/.mcr 文件到 3ds Max 窗口来执行脚本
+    /// </summary>
     private void SendMsTo3dsMax(string scriptPath)
     {
         if (!File.Exists(scriptPath))
         {
-            Log("文件不存在（异常情况）");
+            Log("脚本文件不存在（异常情况）");
             return;
         }
 
+        // 尝试多种可能的窗口类名/标题
         IntPtr hMax = FindWindow("3DSMAX", null);
+        if (hMax == IntPtr.Zero) hMax = FindWindow("3dsmax", null);
         if (hMax == IntPtr.Zero) hMax = FindWindow(null, "3ds Max");
+        if (hMax == IntPtr.Zero) hMax = FindWindow(null, "Autodesk 3ds Max");
         if (hMax == IntPtr.Zero)
         {
-            Log("未找到 3ds Max 窗口");
+            Log("未找到 3ds Max 主窗口");
             return;
         }
 
-        Log("找到 3ds Max 窗口，尝试发送");
-
-        SetForegroundWindow(hMax);
-
-        if (!GetWindowRect(hMax, out RECT rect))
-        {
-            Log("无法获取窗口位置");
-            return;
-        }
-
-        int centerX = rect.Left + (rect.Right - rect.Left) / 2;
-        int centerY = rect.Top + (rect.Bottom - rect.Top) / 2;
-
-        string pathWithDoubleNull = scriptPath + "\0\0";
-        byte[] pathBytes = Encoding.Unicode.GetBytes(pathWithDoubleNull);
-
-        int dfSize = Marshal.SizeOf<DROPFILES>();
-        int totalSize = dfSize + pathBytes.Length;
-
-        IntPtr hGlobal = Marshal.AllocHGlobal(totalSize);
-        if (hGlobal == IntPtr.Zero)
-        {
-            Log("内存分配失败");
-            return;
-        }
+        Log("找到 3ds Max 窗口，正在尝试发送脚本...");
 
         try
         {
-            var df = new DROPFILES
+            // 尝试把 3ds Max 窗口置前（部分情况下可能失败，但不致命）
+            SetForegroundWindow(hMax);
+
+            if (!GetWindowRect(hMax, out RECT rect))
             {
-                pFiles = (uint)dfSize,
-                pt = new POINT { X = centerX, Y = centerY },
-                fNC = false,
-                fWide = true
-            };
+                Log("无法获取 3ds Max 窗口矩形区域");
+                return;
+            }
 
-            Marshal.StructureToPtr(df, hGlobal, false);
-            Marshal.Copy(pathBytes, 0, hGlobal + dfSize, pathBytes.Length);
+            int centerX = rect.Left + (rect.Right - rect.Left) / 2;
+            int centerY = rect.Top + (rect.Bottom - rect.Top) / 2;
 
-            bool posted = PostMessage(hMax, WM_DROPFILES, hGlobal, IntPtr.Zero);
-            Log(posted ? "已发送 WM_DROPFILES 消息" : "PostMessage 返回 false");
+            // 构造拖放数据（路径以宽字符 + 双空终止）
+            string pathWithDoubleNull = scriptPath + "\0\0";
+            byte[] pathBytes = Encoding.Unicode.GetBytes(pathWithDoubleNull);
+
+            int dfSize = Marshal.SizeOf<DROPFILES>();
+            int totalSize = dfSize + pathBytes.Length;
+
+            IntPtr hGlobal = Marshal.AllocHGlobal(totalSize);
+            if (hGlobal == IntPtr.Zero)
+            {
+                Log("全局内存分配失败");
+                return;
+            }
+
+            try
+            {
+                var df = new DROPFILES
+                {
+                    pFiles = (uint)dfSize,
+                    pt = new POINT { X = centerX, Y = centerY },
+                    fNC = 0,      // 不是非客户区
+                    fWide = 1     // 使用 Unicode
+                };
+
+                Marshal.StructureToPtr(df, hGlobal, false);
+                Marshal.Copy(pathBytes, 0, hGlobal + dfSize, pathBytes.Length);
+
+                bool posted = PostMessage(hMax, WM_DROPFILES, hGlobal, IntPtr.Zero);
+
+                Log(posted
+                    ? "已成功发送 WM_DROPFILES 消息 → 3ds Max 应开始执行脚本"
+                    : "PostMessage 返回 false（可能 3ds Max 未响应）");
+
+                // 注意：此处不释放 hGlobal，由 3ds Max 接收后自行释放
+                // 仅当发送失败时才需要手动释放（已在异常处理中）
+            }
+            catch (Exception ex)
+            {
+                Log($"发送脚本时发生异常：{ex.Message}");
+                Marshal.FreeHGlobal(hGlobal); // 发生异常时释放内存
+            }
         }
         catch (Exception ex)
         {
-            Log($"发送过程中异常：{ex.Message}");
-        }
-        finally
-        {
-            Marshal.FreeHGlobal(hGlobal);
+            Log($"与 3ds Max 交互时发生异常：{ex.Message}");
         }
     }
 
-    // 日志方法（已兼容滚动）
+    // ── 日志输出（线程安全） ─────────────────────────────────────
+
     protected virtual void Log(string message)
     {
         if (_logBox == null) return;
@@ -380,10 +405,15 @@ public partial class MainWindow : Window
 
         Dispatcher.UIThread.InvokeAsync(() =>
         {
-            _logBox.Text += line;
-            _logBox.CaretIndex = _logBox.Text.Length;
-            // 由于加了 ScrollViewer，自动滚动到底部
-            
+            try
+            {
+                if (_logBox != null && _logBox.IsVisible) // 确保控件仍有效
+                {
+                    _logBox.Text += line;
+                    _logBox.CaretIndex = _logBox.Text.Length;
+                }
+            }
+            catch { /* 忽略控件已释放的异常 */ }
         });
     }
 }

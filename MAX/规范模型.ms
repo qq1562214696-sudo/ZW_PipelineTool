@@ -1,4 +1,7 @@
 -- 规范模型.ms（完整版，包含所有依赖）
+(
+	local thisDir = getFilenamePath (getThisScriptFilename())
+fileIn (thisDir + "\\QF_Tools_Lib.ms")
 
 -- 全局变量和函数（从原脚本复制，确保独立运行）
 fn setupBackgroundPlane =
@@ -269,4 +272,5 @@ undo on
 			)
 		)
 	)
+)
 )

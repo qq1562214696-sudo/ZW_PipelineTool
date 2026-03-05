@@ -90,3 +90,4 @@ D:\360MoveData\Users\s\Desktop\ZW_PipelineTool\obj\Debug\net10.0-windows\refint\
 D:\360MoveData\Users\s\Desktop\ZW_PipelineTool\obj\Debug\net10.0-windows\ZW_PipelineTool.pdb
 d:\360MoveData\Users\s\Desktop\ZW_PipelineTool\obj\Debug\net10.0-windows\ZW_PipelineTool.genruntimeconfig.cache
 d:\360MoveData\Users\s\Desktop\ZW_PipelineTool\obj\Debug\net10.0-windows\ref\ZW_PipelineTool.dll
+d:\360MoveData\Users\s\Desktop\ZW_PipelineTool\bin\Debug\net10.0-windows\MAX\QF_Tools_Lib.ms

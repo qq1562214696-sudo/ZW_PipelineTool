@@ -1,5 +1,5 @@
 -- 选择多边面.ms（完整版，无额外依赖）
-
+(
 -- 主逻辑（原 selMultiEdgeFace）
 if selection.count != 1 do
 (
@@ -33,3 +33,4 @@ polyOp.setFaceSelection obj n_face
 update obj
 
 if n_face.count == 0 do messageBox "没有五边及以上面" title:"结果"
+)

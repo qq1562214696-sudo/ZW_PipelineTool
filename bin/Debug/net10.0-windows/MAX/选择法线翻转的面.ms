@@ -1,5 +1,5 @@
 -- 选择法线翻转的面.ms（完整版，无额外依赖）
-
+(
 -- 主逻辑（原 selFilpNormalFace）
 if (selection.count == 0 or selection.count > 1) do
 (
@@ -36,4 +36,5 @@ if (iskindof obj PolyMeshObject or iskindof obj Editable_Poly) then
 else
 (
 	messagebox "请选择Editable Poly类型的模型"
+)
 )

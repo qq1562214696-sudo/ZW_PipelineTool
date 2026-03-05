@@ -1,4 +1,14 @@
 -- 导出（贴图+FBX）.ms（完整版，包含所有依赖）
+(
+local thisDir = getFilenamePath (getThisScriptFilename())
+fileIn (thisDir + "\\QF_Tools_Lib.ms")
+
+local assetsFolder = loadAssetsPath()
+if assetsFolder == "" or (doesFileExist assetsFolder) == false do
+(
+	messageBox "请先在 QF工具精简版 中【浏览】设置 Unity Assets 目录！" title:"路径错误"
+	return()
+)
 
 -- 全局变量和函数
 prefixArray = #("H","L","HHair","HFace","HTop","HBottom","HShoe","LHair","LFace","LTop","LBottom","LShoe","HPet","LPet",\
@@ -321,7 +331,7 @@ fn getExportFolder prefix playerID genderFolder isPetNum assetsBase =
 )
 
 -- 主逻辑（原 exportAllBtn）
-if (doesFileExist assetsPath.text) == false do
+if (doesFileExist assetsFolder) == false do
 (
 	Messagebox "请在地址栏指定正确的Unity工程Assets目录"
 	return()
@@ -389,7 +399,7 @@ else
 	
 	if isPetNum != 0 then
 	(
-		local texFolder = getTexFolder prefix playerID genderFolder isPetNum assetsPath.text
+		local texFolder = getTexFolder prefix playerID genderFolder isPetNum assetsFolder
 		
 		if texFolder != "" do
 		(
@@ -442,7 +452,7 @@ else
 	)
 	else
 	(
-		local exportFolder = getExportFolder prefix playerID genderFolder isPetNum assetsPath.text
+		local exportFolder = getExportFolder prefix playerID genderFolder isPetNum assetsFolder
 		
 		if exportFolder == "" do
 		(
@@ -484,4 +494,5 @@ if expLog != "导出结果：\n" then
 else
 (
 	messagebox "导出完成！"
+)
 )
