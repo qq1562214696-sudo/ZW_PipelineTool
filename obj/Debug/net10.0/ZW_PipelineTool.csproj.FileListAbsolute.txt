@@ -83,3 +83,10 @@ D:\360MoveData\Users\s\Desktop\ZW_PipelineTool\bin\Debug\net10.0\Microsoft.Exten
 D:\360MoveData\Users\s\Desktop\ZW_PipelineTool\bin\Debug\net10.0\SocketIOClient.dll
 D:\360MoveData\Users\s\Desktop\ZW_PipelineTool\bin\Debug\net10.0\SocketIOClient.Common.dll
 D:\360MoveData\Users\s\Desktop\ZW_PipelineTool\bin\Debug\net10.0\SocketIOClient.Serializer.dll
+d:\360MoveData\Users\s\Desktop\ZW_PipelineTool\bin\Debug\net10.0\MAX\Mesh01_重命名.ms
+d:\360MoveData\Users\s\Desktop\ZW_PipelineTool\bin\Debug\net10.0\MAX\导出FBX(当前).ms
+d:\360MoveData\Users\s\Desktop\ZW_PipelineTool\bin\Debug\net10.0\MAX\导出（贴图+FBX）.ms
+d:\360MoveData\Users\s\Desktop\ZW_PipelineTool\bin\Debug\net10.0\MAX\规范模型.ms
+d:\360MoveData\Users\s\Desktop\ZW_PipelineTool\bin\Debug\net10.0\MAX\选择多边面.ms
+d:\360MoveData\Users\s\Desktop\ZW_PipelineTool\bin\Debug\net10.0\MAX\选择法线翻转的面.ms
+d:\360MoveData\Users\s\Desktop\ZW_PipelineTool\bin\Debug\net10.0\MAX\面数检查.ms
