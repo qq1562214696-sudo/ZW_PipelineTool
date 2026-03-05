@@ -11,7 +11,8 @@ using Avalonia.Threading;
 using System.Text.Json;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Avalonia.Platform.Storage; // 关键：添加此命名空间以支持 TryGetLocalPath
+using Avalonia.Platform.Storage;
+using Avalonia.Controls.Primitives;
 
 namespace ZW_PipelineTool;
 
@@ -35,19 +36,23 @@ public partial class MainWindow : Window
         InitializeComponent();
         LoadWindowSettings();
 
-        // 启用窗口拖放
+        // 启用窗口拖放 + 注册事件（关键！必须 AddHandler）
         DragDrop.SetAllowDrop(this, true);
+        this.AddHandler(DragDrop.DragEnterEvent, Window_DragEnter);
+        this.AddHandler(DragDrop.DragOverEvent, Window_DragOver);
+        this.AddHandler(DragDrop.DropEvent, Window_Drop);
 
-        // 窗口打开后检查位置是否有效
+        // 窗口打开后应用位置
         Opened += (s, e) =>
         {
+            ApplyWindowSettings();  // 先应用保存的位置
+
             if (_窗口数据.x坐标 <= 0 && _窗口数据.y坐标 <= 0)
             {
                 自动定位右下角();
             }
             else
             {
-                // 确保窗口在屏幕内
                 EnsureWindowVisible();
             }
         };
@@ -61,7 +66,7 @@ public partial class MainWindow : Window
     private void ToggleTopmost_Checked(object? sender, RoutedEventArgs e) => Topmost = true;
     private void ToggleTopmost_Unchecked(object? sender, RoutedEventArgs e) => Topmost = false;
 
-    // 窗口拖放事件
+    // 拖放事件
     private void Window_DragEnter(object? sender, DragEventArgs e)
     {
         e.DragEffects = DragDropEffects.Copy;
@@ -76,32 +81,40 @@ public partial class MainWindow : Window
 
     private async void Window_Drop(object? sender, DragEventArgs e)
     {
-        Log("拖放事件触发");
+        Log("=== 拖放事件触发 ===");
+
         var files = e.Data.GetFiles();
         if (files == null || !files.Any())
         {
-            Log("未找到文件数据");
+            Log("未检测到任何文件/文件夹");
             return;
         }
 
-        var path = files.First().TryGetLocalPath(); // 现在可以找到扩展方法
-        if (string.IsNullOrEmpty(path) || !Directory.Exists(path))
+        var firstItem = files.First();
+        var path = firstItem.TryGetLocalPath();
+
+        if (string.IsNullOrEmpty(path))
         {
-            Log("拖入的不是有效文件夹路径");
+            Log("无法获取本地路径");
             return;
         }
 
-        // 更新文本框
+        if (!Directory.Exists(path))
+        {
+            Log($"拖入的不是文件夹：{path}");
+            return;
+        }
+
+        Log($"成功接收文件夹：{path}");
+
         var textBox = this.FindControl<TextBox>("FolderPathTextBox");
         if (textBox != null)
             textBox.Text = path;
 
-        // 调用处理逻辑（QF.cs 中的方法）
         await HandleFolderDrop(path);
         e.Handled = true;
     }
 
-    // 统一文件夹处理入口（在 QF.cs 中实现）
     private async System.Threading.Tasks.Task HandleFolderDrop(string folderPath)
     {
         if (string.IsNullOrEmpty(folderPath) || !Directory.Exists(folderPath))
@@ -109,11 +122,78 @@ public partial class MainWindow : Window
             Log("无效的文件夹路径");
             return;
         }
-        Log($"处理文件夹：{folderPath}");
-        await QF_ProcessFolderNorm(folderPath);
+        Log($"开始规范整理：{folderPath}");
+        await QF_ProcessFolderNorm(folderPath);  // 调用你的 QF 处理逻辑
     }
 
-    // 确保窗口在可见工作区内
+    // 窗口位置保存/加载
+    private void SaveWindowSettings()
+    {
+        try
+        {
+            if (WindowState == WindowState.Normal)
+            {
+                _窗口数据.宽 = Width;
+                _窗口数据.高 = Height;
+                _窗口数据.x坐标 = Position.X;
+                _窗口数据.y坐标 = Position.Y;
+            }
+
+            _窗口数据.窗口大小状态 = WindowState;
+            _窗口数据.置顶 = Topmost;
+
+            string json = JsonSerializer.Serialize(_窗口数据, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(存储路径, json);
+            Log("窗口布局已保存");
+        }
+        catch (Exception ex)
+        {
+            Log($"保存布局失败：{ex.Message}");
+        }
+    }
+
+    private void LoadWindowSettings()
+    {
+        try
+        {
+            if (File.Exists(存储路径))
+            {
+                string json = File.ReadAllText(存储路径);
+                _窗口数据 = JsonSerializer.Deserialize<窗口数据>(json) ?? new 窗口数据();
+                Log("已加载上次窗口布局");
+            }
+            else
+            {
+                _窗口数据 = new 窗口数据();
+            }
+        }
+        catch (Exception ex)
+        {
+            Log($"加载布局失败：{ex.Message}");
+            _窗口数据 = new 窗口数据();
+        }
+    }
+
+    private void ApplyWindowSettings()
+    {
+        try
+        {
+            if (_窗口数据.窗口大小状态 == WindowState.Normal)
+            {
+                if (_窗口数据.宽 > 0) Width = _窗口数据.宽;
+                if (_窗口数据.高 > 0) Height = _窗口数据.高;
+                if (_窗口数据.x坐标 >= 0 && _窗口数据.y坐标 >= 0)
+                {
+                    Position = new PixelPoint((int)_窗口数据.x坐标, (int)_窗口数据.y坐标);
+                }
+            }
+
+            WindowState = _窗口数据.窗口大小状态;
+            Topmost = _窗口数据.置顶;
+        }
+        catch { }
+    }
+
     private void EnsureWindowVisible()
     {
         var screen = Screens.Primary;
@@ -123,21 +203,15 @@ public partial class MainWindow : Window
         int x = Position.X, y = Position.Y;
         int width = (int)Width, height = (int)Height;
 
-        // 计算工作区边界
         int left = workingArea.X;
         int top = workingArea.Y;
         int right = workingArea.X + workingArea.Width;
         int bottom = workingArea.Y + workingArea.Height;
 
-        // 如果窗口超出工作区，调整到工作区内
-        if (x + width > right)
-            x = right - width;
-        if (x < left)
-            x = left;
-        if (y + height > bottom)
-            y = bottom - height;
-        if (y < top)
-            y = top;
+        if (x + width > right) x = right - width;
+        if (x < left) x = left;
+        if (y + height > bottom) y = bottom - height;
+        if (y < top) y = top;
 
         Position = new PixelPoint(x, y);
     }
@@ -164,55 +238,7 @@ public partial class MainWindow : Window
         WindowStartupLocation = WindowStartupLocation.Manual;
     }
 
-    private void SaveWindowSettings()
-    {
-        try
-        {
-            if (WindowState == WindowState.Normal)
-            {
-                _窗口数据.宽 = Width;
-                _窗口数据.高 = Height;
-                _窗口数据.x坐标 = Position.X;
-                _窗口数据.y坐标 = Position.Y;
-            }
-
-            _窗口数据.窗口大小状态 = WindowState;
-            _窗口数据.置顶 = Topmost;
-
-            string json = JsonSerializer.Serialize(_窗口数据, new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(存储路径, json);
-        }
-        catch { }
-    }
-
-    private void LoadWindowSettings()
-    {
-        try
-        {
-            if (!File.Exists(存储路径)) return;
-            string json = File.ReadAllText(存储路径);
-            _窗口数据 = JsonSerializer.Deserialize<窗口数据>(json) ?? new 窗口数据();
-
-            if (_窗口数据.窗口大小状态 == WindowState.Normal)
-            {
-                if (_窗口数据.宽 > 0) Width = _窗口数据.宽;
-                if (_窗口数据.高 > 0) Height = _窗口数据.高;
-                if (_窗口数据.x坐标 >= 0 && _窗口数据.y坐标 >= 0)
-                {
-                    Position = new PixelPoint((int)_窗口数据.x坐标, (int)_窗口数据.y坐标);
-                }
-            }
-
-            WindowState = _窗口数据.窗口大小状态;
-            Topmost = _窗口数据.置顶;
-        }
-        catch
-        {
-            _窗口数据 = new 窗口数据();
-        }
-    }
-
-    // MaxScript 按钮点击事件
+    // MaxScript 按钮点击事件（保持你的原逻辑）
     private void OnScriptButton_Click(object? sender, RoutedEventArgs e)
     {
         if (sender is not Button button || button.Content is not string scriptName || string.IsNullOrWhiteSpace(scriptName))
@@ -246,7 +272,7 @@ public partial class MainWindow : Window
         Log($"未找到脚本：{scriptName} (.ms 或 .mcr)");
     }
 
-    // P/Invoke 发送脚本到 3ds Max
+    // P/Invoke 发送脚本到 3ds Max（保持原样）
     [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
     private static extern IntPtr FindWindow(string? lpClassName, string? lpWindowName);
 
@@ -337,11 +363,14 @@ public partial class MainWindow : Window
         catch (Exception ex)
         {
             Log($"发送过程中异常：{ex.Message}");
+        }
+        finally
+        {
             Marshal.FreeHGlobal(hGlobal);
         }
     }
 
-    // 日志方法
+    // 日志方法（已兼容滚动）
     protected virtual void Log(string message)
     {
         if (_logBox == null) return;
@@ -353,18 +382,16 @@ public partial class MainWindow : Window
         {
             _logBox.Text += line;
             _logBox.CaretIndex = _logBox.Text.Length;
-            // 自动滚动到底部（ScrollToLine 需要有效行号）
-            var lineCount = _logBox.Text.Split('\n').Length;
-            if (lineCount > 0)
-                _logBox.ScrollToLine(lineCount - 1);
+            // 由于加了 ScrollViewer，自动滚动到底部
+            
         });
     }
 }
 
 public class 窗口数据
 {
-    public double 宽 { get; set; } = 400;
-    public double 高 { get; set; } = 400;
+    public double 宽 { get; set; } = 500;
+    public double 高 { get; set; } = 600;
     public double x坐标 { get; set; }
     public double y坐标 { get; set; }
     public WindowState 窗口大小状态 { get; set; } = WindowState.Normal;

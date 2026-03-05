@@ -6,47 +6,39 @@
         WindowStartupLocation="CenterScreen"
         Topmost="True">
 
-  <StackPanel Margin="20" Spacing="12">
-    <CheckBox Content="窗口置顶" 
-              Checked="ToggleTopmost_Checked" 
-              Unchecked="ToggleTopmost_Unchecked" 
-              IsChecked="True"/>
+  <!-- 最外层 ScrollViewer：整个窗口内容可上下滚动 -->
+  <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+    <StackPanel Margin="20" Spacing="12">
+      <CheckBox Content="窗口置顶" 
+                Checked="ToggleTopmost_Checked" 
+                Unchecked="ToggleTopmost_Unchecked" 
+                IsChecked="True"/>
 
-    <!-- MaxScript 按钮区域：3列网格布局 -->
-    <TextBlock Text="MaxScript 工具" FontSize="14" FontWeight="Bold" Margin="0,5,0,0"/>
-    <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto" Margin="0,5,0,10">
-      <!-- 第1行 -->
-      <Button Grid.Row="0" Grid.Column="0" Content="规范模型" Click="OnScriptButton_Click" Margin="2"/>
-      <Button Grid.Row="0" Grid.Column="1" Content="导出FBX(当前)" Click="OnScriptButton_Click" Margin="2"/>
-      <Button Grid.Row="0" Grid.Column="2" Content="导出（贴图+FBX）" Click="OnScriptButton_Click" Margin="2"/>
-      <!-- 第2行 -->
-      <Button Grid.Row="1" Grid.Column="0" Content="选择多边面" Click="OnScriptButton_Click" Margin="2"/>
-      <Button Grid.Row="1" Grid.Column="1" Content="选择法线翻转的面" Click="OnScriptButton_Click" Margin="2"/>
-      <Button Grid.Row="1" Grid.Column="2" Content="面数检查" Click="OnScriptButton_Click" Margin="2"/>
-      <!-- 第3行 -->
-      <Button Grid.Row="2" Grid.Column="0" Content="Mesh01_重命名" Click="OnScriptButton_Click" Margin="2"/>
-    </Grid>
+      <!-- MaxScript 按钮区域 -->
+      <TextBlock Text="MaxScript 工具" FontSize="14" FontWeight="Bold" Margin="0,5,0,0"/>
+      <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto" Margin="0,5,0,10">
+        <Button Grid.Row="0" Grid.Column="0" Content="规范模型" Click="OnScriptButton_Click" Margin="2"/>
+        <Button Grid.Row="0" Grid.Column="1" Content="导出FBX(当前)" Click="OnScriptButton_Click" Margin="2"/>
+        <Button Grid.Row="0" Grid.Column="2" Content="导出（贴图+FBX）" Click="OnScriptButton_Click" Margin="2"/>
+        <Button Grid.Row="1" Grid.Column="0" Content="选择多边面" Click="OnScriptButton_Click" Margin="2"/>
+        <Button Grid.Row="1" Grid.Column="1" Content="选择法线翻转的面" Click="OnScriptButton_Click" Margin="2"/>
+        <Button Grid.Row="1" Grid.Column="2" Content="面数检查" Click="OnScriptButton_Click" Margin="2"/>
+        <Button Grid.Row="2" Grid.Column="0" Content="Mesh01_重命名" Click="OnScriptButton_Click" Margin="2"/>
+      </Grid>
 
-    <!-- QF 工具区域（边框 + 文本框） -->
-    <Border BorderBrush="#ccc" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,10,0,0">
-      <StackPanel Spacing="6">
-        <TextBlock Text="QF工具 - 文件夹规范整理" FontSize="13" FontWeight="SemiBold"/>
-        <TextBox x:Name="FolderPathTextBox" 
-                 Watermark="拖入文件夹或手动输入路径"
-                 IsReadOnly="True"/>
-        <Button Content="浏览文件夹" Click="QF_BrowseFolder_Click" HorizontalAlignment="Left" Padding="12,6"/>
-      </StackPanel>
-    </Border>
-
-    <!-- 日志区域：添加垂直滚动条 -->
-    <Expander Header="日志（可复制）" IsExpanded="True" Margin="0,10,0,0">
-      <TextBox x:Name="LogBox" 
-               Height="200" 
-               AcceptsReturn="True" 
-               IsReadOnly="True" 
-               TextWrapping="Wrap" 
-               FontFamily="Consolas, Courier New, monospace"
-               Padding="8"/>
-    </Expander>
-  </StackPanel>
+      <!-- 日志区域：加 ScrollViewer + 固定高度，内容超长自动滚动 -->
+      <Expander Header="日志（可复制）" IsExpanded="True" Margin="0,10,0,0">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                      HorizontalScrollBarVisibility="Disabled" 
+                      Height="200">
+          <TextBox x:Name="LogBox" 
+                   AcceptsReturn="True" 
+                   IsReadOnly="True" 
+                   TextWrapping="Wrap" 
+                   FontFamily="Consolas, Courier New, monospace"
+                   Padding="8"/>
+        </ScrollViewer>
+      </Expander>
+    </StackPanel>
+  </ScrollViewer>
 </Window>
