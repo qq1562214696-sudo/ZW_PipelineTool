@@ -1,17 +1,14 @@
 using System;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Text;
+using System.Text.Json;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
-using Avalonia.Threading;
-using System.Text.Json;
-using System.Linq;
 using Avalonia.Platform.Storage;
-using Avalonia.Controls.Primitives;
+using Avalonia.Threading;
+using System.Linq;
 
 namespace ZW_PipelineTool;
 
@@ -21,7 +18,7 @@ public partial class MainWindow : Window
     private static readonly string 存储路径;
 
     private 窗口数据 _窗口数据 = new 窗口数据();
-    private TextBox? _logBox;
+    protected TextBox? _logBox;
 
     static MainWindow()
     {
@@ -35,13 +32,12 @@ public partial class MainWindow : Window
         InitializeComponent();
         LoadWindowSettings();
 
-        // 启用拖放支持
+        // 启用拖放支持（具体处理逻辑放到子类或Main.cs）
         DragDrop.SetAllowDrop(this, true);
         this.AddHandler(DragDrop.DragEnterEvent, Window_DragEnter);
         this.AddHandler(DragDrop.DragOverEvent, Window_DragOver);
         this.AddHandler(DragDrop.DropEvent, Window_Drop);
 
-        // 窗口打开后定位
         Opened += (s, e) =>
         {
             ApplyWindowSettings();
@@ -66,8 +62,7 @@ public partial class MainWindow : Window
     private void ToggleTopmost_Checked(object? sender, RoutedEventArgs e) => Topmost = true;
     private void ToggleTopmost_Unchecked(object? sender, RoutedEventArgs e) => Topmost = false;
 
-    // ── 拖放相关 ────────────────────────────────────────────────
-
+    // ── 拖放基础事件 ────────────────────────────────────────────────
     private void Window_DragEnter(object? sender, DragEventArgs e)
     {
         e.DragEffects = DragDropEffects.Copy;
@@ -80,7 +75,8 @@ public partial class MainWindow : Window
         e.Handled = true;
     }
 
-    private async void Window_Drop(object? sender, DragEventArgs e)
+    // ── 拖放具体处理（重写父类方法） ────────────────────────────────
+    protected async void Window_Drop(object? sender, DragEventArgs e)
     {
         Log("=== 拖放事件触发 ===");
 
@@ -112,20 +108,9 @@ public partial class MainWindow : Window
         if (textBox != null)
             textBox.Text = path;
 
-        await HandleFolderDrop(path);
+        await QF_ProcessFolderNorm(path);
+
         e.Handled = true;
-    }
-
-    private async System.Threading.Tasks.Task HandleFolderDrop(string folderPath)
-    {
-        if (string.IsNullOrEmpty(folderPath) || !Directory.Exists(folderPath))
-        {
-            Log("无效的文件夹路径");
-            return;
-        }
-
-        Log($"开始规范整理：{folderPath}");
-        await QF_ProcessFolderNorm(folderPath);  // ← 你的自定义处理逻辑
     }
 
     // ── 窗口位置与状态保存/加载 ─────────────────────────────────
@@ -241,190 +226,7 @@ public partial class MainWindow : Window
         WindowStartupLocation = WindowStartupLocation.Manual;
     }
 
-    // ── MaxScript 按钮执行 ────────────────────────────────────────
-
-    private async void OnScriptButton_Click(object? sender, RoutedEventArgs e)
-    {
-        if (sender is not Button button) return;
-
-        // 从 Tag 获取脚本文件名
-        string? scriptFileName = button.Tag?.ToString()?.Trim();
-
-        if (string.IsNullOrWhiteSpace(scriptFileName))
-        {
-            Log($"按钮缺少 Tag 属性，无法确定脚本：{button.Content}");
-            return;
-        }
-
-        try
-        {
-            // 用 EXE 所在目录作为基准（打包后安全）
-            string exeDir = AppDomain.CurrentDomain.BaseDirectory;
-            string scriptPath = Path.Combine(exeDir, "MAX", scriptFileName);
-
-            if (!File.Exists(scriptPath))
-            {
-                Log($"脚本文件不存在：{scriptPath}");
-                Log("请检查：");
-                Log("1. MAX 文件夹是否在 EXE 同级目录");
-                Log($"2. 是否包含文件：{scriptFileName}");
-                Log("3. 项目 csproj 已设置 <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>");
-                return;
-            }
-
-            Log($"准备发送脚本到 3ds Max：{scriptFileName} ({button.Content})");
-            SendMsTo3dsMax(scriptPath);
-            Log($"脚本已发送：{scriptFileName}（等待 3ds Max 执行）");
-        }
-        catch (Exception ex)
-        {
-            Log($"发送脚本失败：{ex.Message}");
-        }
-    }
-
-    private void RunMaxScript(string scriptName)
-    {
-        string projectRoot = AppContext.BaseDirectory;
-        string maxFolder = Path.Combine(projectRoot, "MAX");
-
-        string msPath = Path.Combine(maxFolder, scriptName + ".ms");
-        if (File.Exists(msPath))
-        {
-            Log($"找到脚本：{scriptName}.ms");
-            SendMsTo3dsMax(msPath);
-            return;
-        }
-
-        string mcrPath = Path.Combine(maxFolder, scriptName + ".mcr");
-        if (File.Exists(mcrPath))
-        {
-            Log($"找到脚本：{scriptName}.mcr");
-            SendMsTo3dsMax(mcrPath);
-            return;
-        }
-
-        Log($"未找到脚本：{scriptName} (.ms 或 .mcr)");
-    }
-
-    // P/Invoke 相关定义
-    [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-    private static extern IntPtr FindWindow(string? lpClassName, string? lpWindowName);
-
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
-
-    [DllImport("user32.dll")]
-    private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
-
-    [DllImport("user32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool SetForegroundWindow(IntPtr hWnd);
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct RECT { public int Left, Top, Right, Bottom; }
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct POINT { public int X, Y; }
-
-    // 修正：Windows BOOL 为 4 字节，使用 int 代替 bool
-    [StructLayout(LayoutKind.Sequential)]
-    private struct DROPFILES
-    {
-        public uint pFiles;
-        public POINT pt;
-        public int fNC;   // BOOL -> int (0 false, non-zero true)
-        public int fWide; // BOOL -> int (0 false, non-zero true)
-    }
-
-    private const uint WM_DROPFILES = 0x0233;
-
-    /// <summary>
-    /// 通过模拟拖放 .ms/.mcr 文件到 3ds Max 窗口来执行脚本
-    /// </summary>
-    private void SendMsTo3dsMax(string scriptPath)
-    {
-        if (!File.Exists(scriptPath))
-        {
-            Log("脚本文件不存在（异常情况）");
-            return;
-        }
-
-        // 尝试多种可能的窗口类名/标题
-        IntPtr hMax = FindWindow("3DSMAX", null);
-        if (hMax == IntPtr.Zero) hMax = FindWindow("3dsmax", null);
-        if (hMax == IntPtr.Zero) hMax = FindWindow(null, "3ds Max");
-        if (hMax == IntPtr.Zero) hMax = FindWindow(null, "Autodesk 3ds Max");
-        if (hMax == IntPtr.Zero)
-        {
-            Log("未找到 3ds Max 主窗口");
-            return;
-        }
-
-        Log("找到 3ds Max 窗口，正在尝试发送脚本...");
-
-        try
-        {
-            // 尝试把 3ds Max 窗口置前（部分情况下可能失败，但不致命）
-            SetForegroundWindow(hMax);
-
-            if (!GetWindowRect(hMax, out RECT rect))
-            {
-                Log("无法获取 3ds Max 窗口矩形区域");
-                return;
-            }
-
-            int centerX = rect.Left + (rect.Right - rect.Left) / 2;
-            int centerY = rect.Top + (rect.Bottom - rect.Top) / 2;
-
-            // 构造拖放数据（路径以宽字符 + 双空终止）
-            string pathWithDoubleNull = scriptPath + "\0\0";
-            byte[] pathBytes = Encoding.Unicode.GetBytes(pathWithDoubleNull);
-
-            int dfSize = Marshal.SizeOf<DROPFILES>();
-            int totalSize = dfSize + pathBytes.Length;
-
-            IntPtr hGlobal = Marshal.AllocHGlobal(totalSize);
-            if (hGlobal == IntPtr.Zero)
-            {
-                Log("全局内存分配失败");
-                return;
-            }
-
-            try
-            {
-                var df = new DROPFILES
-                {
-                    pFiles = (uint)dfSize,
-                    pt = new POINT { X = centerX, Y = centerY },
-                    fNC = 0,      // 不是非客户区
-                    fWide = 1     // 使用 Unicode
-                };
-
-                Marshal.StructureToPtr(df, hGlobal, false);
-                Marshal.Copy(pathBytes, 0, hGlobal + dfSize, pathBytes.Length);
-
-                bool posted = PostMessage(hMax, WM_DROPFILES, hGlobal, IntPtr.Zero);
-
-                Log(posted
-                    ? "已成功发送 WM_DROPFILES 消息 → 3ds Max 应开始执行脚本"
-                    : "PostMessage 返回 false（可能 3ds Max 未响应）");
-
-                // 注意：此处不释放 hGlobal，由 3ds Max 接收后自行释放
-                // 仅当发送失败时才需要手动释放（已在异常处理中）
-            }
-            catch (Exception ex)
-            {
-                Log($"发送脚本时发生异常：{ex.Message}");
-                Marshal.FreeHGlobal(hGlobal); // 发生异常时释放内存
-            }
-        }
-        catch (Exception ex)
-        {
-            Log($"与 3ds Max 交互时发生异常：{ex.Message}");
-        }
-    }
-
-    // ── 日志输出（线程安全） ─────────────────────────────────────
+    // ── 日志（线程安全，可被子类调用） ─────────────────────────────────────
 
     protected virtual void Log(string message)
     {
@@ -437,13 +239,13 @@ public partial class MainWindow : Window
         {
             try
             {
-                if (_logBox != null && _logBox.IsVisible) // 确保控件仍有效
+                if (_logBox != null && _logBox.IsVisible)
                 {
                     _logBox.Text += line;
                     _logBox.CaretIndex = _logBox.Text.Length;
                 }
             }
-            catch { /* 忽略控件已释放的异常 */ }
+            catch { }
         });
     }
 }
@@ -456,4 +258,5 @@ public class 窗口数据
     public double y坐标 { get; set; }
     public WindowState 窗口大小状态 { get; set; } = WindowState.Normal;
     public bool 置顶 { get; set; } = true;
+    // public bool 日志展开 { get; set; } = false;
 }

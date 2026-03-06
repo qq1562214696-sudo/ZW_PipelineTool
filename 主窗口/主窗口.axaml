@@ -1,51 +1,193 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="ZW_PipelineTool.MainWindow"
-        Title="ZW 流水线工具"
-        Width="500" Height="600"
+        Title="创宇极-多项目整合代理工具v1.0 编写者:周维 VX:1562214696"
+        Width="480"
+        Height="560"
         WindowStartupLocation="CenterScreen"
-        Topmost="True">
+        Topmost="True"
+        FontSize="12">
 
-  <!-- 最外层 ScrollViewer：整个窗口内容可上下滚动 -->
-  <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-    <StackPanel Margin="20" Spacing="12">
-      <CheckBox Content="窗口置顶" 
-                Checked="ToggleTopmost_Checked" 
-                Unchecked="ToggleTopmost_Unchecked" 
-                IsChecked="True"/>
+    <Window.Styles>
+        <Style Selector="Button">
+            <Setter Property="Height" Value="18"/>
+            <Setter Property="Padding" Value="8,2"/>
+            <Setter Property="Margin" Value="1"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
 
-  <!-- MaxScript 按钮区域 -->
-  <TextBlock Text="QF 工具" FontSize="14" FontWeight="Bold" Margin="0,5,0,0"/>
-  <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto" Margin="0,5,0,10">
-    <Button Grid.Row="0" Grid.Column="0" Content="规范模型" 
-            Tag="规范模型.ms" Click="OnScriptButton_Click" Margin="2"/>
-    <Button Grid.Row="0" Grid.Column="1" Content="导出FBX(当前)" 
-            Tag="导出FBX(当前).ms" Click="OnScriptButton_Click" Margin="2"/>
-    <Button Grid.Row="0" Grid.Column="2" Content="导出（贴图+FBX）" 
-            Tag="导出（贴图+FBX）.ms" Click="OnScriptButton_Click" Margin="2"/>
-    <Button Grid.Row="1" Grid.Column="0" Content="选择多边面" 
-            Tag="选择多边面.ms" Click="OnScriptButton_Click" Margin="2"/>
-    <Button Grid.Row="1" Grid.Column="1" Content="选择法线翻转的面" 
-            Tag="选择法线翻转的面.ms" Click="OnScriptButton_Click" Margin="2"/>
-    <Button Grid.Row="1" Grid.Column="2" Content="面数检查" 
-            Tag="面数检查.ms" Click="OnScriptButton_Click" Margin="2"/>
-    <Button Grid.Row="2" Grid.Column="0" Content="Mesh01_重命名" 
-            Tag="Mesh01_重命名.ms" Click="OnScriptButton_Click" Margin="2"/>
-  </Grid>
+        <Style Selector="Expander">
+            <Setter Property="Margin" Value="0,2,0,4"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="MinHeight" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
 
-      <!-- 日志区域：加 ScrollViewer + 固定高度，内容超长自动滚动 -->
-      <Expander Header="日志（可复制）" IsExpanded="True" Margin="0,10,0,0">
-        <ScrollViewer VerticalScrollBarVisibility="Auto" 
-                      HorizontalScrollBarVisibility="Disabled" 
-                      Height="200">
-          <TextBox x:Name="LogBox" 
-                   AcceptsReturn="True" 
-                   IsReadOnly="True" 
-                   TextWrapping="Wrap" 
-                   FontFamily="Consolas, Courier New, monospace"
-                   Padding="8"/>
-        </ScrollViewer>
-      </Expander>
-    </StackPanel>
-  </ScrollViewer>
+        <Style Selector="Expander /template/ ToggleButton#PART_Header">
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+
+        <Style Selector="Expander /template/ ContentPresenter#PART_HeaderPresenter">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style Selector="Expander /template/ ContentPresenter#PART_HeaderPresenter TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style Selector="Expander[ExpandDirection=Down] /template/ Path">
+            <Setter Property="Margin" Value="4,0,8,0"/>
+        </Style>
+
+        <Style Selector="TextBox">
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Padding" Value="4,1"/>
+        </Style>
+
+        <Style Selector="TextBox /template/ TextPresenter">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style Selector="TextBox /template/ TextBlock#PART_Watermark">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Opacity" Value="0.5"/>
+        </Style>
+    </Window.Styles>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="8" Spacing="2">
+
+            <Expander Header="工具设置" IsExpanded="True">
+                <StackPanel Margin="0,2,0,0" Spacing="2">
+                    <CheckBox Content="窗口置顶"
+                              Checked="ToggleTopmost_Checked"
+                              Unchecked="ToggleTopmost_Unchecked"
+                              IsChecked="True"/>
+                    <CheckBox Content="开机自启动（未实现）"
+                              Checked="ToggleTopmost_Checked"
+                              Unchecked="ToggleTopmost_Unchecked"
+                              IsChecked="True"/>
+                </StackPanel>
+            </Expander>
+
+            <Expander Header="日志（可复制）" IsExpanded="False">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              Height="110">
+                    <TextBox x:Name="LogBox"
+                             AcceptsReturn="True"
+                             IsReadOnly="True"
+                             TextWrapping="Wrap"
+                             FontFamily="Consolas, Courier New, monospace"
+                             Height="100"
+                             Padding="4,2"/>
+                </ScrollViewer>
+            </Expander>
+
+            <Expander Header="QF" IsExpanded="True">
+                <StackPanel Margin="0,2,0,0" Spacing="2">
+                    <Expander Header="工具初始化（只需设置一次）" IsExpanded="True">
+                        <StackPanel Spacing="2">
+                            <TextBox x:Name="QF_MaxPathInput" 
+                                     Watermark="粘贴 Max 文件名"
+                                     Height="20" Padding="4,1"/>
+                            <TextBox x:Name="QF_UnityPathInput" 
+                                     Watermark="粘贴 Unity 文件名"
+                                     Height="20" Padding="4,1"/>
+                            <Button Content="初始化" 
+                                    Click="OnScriptButton_Click"/>
+                        </StackPanel>
+                    </Expander>
+
+                    <Expander Header="Max工具" IsExpanded="True">
+                        <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto" Margin="0,2,0,0">
+                            <Button Grid.Row="0" Grid.Column="0" Content="规范模型"
+                                    Tag="规范模型.ms" Click="OnScriptButton_Click"/>
+                            <Button Grid.Row="0" Grid.Column="1" Content="导出FBX(当前)"
+                                    Tag="导出FBX(当前).ms" Click="OnScriptButton_Click"/>
+                            <Button Grid.Row="0" Grid.Column="2" Content="导出（贴图+FBX）"
+                                    Tag="导出（贴图+FBX）.ms" Click="OnScriptButton_Click"/>
+                            <Button Grid.Row="1" Grid.Column="0" Content="选择多边面"
+                                    Tag="选择多边面.ms" Click="OnScriptButton_Click"/>
+                            <Button Grid.Row="1" Grid.Column="1" Content="选择法线翻转的面"
+                                    Tag="选择法线翻转的面.ms" Click="OnScriptButton_Click"/>
+                            <Button Grid.Row="1" Grid.Column="2" Content="面数检查"
+                                    Tag="面数检查.ms" Click="OnScriptButton_Click"/>
+                            <Button Grid.Row="2" Grid.Column="0" Content="Mesh01_重命名"
+                                    Tag="Mesh01_重命名.ms" Click="OnScriptButton_Click"/>
+                        </Grid>
+                    </Expander>
+
+                    <Expander Header="Unity工具" IsExpanded="True">
+                        <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,2,0,0">
+                            <Button Grid.Row="0" Grid.Column="0" Content="Unity初始化（未实现）"
+                                    Click="Btn_OpenAvatarEditor_Click"/>
+                            <Button Grid.Row="0" Grid.Column="1" Content="打开 Avatar 编辑器"
+                                    Click="Btn_OpenAvatarEditor_Click"/>
+                            <Button Grid.Row="0" Grid.Column="2" Content="打开 Avatar 编辑器"
+                                    Click="Btn_OpenAvatarEditor_Click"/>
+                            <Button Grid.Row="1" Grid.Column="0" Content="打开 Avatar 编辑器"
+                                    Click="Btn_OpenAvatarEditor_Click"/>
+                            <Button Grid.Row="1" Grid.Column="1" Content="打开 Avatar 编辑器"
+                                    Click="Btn_OpenAvatarEditor_Click"/>
+                            <Button Grid.Row="1" Grid.Column="2" Content="打开 Avatar 编辑器"
+                                    Click="Btn_OpenAvatarEditor_Click"/>
+                            <Button Grid.Row="2" Grid.Column="0" Content="复制选中并打开导出窗口"
+                                    Click="Btn_CopyAndExport_Click"/>
+                            <Button Grid.Row="2" Grid.Column="1" Content="添加当前剪贴板名称"
+                                    Click="Btn_PasteMaxName_Click"/>
+                            <Button Grid.Row="2" Grid.Column="2" Content="一键规范文件"
+                                    Click="Btn_StandardizeFiles_Click"/>
+                            <Button Grid.Row="3" Grid.Column="0" Content="一键批量导出"
+                                    Click="Btn_ExportBatch_Click"/>
+                        </Grid>
+                    </Expander>
+                </StackPanel>
+            </Expander>
+
+            <Expander Header="小岛植物" IsExpanded="True">
+                <StackPanel Margin="0,2,0,0" Spacing="2">
+                    <TextBox x:Name="Island_MaxPathInput" 
+                             Watermark="粘贴 Max 文件名"
+                             Height="20" Padding="4,1"/>
+                    <TextBox x:Name="Island_UnityPathInput" 
+                             Watermark="粘贴 Unity 文件名"
+                             Height="20" Padding="4,1"/>
+
+                    <Expander Header="Max工具" IsExpanded="True">
+                        <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto" Margin="0,2,0,0">
+                            <Button Grid.Row="0" Grid.Column="0" Content="规范模型（未实现）"
+                                    Tag="规范模型.ms" Click="OnScriptButton_Click"/>
+                            <Button Grid.Row="0" Grid.Column="1" Content="导出FBX(当前)（未实现）"
+                                    Tag="导出FBX(当前).ms" Click="OnScriptButton_Click"/>
+                            <Button Grid.Row="0" Grid.Column="2" Content="导出（贴图+FBX）（未实现）"
+                                    Tag="导出（贴图+FBX）.ms" Click="OnScriptButton_Click"/>
+                            <Button Grid.Row="1" Grid.Column="0" Content="选择多边面（未实现）"
+                                    Tag="选择多边面.ms" Click="OnScriptButton_Click"/>
+                            <Button Grid.Row="1" Grid.Column="1" Content="选择法线翻转的面（未实现）"
+                                    Tag="选择法线翻转的面.ms" Click="OnScriptButton_Click"/>
+                            <Button Grid.Row="1" Grid.Column="2" Content="面数检查（未实现）"
+                                    Tag="面数检查.ms" Click="OnScriptButton_Click"/>
+                            <Button Grid.Row="2" Grid.Column="0" Content="Mesh01_重命名（未实现）"
+                                    Tag="Mesh01_重命名.ms" Click="OnScriptButton_Click"/>
+                        </Grid>
+                    </Expander>
+                </StackPanel>
+            </Expander>
+
+        </StackPanel>
+    </ScrollViewer>
 </Window>
