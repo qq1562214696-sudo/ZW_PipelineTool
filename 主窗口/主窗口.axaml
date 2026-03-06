@@ -10,8 +10,8 @@
 
     <Window.Styles>
         <Style Selector="Button">
-            <Setter Property="Height" Value="18"/>
-            <Setter Property="Padding" Value="8,2"/>
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="Padding" Value="8,-5"/>
             <Setter Property="Margin" Value="1"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>

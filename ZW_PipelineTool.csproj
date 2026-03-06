@@ -1,69 +1,39 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!-- 输出类型：WinExe 表示桌面窗口应用 -->
     <OutputType>WinExe</OutputType>
-
-    <!-- 目标框架：.NET 10 Windows 专用 -->
     <TargetFramework>net10.0-windows</TargetFramework>
-
-    <!-- 启用可空引用类型（现代 C# 好习惯） -->
     <Nullable>enable</Nullable>
-
-    <!-- 应用清单（图标、权限、UAC 等） -->
     <ApplicationManifest>app.manifest</ApplicationManifest>
-
-    <!-- Avalonia 自动使用 Compiled Bindings，提升绑定性能 -->
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <UseWindowsForms>true</UseWindowsForms>
 
-    <!-- 已移除 <UseWindowsForms>true</UseWindowsForms>，因为与 Native AOT + trimming 不兼容 -->
-    <!-- 如果你确实需要 WinForms 功能（如 Splash Screen），请先关闭 AOT 测试 -->
-
-    <!-- ★ 单文件发布：所有 DLL 嵌入 exe -->
+    <!-- ★ 关键：单文件 + 自包含 Runtime + 嵌入内容文件夹 -->
     <PublishSingleFile>true</PublishSingleFile>
-
-    <!-- ★ 自包含：打包整个 .NET Runtime，无需用户安装 .NET -->
     <SelfContained>true</SelfContained>
-
-    <!-- 目标运行时：win-x64（64位 Windows） -->
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-
-    <!-- 嵌入所有内容文件（MAX 文件夹等资源自动打包） -->
-    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
-
-    <!-- ★ Native AOT：提前编译为原生代码，启动速度最快（核心优化） -->
-    <PublishAot>true</PublishAot>
-
-    <!-- Trimming 模式：full=最大程度裁剪未用代码（包更小、启动更快） -->
-    <!-- 如果编译或运行时报错，可临时改成 partial -->
-    <TrimMode>full</TrimMode>
-
-    <!-- 关闭全球化不变（减少文化/时区加载，启动更快） -->
-    <InvariantGlobalization>true</InvariantGlobalization>
-
-    <!-- 包含原生库自解压（AOT 必须，用于 SkiaSharp 等） -->
-    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-
-    <!-- 如果 AOT 编译失败，可临时启用 ReadyToRun 作为备用 -->
-    <!-- <PublishReadyToRun>true</PublishReadyToRun> -->
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>  <!-- 64位 Windows，换 win-x86 如果目标是32位 -->
+    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>  <!-- 嵌入 MAX/ 等，运行时自动解压 -->
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Avalonia 核心包 -->
     <PackageReference Include="Avalonia" Version="11.3.12" />
     <PackageReference Include="Avalonia.Desktop" Version="11.3.12" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.12" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.12" />
-
-    <!-- 调试工具只在 Debug 配置下包含 -->
-    <PackageReference Include="Avalonia.Diagnostics" Version="11.3.12" Condition="'$(Configuration)' == 'Debug'" />
-
-    <!-- 你的其他依赖 -->
+    <!-- Avalonia.Diagnostics 只在 Debug 保留 -->
+    <PackageReference Include="Avalonia.Diagnostics" Version="11.3.12">
+      <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
+      <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Costura.Fody" Version="6.0.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="MessageBox.Avalonia" Version="3.3.1.1" />
     <PackageReference Include="SocketIOClient" Version="4.0.1" />
   </ItemGroup>
 
-  <!-- 复制 MAX 文件夹到输出和发布目录 -->
+  <!-- 优化：统一复制 MAX/ 文件夹（包括 .ms/.mcr/其他文件），支持 publish -->
   <ItemGroup>
     <None Include="MAX\**\*.*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -71,9 +41,8 @@
     </None>
   </ItemGroup>
 
-  <!-- Avalonia 资源（axaml 和 xaml） -->
+  <!-- Avalonia XAML 资源 -->
   <ItemGroup>
-    <AvaloniaResource Include="**\*.axaml" />
     <AvaloniaResource Include="**\*.xaml" />
   </ItemGroup>
 
