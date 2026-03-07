@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ZW_PipelineTool")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4f510ceb97b24438f1a935c2a41a788f07b18ba6")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+916569366e625d752afa666fb5dec67a03b00790")]
 [assembly: System.Reflection.AssemblyProductAttribute("ZW_PipelineTool")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ZW_PipelineTool")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

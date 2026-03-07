@@ -93,8 +93,6 @@ public partial class 主窗口 : Window
 
     protected async void 窗口_放下(object? sender, DragEventArgs e)
     {
-        记录日志("=== 拖放事件触发 ===");
-
         var 文件列表 = e.Data.GetFiles();
         if (文件列表 == null || !文件列表.Any())
         {
@@ -151,11 +149,10 @@ public partial class 主窗口 : Window
 
             string json = JsonSerializer.Serialize(_窗口数据, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(存储路径, json);
-            记录日志("窗口布局已保存");
         }
         catch (Exception ex)
         {
-            记录日志($"保存布局失败：{ex.Message}");
+            记录日志($"窗口保存布局失败：{ex.Message}");
         }
     }
 
@@ -167,12 +164,11 @@ public partial class 主窗口 : Window
             {
                 string json = File.ReadAllText(存储路径);
                 _窗口数据 = JsonSerializer.Deserialize<窗口数据>(json) ?? new 窗口数据();
-                记录日志("已加载上次窗口布局");
             }
         }
         catch (Exception ex)
         {
-            记录日志($"加载布局失败：{ex.Message}");
+            记录日志($"加载窗口布局失败：{ex.Message}");
             _窗口数据 = new 窗口数据();
         }
     }

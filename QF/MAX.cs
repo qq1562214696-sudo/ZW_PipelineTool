@@ -26,21 +26,17 @@ public partial class 主窗口
             string 脚本路径 = Path.Combine(程序目录, "MAX", 脚本文件名);
             if (!File.Exists(脚本路径))
             {
-                记录日志($"脚本文件不存在：{脚本路径}");
-                记录日志("请检查以下几点：");
-                记录日志("1. 是否在程序目录下创建了 MAX 文件夹");
-                记录日志($"2. 是否包含文件：{脚本文件名}");
-                记录日志("3. 项目中该文件属性已设置为“始终复制到输出目录”");
+                记录日志("请检查：");
+                记录日志("1. 根目录下是否存在 MAX 文件夹");
+                记录日志($"2. 其中是否包含文件：{脚本文件名}");
                 return;
             }
-            记录日志($"准备发送脚本到 3ds Max：{脚本文件名} ({button.Content})");
             // 核心发送逻辑
             发送脚本到3dsMax(脚本路径);
-            记录日志($"脚本已发送：{脚本文件名}（等待 3ds Max 执行完成）");
         }
         catch (Exception ex)
         {
-            记录日志($"发送脚本失败：{ex.Message}");
+            记录日志($"MAX工具使用失败：{ex.Message}");
         }
     }
     #region P/Invoke 定义 - 与 Windows 窗口和拖放消息交互
@@ -86,13 +82,12 @@ public partial class 主窗口
         if (窗口句柄 == IntPtr.Zero) 窗口句柄 = FindWindow("3dsmax", null);
         if (窗口句柄 == IntPtr.Zero) 窗口句柄 = FindWindow(null, "3ds Max");
         if (窗口句柄 == IntPtr.Zero) 窗口句柄 = FindWindow(null, "Autodesk 3ds Max");
-        if (窗口句柄 == IntPtr.Zero) 窗口句柄 = FindWindow(null, "Autodesk 3ds Max 2025"); // 可根据版本增加更多
+        if (窗口句柄 == IntPtr.Zero) 窗口句柄 = FindWindow(null, "Autodesk 3ds Max 2014"); // 可根据版本增加更多
         if (窗口句柄 == IntPtr.Zero)
         {
-            记录日志("未找到 3ds Max 主窗口，请确认 3ds Max 已正常打开");
+            记录日志("Max2014 未正确运行");
             return;
         }
-        记录日志("已定位到 3ds Max 窗口，正在尝试发送脚本...");
         try
         {
             // 把 3ds Max 窗口置前（非常重要，否则拖放消息可能失效）
@@ -100,7 +95,7 @@ public partial class 主窗口
             // 获取窗口矩形区域，用于计算中心点坐标
             if (!GetWindowRect(窗口句柄, out RECT 矩形区域))
             {
-                记录日志("无法获取 3ds Max 窗口矩形区域");
+                记录日志("获取 3ds Max 窗口失败");
                 return;
             }
             int 中心X = 矩形区域.Left + (矩形区域.Right - 矩形区域.Left) / 2;
@@ -133,14 +128,11 @@ public partial class 主窗口
                 // 把路径字符串（含双\0）紧跟在结构后面
                 Marshal.Copy(路径字节, 0, 全局内存句柄 + 结构大小, 路径字节.Length);
                 // 发送 WM_DROPFILES 消息给 3ds Max
-                bool 发送成功 = PostMessage(窗口句柄, WM_DROPFILES, 全局内存句柄, IntPtr.Zero);
-                记录日志(发送成功
-                    ? "已成功发送拖放消息 → 3ds Max 应开始执行脚本"
-                    : "发送消息失败（可能 3ds Max 未响应、被最小化或焦点问题）");
+                PostMessage(窗口句柄, WM_DROPFILES, 全局内存句柄, IntPtr.Zero);
             }
             catch (Exception ex)
             {
-                记录日志($"发送拖放消息时发生异常：{ex.Message}");
+                记录日志($"发送Max脚本发生异常：{ex.Message}");
                 Marshal.FreeHGlobal(全局内存句柄); // 异常情况下，手动释放以防泄漏
             }
         }
