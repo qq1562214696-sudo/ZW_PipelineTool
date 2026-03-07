@@ -11,13 +11,21 @@ namespace ZW_PipelineTool;
 
 public partial class MainWindow
 {
+    // Unity 端命名管道名称（需与 Unity 脚本中一致）
     private const string UnityPipeName = "ZW_UnityPipelineTool";
 
+    /// <summary>
+    /// 通过命名管道向 Unity 发送简单 JSON 格式的命令
+    /// </summary>
+    /// <param name="command">命令名称</param>
+    /// <param name="value">可选参数值</param>
     private async Task SendUnityCommand(string command, string? value = null)
     {
         try
         {
+            // 连接到 Unity 打开的命名管道服务器
             await using var client = new NamedPipeClientStream(".", UnityPipeName, PipeDirection.Out, PipeOptions.Asynchronous);
+            // 最多等待 5 秒
             await client.ConnectAsync(5000);
 
             var payload = new Dictionary<string, string?>
@@ -45,6 +53,9 @@ public partial class MainWindow
         }
     }
 
+    /// <summary>
+    /// 从系统剪贴板异步读取文本（Avalonia 方式）
+    /// </summary>
     private async Task<string?> GetClipboardTextAsync()
     {
         var topLevel = TopLevel.GetTopLevel(this);
@@ -65,7 +76,7 @@ public partial class MainWindow
         }
     }
 
-    // ── Unity 相关按钮事件 ────────────────────────────────
+    #region Unity 相关按钮事件
 
     private async void Btn_OpenAvatarEditor_Click(object? sender, RoutedEventArgs e)
     {
@@ -77,6 +88,9 @@ public partial class MainWindow
         await SendUnityCommand("CopyAndOpenExportWindow");
     }
 
+    /// <summary>
+    /// 从剪贴板读取内容并发送给 Unity（通常是前面 QF 整理得到的命名列表）
+    /// </summary>
     private async void Btn_PasteMaxName_Click(object? sender, RoutedEventArgs e)
     {
         string? clipText = await GetClipboardTextAsync();
@@ -106,4 +120,6 @@ public partial class MainWindow
         await SendUnityCommand("ClearMaxFileNames");
         Log("已请求清空 Unity 端的 Max 文件名列表");
     }
+
+    #endregion
 }

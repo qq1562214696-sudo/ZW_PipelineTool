@@ -10,7 +10,9 @@ namespace ZW_PipelineTool;
 
 public partial class MainWindow
 {
-    // ==================== 浏览按钮 ====================
+    /// <summary>
+    /// “浏览”按钮点击 → 打开文件夹选择对话框 → 执行规范整理
+    /// </summary>
     private async void QF_BrowseFolder_Click(object? sender, RoutedEventArgs e)
     {
         var dialog = new OpenFolderDialog
@@ -26,10 +28,14 @@ public partial class MainWindow
             textBox.Text = result;
 
         Log($"手动选择文件夹：{result}");
+
+        // 执行核心整理逻辑
         await QF_ProcessFolderNorm(result);
     }
 
-    // ==================== 核心处理逻辑 ====================
+    /// <summary>
+    /// 核心业务：规范整理 PSD 命名 → 提取公共贴图 → 清理模板 → 按命名批量创建规范文件夹
+    /// </summary>
     private async Task QF_ProcessFolderNorm(string targetFolder)
     {
         Log("开始文件夹规范整理...");
@@ -42,9 +48,11 @@ public partial class MainWindow
                 return;
             }
 
+            // 检查典型结构
             bool hasAssets = Directory.Exists(Path.Combine(targetFolder, "Assets"));
             bool hasScreenshot = Directory.Exists(Path.Combine(targetFolder, "截图"));
 
+            // 如果当前目录不对，尝试自动进入“提交文件夹”
             if (!hasAssets || !hasScreenshot)
             {
                 var submitDirs = Directory.GetDirectories(targetFolder, "提交文件夹", SearchOption.TopDirectoryOnly);
@@ -63,6 +71,7 @@ public partial class MainWindow
                 return;
             }
 
+            // 获取父目录（存放 PSD 的地方）
             string parentFolder = Directory.GetParent(targetFolder)?.FullName ?? "";
             if (string.IsNullOrEmpty(parentFolder))
             {
@@ -70,6 +79,7 @@ public partial class MainWindow
                 return;
             }
 
+            // 查找所有 PSD 文件，并提取符合“前缀_数字”格式的命名
             var psdFiles = Directory.GetFiles(parentFolder, "*.psd", SearchOption.AllDirectories);
             Log($"在父目录中找到 {psdFiles.Length} 个PSD文件");
 
@@ -101,10 +111,11 @@ public partial class MainWindow
             Log($"找到 {validNames.Count} 个有效命名：");
             foreach (var name in validNames) Log("  " + name);
 
-            // 复制到剪贴板
+            // 把提取的命名列表复制到剪贴板（方便后续粘贴使用）
             try
             {
                 string textToCopy = string.Join("\r\n", validNames);
+                // cmd echo | clip 是 Windows 下最可靠的复制方式之一
                 string safe = textToCopy.Replace("%", "%%").Replace("\"", "\"\"");
                 var psi = new System.Diagnostics.ProcessStartInfo("cmd", "/c " +
                     "echo " + safe + " | clip")
@@ -120,12 +131,15 @@ public partial class MainWindow
                 Log("复制剪贴板失败：" + ex.Message);
             }
 
-            // 提取公共贴图
+            // ── 公共贴图处理 ───────────────────────────────────────
             Log("正在提取公共贴图到总文件夹...");
+
             string[] texturePatterns = new[] { "*_A.png", "*_D.png", "*_D.psd" };
 
             bool hasCommonTextures = true;
             var commonTextures = new System.Collections.Generic.List<string>();
+
+            // 检查总文件夹是否已经有了所有公共贴图
             foreach (var pattern in texturePatterns)
             {
                 var matches = Directory.GetFiles(targetFolder, pattern, SearchOption.TopDirectoryOnly);
@@ -136,6 +150,7 @@ public partial class MainWindow
                 }
             }
 
+            // 如果没有，则从第一个模板文件夹中提取
             if (!hasCommonTextures)
             {
                 var templateFolders = Directory.GetDirectories(targetFolder)
@@ -172,12 +187,13 @@ public partial class MainWindow
                 Log("公共贴图已存在于总文件夹");
             }
 
+            // 收集最终的公共贴图路径
             foreach (var pattern in texturePatterns)
             {
                 commonTextures.AddRange(Directory.GetFiles(targetFolder, pattern, SearchOption.TopDirectoryOnly));
             }
 
-            // 标记并清理模板
+            // ── 标记并清理旧模板 ────────────────────────────────────
             Log("正在标记源文件并清理重复贴图...");
             var markedItems = new System.Collections.Generic.List<(string OriginalPath, string MarkedPath)>();
 
@@ -194,6 +210,7 @@ public partial class MainWindow
                 if (m.Success)
                 {
                     string suffix = m.Groups[2].Value;
+                    // 如果后缀不是纯数字，则认为是旧模板，需要标记删除
                     if (!Regex.IsMatch(suffix, "^\\d+$"))
                     {
                         if (!folderName.EndsWith("_删"))
@@ -205,6 +222,7 @@ public partial class MainWindow
                                 if (Directory.Exists(newPath))
                                     Directory.Delete(newPath, true);
 
+                                // 删除模板里的公共贴图（避免重复）
                                 foreach (var pattern in texturePatterns)
                                 {
                                     var texFiles = Directory.GetFiles(folder, pattern, SearchOption.TopDirectoryOnly);
@@ -228,8 +246,9 @@ public partial class MainWindow
                 }
             }
 
-            // 创建新文件夹
+            // ── 根据 PSD 命名批量创建规范文件夹 ───────────────────────
             Log("正在创建新文件夹...");
+
             var markedTemplates = Directory.GetDirectories(targetFolder)
                 .Where(d => Path.GetFileName(d).EndsWith("_删", StringComparison.OrdinalIgnoreCase))
                 .ToArray();
@@ -249,6 +268,8 @@ public partial class MainWindow
                 string prefix = nameMatch.Groups[1].Value;
 
                 string? boyTemplate = null, girlTemplate = null, genericTemplate = null;
+
+                // 匹配模板（优先级：boy > girl > 通用）
                 foreach (var template in markedTemplates)
                 {
                     string baseName = Path.GetFileName(template).Replace("_删", "");
@@ -264,6 +285,7 @@ public partial class MainWindow
                 }
 
                 var templatesToProcess = new System.Collections.Generic.List<(string Template, string Suffix)>();
+
                 if (boyTemplate != null && girlTemplate != null)
                 {
                     templatesToProcess.Add((boyTemplate, "_boy"));
@@ -290,14 +312,17 @@ public partial class MainWindow
                     string newFolderName = fileName + tpl.Suffix;
                     string sourcePath = tpl.Template;
                     string destPath = Path.Combine(targetFolder, newFolderName);
+
                     try
                     {
+                        // 先删除可能存在的同名旧文件夹
                         if (Directory.Exists(destPath))
                             Directory.Delete(destPath, true);
 
                         Directory.CreateDirectory(destPath);
                         Log("创建文件夹: " + newFolderName);
 
+                        // 复制 .max 文件并重命名
                         var maxFile = Directory.GetFiles(sourcePath, "*.max", SearchOption.TopDirectoryOnly).FirstOrDefault();
                         if (maxFile != null)
                         {
@@ -310,6 +335,7 @@ public partial class MainWindow
                             Log("  警告: 未找到.max文件");
                         }
 
+                        // 复制公共贴图，并按规范重命名
                         foreach (var textureFile in commonTextures)
                         {
                             string textureBase = Path.GetFileNameWithoutExtension(textureFile);
@@ -338,7 +364,7 @@ public partial class MainWindow
                 }
             }
 
-            // 删除标记文件夹
+            // ── 清理阶段 ─────────────────────────────────────────────
             Log("正在删除原模板文件夹...");
             foreach (var item in markedItems)
             {
@@ -348,11 +374,10 @@ public partial class MainWindow
                         Directory.Delete(item.MarkedPath, true);
                     Log("已删除: " + Path.GetFileName(item.MarkedPath));
                 }
-                catch { }
+                catch { /* 忽略无法删除的情况 */ }
             }
 
-            // 删除总文件夹中的原贴图
-            Log("正在删除总文件夹中的原贴图...");
+            Log("正在删除总文件夹中的原公共贴图...");
             foreach (var tex in commonTextures)
             {
                 try

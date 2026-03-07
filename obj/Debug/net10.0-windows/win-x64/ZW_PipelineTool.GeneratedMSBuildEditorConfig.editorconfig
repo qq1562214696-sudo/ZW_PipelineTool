@@ -29,18 +29,18 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = ZW_PipelineTool
-build_property.ProjectDir = D:\360MoveData\Users\s\Desktop\ZW_PipelineTool\
+build_property.ProjectDir = E:\Git仓库\ZW_PipelineTool\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.CsWinRTUseWindowsUIXamlProjections = false
 build_property.EffectiveAnalysisLevelStyle = 10.0
 build_property.EnableCodeStyleSeverity = 
 
-[D:/360MoveData/Users/s/Desktop/ZW_PipelineTool/app.manifest]
+[e:/Git仓库/ZW_PipelineTool/app.manifest]
 build_metadata.AdditionalFiles.SourceItemGroup = 
 
-[D:/360MoveData/Users/s/Desktop/ZW_PipelineTool/主窗口/主窗口.axaml]
+[e:/Git仓库/ZW_PipelineTool/主窗口/主窗口.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[D:/360MoveData/Users/s/Desktop/ZW_PipelineTool/其他/App.axaml]
+[e:/Git仓库/ZW_PipelineTool/其他/App.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
