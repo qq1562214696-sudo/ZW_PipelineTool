@@ -12,173 +12,206 @@ using System.Linq;
 
 namespace ZW_PipelineTool;
 
-/// <summary>
-/// 主窗口 - 负责窗口生命周期、位置/大小/置顶状态持久化、日志显示、文件夹拖放支持
-/// </summary>
-public partial class MainWindow : Window
+public partial class 主窗口 : Window
 {
-    // 用于保存窗口状态的文件名（相对路径）
     private const string 设置文件名 = "主窗口数据.json";
-    // 保存路径：程序目录下的 AppData 文件夹
     private static readonly string 存储路径;
-
-    // 窗口状态数据对象
     private 窗口数据 _窗口数据 = new 窗口数据();
+    protected TextBox? 日志文本框;
 
-    // 日志显示用的 TextBox 控件引用（延迟查找）
-    protected TextBox? _logBox;
-
-    // 静态构造函数：确保 AppData 文件夹存在，并计算存储路径
-    static MainWindow()
+    static 主窗口()
     {
-        // 使用程序运行目录下的 AppData 子文件夹存放配置
-        string appDataDir = Path.Combine(AppContext.BaseDirectory, "AppData");
-        Directory.CreateDirectory(appDataDir);
-        存储路径 = Path.Combine(appDataDir, 设置文件名);
+        string appData目录 = Path.Combine(AppContext.BaseDirectory, "AppData");
+        Directory.CreateDirectory(appData目录);
+        存储路径 = Path.Combine(appData目录, 设置文件名);
     }
 
-    public MainWindow()
+    public 主窗口()
     {
         InitializeComponent();
 
-        // 第一次加载时尝试读取上次的窗口位置、大小、置顶等状态
-        LoadWindowSettings();
+        // 查找日志控件
+        日志文本框 = this.FindControl<TextBox>("LogBox");
 
-        // 启用窗口接受拖放文件/文件夹
+        // ── 绑定所有事件 ──────────────────────────────────────────────────
+        if (置顶CheckBox != null)
+        {
+            置顶CheckBox.Checked += 置顶切换_选中;
+            置顶CheckBox.Unchecked += 置顶切换_取消选中;
+        }
+
+        if (开机自启CheckBox != null)
+        {
+            开机自启CheckBox.Checked += 开机自启切换_选中;
+            开机自启CheckBox.Unchecked += 开机自启切换_取消选中;
+        }
+
+        // QF 项目 - 初始化
+        if (QF_初始化按钮 != null) QF_初始化按钮.Click += 初始化按钮_点击;
+
+        // QF 项目 - 3ds Max 工具按钮
+        if (规范模型命名Btn != null) 规范模型命名Btn.Click += 脚本按钮_点击;
+        if (导出当前选中为FBXBtn != null) 导出当前选中为FBXBtn.Click += 脚本按钮_点击;
+        if (导出贴图加FBXBtn != null) 导出贴图加FBXBtn.Click += 脚本按钮_点击;
+        if (选择多边面物体Btn != null) 选择多边面物体Btn.Click += 脚本按钮_点击;
+        if (选择法线翻转的面Btn != null) 选择法线翻转的面Btn.Click += 脚本按钮_点击;
+        if (快速面数检查Btn != null) 快速面数检查Btn.Click += 脚本按钮_点击;
+        if (Mesh01批量重命名Btn != null) Mesh01批量重命名Btn.Click += 脚本按钮_点击;
+
+        // Unity 工具按钮
+        if (Unity初始化Btn != null) Unity初始化Btn.Click += 初始化按钮_点击;
+        if (打开头像编辑器Btn != null) 打开头像编辑器Btn.Click += 打开头像编辑器按钮_点击;
+        if (复制并导出Btn != null) 复制并导出Btn.Click += 复制并导出按钮_点击;
+        if (粘贴Max名称Btn != null) 粘贴Max名称Btn.Click += 粘贴Max名称按钮_点击;
+        if (文件标准化Btn != null) 文件标准化Btn.Click += 文件标准化按钮_点击;
+        if (批量导出Btn != null) 批量导出Btn.Click += 批量导出按钮_点击;
+        if (清空Max名称Btn != null) 清空Max名称Btn.Click += 清空Max名称按钮_点击;
+
+        // 小岛植物 项目 - 3ds Max 工具
+        if (小岛_规范模型命名Btn != null) 小岛_规范模型命名Btn.Click += 脚本按钮_点击;
+        if (小岛_导出当前为FBXBtn != null) 小岛_导出当前为FBXBtn.Click += 脚本按钮_点击;
+        if (小岛_导出贴图加FBXBtn != null) 小岛_导出贴图加FBXBtn.Click += 脚本按钮_点击;
+        if (小岛_选择多边面Btn != null) 小岛_选择多边面Btn.Click += 脚本按钮_点击;
+        if (小岛_选择法线翻转Btn != null) 小岛_选择法线翻转Btn.Click += 脚本按钮_点击;
+        if (小岛_面数检查Btn != null) 小岛_面数检查Btn.Click += 脚本按钮_点击;
+        if (小岛_Mesh01重命名Btn != null) 小岛_Mesh01重命名Btn.Click += 脚本按钮_点击;
+
+        // 拖放支持
         DragDrop.SetAllowDrop(this, true);
+        this.AddHandler(DragDrop.DragEnterEvent, 窗口_拖入);
+        this.AddHandler(DragDrop.DragOverEvent, 窗口_拖拽中);
+        this.AddHandler(DragDrop.DropEvent, 窗口_放下);
 
-        // 注册拖放相关事件（主要是文件夹拖入）
-        this.AddHandler(DragDrop.DragEnterEvent, Window_DragEnter);
-        this.AddHandler(DragDrop.DragOverEvent, Window_DragOver);
-        this.AddHandler(DragDrop.DropEvent, Window_Drop);
-
-        // 窗口打开完成后应用保存的位置/大小/置顶状态
+        // 窗口生命周期
         Opened += (s, e) =>
         {
-            ApplyWindowSettings();
-
-            // 如果没有有效的保存位置，则自动放到屏幕右下角
-            if (_窗口数据.x坐标 <= 0 && _窗口数据.y坐标 <= 0)
+            加载窗口设置();
+            应用窗口设置();
+            if (_窗口数据.X坐标 <= 0 && _窗口数据.Y坐标 <= 0)
             {
-                自动定位右下角();
+                自动定位到右下角();
             }
             else
             {
-                // 确保窗口不会跑到屏幕外面
-                EnsureWindowVisible();
+                确保窗口在可见区域内();
             }
         };
 
-        // 窗口关闭前保存当前状态
-        Closing += (s, e) => SaveWindowSettings();
-
-        // 查找日志 TextBox（XAML 中定义的控件）
-        _logBox = this.FindControl<TextBox>("LogBox");
+        Closing += (s, e) => 保存窗口设置();
     }
 
-    /// <summary>
-    /// 加载 Avalonia XAML 定义的 UI 结构
-    /// </summary>
     private void InitializeComponent() => AvaloniaXamlLoader.Load(this);
 
-    // 置顶复选框勾选/取消事件
-    private void ToggleTopmost_Checked(object? sender, RoutedEventArgs e) => Topmost = true;
-    private void ToggleTopmost_Unchecked(object? sender, RoutedEventArgs e) => Topmost = false;
+    // 置顶事件（示例，已在构造函数绑定）
+    private void 置顶切换_选中(object? sender, RoutedEventArgs e) => Topmost = true;
+    private void 置顶切换_取消选中(object? sender, RoutedEventArgs e) => Topmost = false;
 
-    #region 拖放支持（只接受文件夹）
+    private void 开机自启切换_选中(object? sender, RoutedEventArgs e)
+    {
+        // 待实现
+        记录日志("开机自启已勾选（功能待实现）");
+    }
 
-    private void Window_DragEnter(object? sender, DragEventArgs e)
+    private void 开机自启切换_取消选中(object? sender, RoutedEventArgs e)
+    {
+        // 待实现
+        记录日志("开机自启已取消（功能待实现）");
+    }
+
+    // 初始化按钮（QF 和 Unity 共用，根据需要区分）
+    private void 初始化按钮_点击(object? sender, RoutedEventArgs e)
+    {
+        记录日志("初始化按钮被点击（待实现具体逻辑）");
+        // 可根据 sender 判断是 QF 还是 Unity 的按钮
+    }
+
+    #region 拖放支持（已修复 Data → DataTransfer）
+
+    private void 窗口_拖入(object? sender, DragEventArgs e)
     {
         e.DragEffects = DragDropEffects.Copy;
         e.Handled = true;
     }
 
-    private void Window_DragOver(object? sender, DragEventArgs e)
+    private void 窗口_拖拽中(object? sender, DragEventArgs e)
     {
         e.DragEffects = DragDropEffects.Copy;
         e.Handled = true;
     }
 
-    /// <summary>
-    /// 核心拖放处理：只接受单个文件夹，并交给 QF_ProcessFolderNorm 处理
+     /// <summary>
+    /// 核心拖放处理：只接受单个文件夹，并交给 文件夹规范处理() 处理
     /// </summary>
-    protected async void Window_Drop(object? sender, DragEventArgs e)
+    protected async void 窗口_放下(object? sender, DragEventArgs e)
     {
-        Log("=== 拖放事件触发 ===");
+        记录日志("=== 拖放事件触发 ===");
 
-        var files = e.Data.GetFiles();
-        if (files == null || !files.Any())
+        var 文件列表 = e.Data.GetFiles();
+        if (文件列表 == null || !文件列表.Any())
         {
-            Log("未检测到任何文件/文件夹");
+            记录日志("未检测到任何文件/文件夹");
             return;
         }
 
         // 只处理第一个拖入的项目（我们只接受文件夹）
-        var firstItem = files.First();
-        var path = firstItem.TryGetLocalPath();
+        var 第一个项目 = 文件列表.First();
+        var 路径 = 第一个项目.TryGetLocalPath();
 
-        if (string.IsNullOrEmpty(path))
+        if (string.IsNullOrEmpty(路径))
         {
-            Log("无法获取本地路径");
+            记录日志("无法获取本地路径");
             return;
         }
 
-        if (!Directory.Exists(path))
+        if (!Directory.Exists(路径))
         {
-            Log($"拖入的不是文件夹：{path}");
+            记录日志($"拖入的不是文件夹：{路径}");
             return;
         }
 
-        Log($"成功接收文件夹：{path}");
+        记录日志($"成功接收文件夹：{路径}");
 
         // 更新界面上的路径显示
-        var textBox = this.FindControl<TextBox>("FolderPathTextBox");
-        if (textBox != null)
-            textBox.Text = path;
+        var 路径文本框 = this.FindControl<TextBox>("FolderPathTextBox");
+        if (路径文本框 != null)
+            路径文本框.Text = 路径;
 
         // 执行文件夹规范整理逻辑（核心业务）
-        await QF_ProcessFolderNorm(path);
+        await 规范整理文件夹(路径);
 
         e.Handled = true;
     }
 
     #endregion
 
-    #region 窗口位置与状态持久化
+    #region 窗口位置与状态持久化（保持不变）
 
-    /// <summary>
-    /// 保存当前窗口位置、大小、状态、置顶到 json 文件
-    /// </summary>
-    private void SaveWindowSettings()
+    private void 保存窗口设置()
     {
         try
         {
-            // 只在正常窗口状态下保存大小和位置（最大化/最小化不保存像素值）
             if (WindowState == WindowState.Normal)
             {
-                _窗口数据.宽 = Width;
-                _窗口数据.高 = Height;
-                _窗口数据.x坐标 = Position.X;
-                _窗口数据.y坐标 = Position.Y;
+                _窗口数据.宽度 = Width;
+                _窗口数据.高度 = Height;
+                _窗口数据.X坐标 = Position.X;
+                _窗口数据.Y坐标 = Position.Y;
             }
 
-            _窗口数据.窗口大小状态 = WindowState;
+            _窗口数据.窗口状态 = WindowState;
             _窗口数据.置顶 = Topmost;
 
             string json = JsonSerializer.Serialize(_窗口数据, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(存储路径, json);
-            Log("窗口布局已保存");
+            记录日志("窗口布局已保存");
         }
         catch (Exception ex)
         {
-            Log($"保存布局失败：{ex.Message}");
+            记录日志($"保存布局失败：{ex.Message}");
         }
     }
 
-    /// <summary>
-    /// 从 json 文件读取上次保存的窗口状态
-    /// </summary>
-    private void LoadWindowSettings()
+    private void 加载窗口设置()
     {
         try
         {
@@ -186,88 +219,70 @@ public partial class MainWindow : Window
             {
                 string json = File.ReadAllText(存储路径);
                 _窗口数据 = JsonSerializer.Deserialize<窗口数据>(json) ?? new 窗口数据();
-                Log("已加载上次窗口布局");
-            }
-            else
-            {
-                _窗口数据 = new 窗口数据();
+                记录日志("已加载上次窗口布局");
             }
         }
         catch (Exception ex)
         {
-            Log($"加载布局失败：{ex.Message}");
+            记录日志($"加载布局失败：{ex.Message}");
             _窗口数据 = new 窗口数据();
         }
     }
 
-    /// <summary>
-    /// 将保存的状态应用到当前窗口
-    /// </summary>
-    private void ApplyWindowSettings()
+    private void 应用窗口设置()
     {
         try
         {
-            if (_窗口数据.窗口大小状态 == WindowState.Normal)
+            if (_窗口数据.窗口状态 == WindowState.Normal)
             {
-                if (_窗口数据.宽 > 0) Width = _窗口数据.宽;
-                if (_窗口数据.高 > 0) Height = _窗口数据.高;
-                if (_窗口数据.x坐标 >= 0 && _窗口数据.y坐标 >= 0)
+                if (_窗口数据.宽度 > 0) Width = _窗口数据.宽度;
+                if (_窗口数据.高度 > 0) Height = _窗口数据.高度;
+                if (_窗口数据.X坐标 >= 0 && _窗口数据.Y坐标 >= 0)
                 {
-                    Position = new PixelPoint((int)_窗口数据.x坐标, (int)_窗口数据.y坐标);
+                    Position = new PixelPoint((int)_窗口数据.X坐标, (int)_窗口数据.Y坐标);
                 }
             }
 
-            WindowState = _窗口数据.窗口大小状态;
+            WindowState = _窗口数据.窗口状态;
             Topmost = _窗口数据.置顶;
         }
-        catch { /* 静默忽略无效值 */ }
+        catch { }
     }
 
-    /// <summary>
-    /// 防止窗口跑到屏幕外（多显示器或分辨率变化时保护）
-    /// </summary>
-    private void EnsureWindowVisible()
+    private void 确保窗口在可见区域内()
     {
-        var screen = Screens.Primary;
-        if (screen == null) return;
+        var 主屏幕 = Screens.Primary;
+        if (主屏幕 == null) return;
 
-        var workingArea = screen.WorkingArea;
+        var 工作区 = 主屏幕.WorkingArea;
         int x = Position.X, y = Position.Y;
-        int width = (int)Width, height = (int)Height;
+        int 宽 = (int)Width, 高 = (int)Height;
 
-        int left = workingArea.X;
-        int top = workingArea.Y;
-        int right = workingArea.X + workingArea.Width;
-        int bottom = workingArea.Y + workingArea.Height;
-
-        if (x + width > right) x = right - width;
-        if (x < left) x = left;
-        if (y + height > bottom) y = bottom - height;
-        if (y < top) y = top;
+        if (x + 宽 > 工作区.X + 工作区.Width) x = 工作区.X + 工作区.Width - 宽;
+        if (x < 工作区.X) x = 工作区.X;
+        if (y + 高 > 工作区.Y + 工作区.Height) y = 工作区.Y + 工作区.Height - 高;
+        if (y < 工作区.Y) y = 工作区.Y;
 
         Position = new PixelPoint(x, y);
     }
 
-    /// <summary>
-    /// 第一次打开或无有效位置时，自动把窗口放到屏幕右下角（留边距）
-    /// </summary>
-    private void 自动定位右下角()
+    private void 自动定位到右下角()
     {
-        var screen = Screens.Primary;
-        if (screen == null) return;
+        var 主屏幕 = Screens.Primary;
+        if (主屏幕 == null) return;
 
-        var scaling = screen.Scaling;
-        var windowPixelSize = new PixelSize(
-            (int)(ClientSize.Width * scaling),
-            (int)(ClientSize.Height * scaling));
+        var 缩放 = 主屏幕.Scaling;
+        var 窗口像素尺寸 = new PixelSize(
+            (int)(ClientSize.Width * 缩放),
+            (int)(ClientSize.Height * 缩放));
 
-        var workingArea = screen.WorkingArea;
-        int margin = (int)(15 * scaling);
-        int x = workingArea.X + workingArea.Width - windowPixelSize.Width - margin;
-        int y = workingArea.Y + workingArea.Height - windowPixelSize.Height - margin;
+        var 工作区 = 主屏幕.WorkingArea;
+        int 边距 = (int)(15 * 缩放);
+        int x = 工作区.X + 工作区.Width - 窗口像素尺寸.Width - 边距;
+        int y = 工作区.Y + 工作区.Height - 窗口像素尺寸.Height - 边距;
 
-        x = Math.Max(workingArea.X, x);
-        y = Math.Max(workingArea.Y, y);
+        x = Math.Max(工作区.X, x);
+        y = Math.Max(工作区.Y, y);
 
         Position = new PixelPoint(x, y);
         WindowStartupLocation = WindowStartupLocation.Manual;
@@ -275,47 +290,35 @@ public partial class MainWindow : Window
 
     #endregion
 
-    #region 日志输出（线程安全）
-
-    /// <summary>
-    /// 向日志 TextBox 添加一行带时间戳的消息（UI线程安全）
-    /// 可被子类/派生类重写
-    /// </summary>
-    protected virtual void Log(string message)
+    protected virtual void 记录日志(string 消息)
     {
-        if (_logBox == null) return;
+        if (日志文本框 == null) return;
 
-        string time = DateTime.Now.ToString("HH:mm:ss");
-        string line = $"[{time}] {message}\n";
+        string 时间 = DateTime.Now.ToString("HH:mm:ss");
+        string 一行 = $"[{时间}] {消息}\n";
 
-        // 必须在 UI 线程执行 TextBox 操作
         Dispatcher.UIThread.InvokeAsync(() =>
         {
             try
             {
-                if (_logBox != null && _logBox.IsVisible)
+                if (日志文本框 != null && 日志文本框.IsVisible)
                 {
-                    _logBox.Text += line;
-                    // 自动滚动到最新一行
-                    _logBox.CaretIndex = _logBox.Text.Length;
+                    日志文本框.Text += 一行;
+                    日志文本框.CaretIndex = 日志文本框.Text.Length;
                 }
             }
-            catch { /* 静默忽略 */ }
+            catch { }
         });
     }
-
-    #endregion
 }
 
-/// <summary>
-/// 用于序列化的窗口状态数据类
-/// </summary>
 public class 窗口数据
 {
-    public double 宽 { get; set; } = 500;
-    public double 高 { get; set; } = 600;
-    public double x坐标 { get; set; }
-    public double y坐标 { get; set; }
-    public WindowState 窗口大小状态 { get; set; } = WindowState.Normal;
+    public double 宽度 { get; set; } = 300;
+    public double 高度 { get; set; } = 600;
+    public double X坐标 { get; set; }
+    public double Y坐标 { get; set; }
+    public WindowState 窗口状态 { get; set; } = WindowState.Normal;
     public bool 置顶 { get; set; } = true;
+    public bool 开机自启 { get; set; } = true;
 }

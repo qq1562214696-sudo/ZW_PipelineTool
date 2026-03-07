@@ -5,396 +5,401 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Platform.Storage;
 
 namespace ZW_PipelineTool;
 
-public partial class MainWindow
+public partial class 主窗口
 {
     /// <summary>
     /// “浏览”按钮点击 → 打开文件夹选择对话框 → 执行规范整理
     /// </summary>
-    private async void QF_BrowseFolder_Click(object? sender, RoutedEventArgs e)
+    private async void 浏览文件夹按钮_点击(object? sender, RoutedEventArgs e)
     {
-        var dialog = new OpenFolderDialog
+        var options = new FolderPickerOpenOptions
         {
-            Title = "选择要规范整理的总文件夹"
+            Title = "请选择要规范整理的总文件夹",
+            AllowMultiple = false
         };
 
-        var result = await dialog.ShowAsync(this);
-        if (string.IsNullOrEmpty(result)) return;
+        var folders = await StorageProvider.OpenFolderPickerAsync(options);
+        if (folders.Count == 0) return;
 
-        var textBox = this.FindControl<TextBox>("FolderPathTextBox");
-        if (textBox != null)
-            textBox.Text = result;
+        var 选择结果 = folders[0].TryGetLocalPath();
+        if (string.IsNullOrEmpty(选择结果)) return;
 
-        Log($"手动选择文件夹：{result}");
+        var 路径文本框 = this.FindControl<TextBox>("FolderPathTextBox");
+        if (路径文本框 != null)
+            路径文本框.Text = 选择结果;
 
-        // 执行核心整理逻辑
-        await QF_ProcessFolderNorm(result);
+        记录日志($"用户手动选择文件夹：{选择结果}");
+
+        await 规范整理文件夹(选择结果);
     }
 
     /// <summary>
-    /// 核心业务：规范整理 PSD 命名 → 提取公共贴图 → 清理模板 → 按命名批量创建规范文件夹
+    /// 核心业务逻辑：规范 PSD 命名 → 提取公共贴图 → 清理旧模板 → 按命名批量创建规范文件夹
     /// </summary>
-    private async Task QF_ProcessFolderNorm(string targetFolder)
+    private async Task 规范整理文件夹(string 目标文件夹)
     {
-        Log("开始文件夹规范整理...");
+        记录日志("开始执行文件夹规范整理流程...");
 
         try
         {
-            if (!Directory.Exists(targetFolder))
+            if (!Directory.Exists(目标文件夹))
             {
-                Log("无效路径：" + targetFolder);
+                记录日志($"无效路径：{目标文件夹}");
                 return;
             }
 
-            // 检查典型结构
-            bool hasAssets = Directory.Exists(Path.Combine(targetFolder, "Assets"));
-            bool hasScreenshot = Directory.Exists(Path.Combine(targetFolder, "截图"));
+            // 检查典型结构是否存在
+            bool 有Assets文件夹 = Directory.Exists(Path.Combine(目标文件夹, "Assets"));
+            bool 有截图文件夹 = Directory.Exists(Path.Combine(目标文件夹, "截图"));
 
-            // 如果当前目录不对，尝试自动进入“提交文件夹”
-            if (!hasAssets || !hasScreenshot)
+            // 如果当前目录结构不对，尝试自动进入“提交文件夹”
+            if (!有Assets文件夹 || !有截图文件夹)
             {
-                var submitDirs = Directory.GetDirectories(targetFolder, "提交文件夹", SearchOption.TopDirectoryOnly);
-                if (submitDirs.Length > 0)
+                var 提交文件夹数组 = Directory.GetDirectories(目标文件夹, "提交文件夹", SearchOption.TopDirectoryOnly);
+                if (提交文件夹数组.Length > 0)
                 {
-                    targetFolder = submitDirs[0];
-                    Log("自动切换到提交文件夹：" + targetFolder);
-                    hasAssets = Directory.Exists(Path.Combine(targetFolder, "Assets"));
-                    hasScreenshot = Directory.Exists(Path.Combine(targetFolder, "截图"));
+                    目标文件夹 = 提交文件夹数组[0];
+                    记录日志($"自动切换到提交文件夹：{目标文件夹}");
+                    有Assets文件夹 = Directory.Exists(Path.Combine(目标文件夹, "Assets"));
+                    有截图文件夹 = Directory.Exists(Path.Combine(目标文件夹, "截图"));
                 }
             }
 
-            if (!hasAssets || !hasScreenshot)
+            if (!有Assets文件夹 || !有截图文件夹)
             {
-                Log("文件夹结构不符合要求：缺少 Assets 或 截图 文件夹");
+                记录日志("文件夹结构不符合规范要求：缺少 Assets 或 截图 文件夹");
                 return;
             }
 
-            // 获取父目录（存放 PSD 的地方）
-            string parentFolder = Directory.GetParent(targetFolder)?.FullName ?? "";
-            if (string.IsNullOrEmpty(parentFolder))
+            // 获取父目录（通常存放 PSD 文件的位置）
+            string? 父目录 = Directory.GetParent(目标文件夹)?.FullName;
+            if (string.IsNullOrEmpty(父目录))
             {
-                Log("无法获取父目录");
+                记录日志("无法获取父目录");
                 return;
             }
 
             // 查找所有 PSD 文件，并提取符合“前缀_数字”格式的命名
-            var psdFiles = Directory.GetFiles(parentFolder, "*.psd", SearchOption.AllDirectories);
-            Log($"在父目录中找到 {psdFiles.Length} 个PSD文件");
+            var psd文件列表 = Directory.GetFiles(父目录, "*.psd", SearchOption.AllDirectories);
+            记录日志($"在父目录中找到 {psd文件列表.Length} 个 PSD 文件");
 
-            var validNames = new System.Collections.Generic.List<string>();
-            foreach (var psd in psdFiles)
+            var 有效命名列表 = new System.Collections.Generic.List<string>();
+            foreach (var psd文件 in psd文件列表)
             {
-                string baseName = Path.GetFileNameWithoutExtension(psd);
-                var match = Regex.Match(baseName, @"^([A-Za-z]+)_(\d+)");
-                if (match.Success)
+                string 文件基名 = Path.GetFileNameWithoutExtension(psd文件);
+                var 匹配结果 = Regex.Match(文件基名, @"^([A-Za-z]+)_(\d+)");
+                if (匹配结果.Success)
                 {
-                    string extracted = match.Value;
-                    validNames.Add(extracted);
-                    Log($"  提取命名: {extracted} (来自 {baseName})");
+                    string 提取命名 = 匹配结果.Value;
+                    有效命名列表.Add(提取命名);
+                    记录日志($"  提取有效命名：{提取命名} （来自 {文件基名}）");
                 }
                 else
                 {
-                    Log($"  跳过: {baseName} (格式不符)");
+                    记录日志($"  跳过不符合格式：{文件基名}");
                 }
             }
 
-            validNames = validNames.Distinct().OrderBy(n => n).ToList();
+            有效命名列表 = 有效命名列表.Distinct().OrderBy(n => n).ToList();
 
-            if (validNames.Count == 0)
+            if (有效命名列表.Count == 0)
             {
-                Log("未找到符合 前缀_数字.psd 格式的文件");
+                记录日志("未找到任何符合 前缀_数字.psd 格式的文件");
                 return;
             }
 
-            Log($"找到 {validNames.Count} 个有效命名：");
-            foreach (var name in validNames) Log("  " + name);
+            记录日志($"共提取到 {有效命名列表.Count} 个有效命名：");
+            foreach (var 命名 in 有效命名列表) 记录日志("  " + 命名);
 
-            // 把提取的命名列表复制到剪贴板（方便后续粘贴使用）
+            // 将提取的命名列表复制到剪贴板（方便后续粘贴到 Unity 等工具）
             try
             {
-                string textToCopy = string.Join("\r\n", validNames);
-                // cmd echo | clip 是 Windows 下最可靠的复制方式之一
-                string safe = textToCopy.Replace("%", "%%").Replace("\"", "\"\"");
-                var psi = new System.Diagnostics.ProcessStartInfo("cmd", "/c " +
-                    "echo " + safe + " | clip")
+                string 要复制的文本 = string.Join("\r\n", 有效命名列表);
+                // 使用 cmd echo | clip 的方式（Windows 下最稳定可靠）
+                string 安全文本 = 要复制的文本.Replace("%", "%%").Replace("\"", "\"\"");
+                var 进程启动信息 = new System.Diagnostics.ProcessStartInfo("cmd", "/c echo " + 安全文本 + " | clip")
                 {
                     CreateNoWindow = true,
                     UseShellExecute = false
                 };
-                System.Diagnostics.Process.Start(psi);
-                Log("已将命名复制到剪贴板");
+                System.Diagnostics.Process.Start(进程启动信息);
+                记录日志("已成功将所有有效命名复制到剪贴板");
             }
             catch (Exception ex)
             {
-                Log("复制剪贴板失败：" + ex.Message);
+                记录日志($"复制到剪贴板失败：{ex.Message}");
             }
 
-            // ── 公共贴图处理 ───────────────────────────────────────
-            Log("正在提取公共贴图到总文件夹...");
+            // ── 公共贴图提取处理 ───────────────────────────────────────
+            记录日志("开始提取公共贴图到总文件夹...");
 
-            string[] texturePatterns = new[] { "*_A.png", "*_D.png", "*_D.psd" };
+            string[] 贴图模式 = new[] { "*_A.png", "*_D.png", "*_D.psd" };
 
-            bool hasCommonTextures = true;
-            var commonTextures = new System.Collections.Generic.List<string>();
+            bool 已有公共贴图 = true;
+            var 公共贴图列表 = new System.Collections.Generic.List<string>();
 
-            // 检查总文件夹是否已经有了所有公共贴图
-            foreach (var pattern in texturePatterns)
+            // 先检查总文件夹是否已经齐全公共贴图
+            foreach (var 模式 in 贴图模式)
             {
-                var matches = Directory.GetFiles(targetFolder, pattern, SearchOption.TopDirectoryOnly);
-                if (matches.Length == 0)
+                var 匹配文件 = Directory.GetFiles(目标文件夹, 模式, SearchOption.TopDirectoryOnly);
+                if (匹配文件.Length == 0)
                 {
-                    hasCommonTextures = false;
+                    已有公共贴图 = false;
                     break;
                 }
             }
 
-            // 如果没有，则从第一个模板文件夹中提取
-            if (!hasCommonTextures)
+            // 如果缺少，则从第一个模板文件夹中提取
+            if (!已有公共贴图)
             {
-                var templateFolders = Directory.GetDirectories(targetFolder)
+                var 模板文件夹列表 = Directory.GetDirectories(目标文件夹)
                     .Where(d => !string.Equals(Path.GetFileName(d), "Assets", StringComparison.OrdinalIgnoreCase)
                              && !string.Equals(Path.GetFileName(d), "截图", StringComparison.OrdinalIgnoreCase))
                     .ToArray();
 
-                if (templateFolders.Length > 0)
+                if (模板文件夹列表.Length > 0)
                 {
-                    var firstTemplate = templateFolders[0];
-                    Log("从模板文件夹提取公共贴图: " + Path.GetFileName(firstTemplate));
+                    var 第一个模板 = 模板文件夹列表[0];
+                    记录日志($"从模板文件夹提取公共贴图：{Path.GetFileName(第一个模板)}");
 
-                    foreach (var pattern in texturePatterns)
+                    foreach (var 模式 in 贴图模式)
                     {
-                        var textureFiles = Directory.GetFiles(firstTemplate, pattern, SearchOption.TopDirectoryOnly);
-                        foreach (var textureFile in textureFiles)
+                        var 贴图文件列表 = Directory.GetFiles(第一个模板, 模式, SearchOption.TopDirectoryOnly);
+                        foreach (var 贴图文件 in 贴图文件列表)
                         {
-                            string destPath = Path.Combine(targetFolder, Path.GetFileName(textureFile));
-                            if (!File.Exists(destPath))
+                            string 目标路径 = Path.Combine(目标文件夹, Path.GetFileName(贴图文件));
+                            if (!File.Exists(目标路径))
                             {
-                                File.Copy(textureFile, destPath, true);
-                                Log("  提取: " + Path.GetFileName(textureFile));
+                                File.Copy(贴图文件, 目标路径, true);
+                                记录日志($"  已提取：{Path.GetFileName(贴图文件)}");
                             }
                         }
                     }
                 }
                 else
                 {
-                    Log("未找到模板文件夹，无法提取公共贴图");
+                    记录日志("未找到任何模板文件夹，无法提取公共贴图");
                 }
             }
             else
             {
-                Log("公共贴图已存在于总文件夹");
+                记录日志("公共贴图已完整存在于总文件夹，无需提取");
             }
 
-            // 收集最终的公共贴图路径
-            foreach (var pattern in texturePatterns)
+            // 收集最终公共贴图路径
+            foreach (var 模式 in 贴图模式)
             {
-                commonTextures.AddRange(Directory.GetFiles(targetFolder, pattern, SearchOption.TopDirectoryOnly));
+                公共贴图列表.AddRange(Directory.GetFiles(目标文件夹, 模式, SearchOption.TopDirectoryOnly));
             }
 
-            // ── 标记并清理旧模板 ────────────────────────────────────
-            Log("正在标记源文件并清理重复贴图...");
-            var markedItems = new System.Collections.Generic.List<(string OriginalPath, string MarkedPath)>();
+            // ── 标记并清理旧模板 ────────────────────────────────────────
+            记录日志("开始标记旧模板并清理重复贴图...");
 
-            var allFolders = Directory.GetDirectories(targetFolder)
+            var 已标记项目 = new System.Collections.Generic.List<(string 原路径, string 新路径)>();
+
+            var 所有子文件夹 = Directory.GetDirectories(目标文件夹)
                 .Where(d => Path.GetFileName(d).Contains("_")
                             && !string.Equals(Path.GetFileName(d), "Assets", StringComparison.OrdinalIgnoreCase)
                             && !string.Equals(Path.GetFileName(d), "截图", StringComparison.OrdinalIgnoreCase))
                 .ToArray();
 
-            foreach (var folder in allFolders)
+            foreach (var 子文件夹 in 所有子文件夹)
             {
-                string folderName = Path.GetFileName(folder);
-                var m = Regex.Match(folderName, "^(.+?)_(.+)$");
-                if (m.Success)
+                string 文件夹名 = Path.GetFileName(子文件夹);
+                var 匹配 = Regex.Match(文件夹名, "^(.+?)_(.+)$");
+                if (匹配.Success)
                 {
-                    string suffix = m.Groups[2].Value;
-                    // 如果后缀不是纯数字，则认为是旧模板，需要标记删除
-                    if (!Regex.IsMatch(suffix, "^\\d+$"))
+                    string 后缀 = 匹配.Groups[2].Value;
+                    // 如果后缀不是纯数字，则视为旧模板，需要标记删除
+                    if (!Regex.IsMatch(后缀, "^\\d+$"))
                     {
-                        if (!folderName.EndsWith("_删"))
+                        if (!文件夹名.EndsWith("_删"))
                         {
-                            string newName = folderName + "_删";
-                            string newPath = Path.Combine(targetFolder, newName);
+                            string 新文件夹名 = 文件夹名 + "_删";
+                            string 新路径 = Path.Combine(目标文件夹, 新文件夹名);
                             try
                             {
-                                if (Directory.Exists(newPath))
-                                    Directory.Delete(newPath, true);
+                                if (Directory.Exists(新路径))
+                                    Directory.Delete(新路径, true);
 
-                                // 删除模板里的公共贴图（避免重复）
-                                foreach (var pattern in texturePatterns)
+                                // 删除模板内的公共贴图（防止重复）
+                                foreach (var 模式 in 贴图模式)
                                 {
-                                    var texFiles = Directory.GetFiles(folder, pattern, SearchOption.TopDirectoryOnly);
-                                    foreach (var tex in texFiles)
+                                    var 模板贴图 = Directory.GetFiles(子文件夹, 模式, SearchOption.TopDirectoryOnly);
+                                    foreach (var 贴图 in 模板贴图)
                                     {
-                                        File.Delete(tex);
-                                        Log("  删除模板贴图: " + folderName + "/" + Path.GetFileName(tex));
+                                        File.Delete(贴图);
+                                        记录日志($"  删除模板内重复贴图：{文件夹名}/{Path.GetFileName(贴图)}");
                                     }
                                 }
 
-                                Directory.Move(folder, newPath);
-                                markedItems.Add((folder, newPath));
-                                Log("已标记: " + folderName + " -> " + newName);
+                                Directory.Move(子文件夹, 新路径);
+                                已标记项目.Add((子文件夹, 新路径));
+                                记录日志($"已标记为删除：{文件夹名} → {新文件夹名}");
                             }
                             catch (Exception ex)
                             {
-                                Log("标记失败: " + folderName + " / " + ex.Message);
+                                记录日志($"标记失败：{文件夹名} - {ex.Message}");
                             }
                         }
                     }
                 }
             }
 
-            // ── 根据 PSD 命名批量创建规范文件夹 ───────────────────────
-            Log("正在创建新文件夹...");
+            // ── 根据 PSD 命名批量创建规范文件夹 ──────────────────────────
+            记录日志("开始按命名批量创建规范文件夹...");
 
-            var markedTemplates = Directory.GetDirectories(targetFolder)
+            var 已标记模板 = Directory.GetDirectories(目标文件夹)
                 .Where(d => Path.GetFileName(d).EndsWith("_删", StringComparison.OrdinalIgnoreCase))
                 .ToArray();
 
-            int successCount = 0, errorCount = 0;
+            int 成功数量 = 0, 失败数量 = 0;
 
-            foreach (var fileName in validNames)
+            foreach (var 文件命名 in 有效命名列表)
             {
-                var nameMatch = Regex.Match(fileName, "^(.+?)_(.+)$");
-                if (!nameMatch.Success)
+                var 命名匹配 = Regex.Match(文件命名, "^(.+?)_(.+)$");
+                if (!命名匹配.Success)
                 {
-                    Log("命名格式错误: " + fileName);
-                    errorCount++;
+                    记录日志($"命名格式异常：{文件命名}");
+                    失败数量++;
                     continue;
                 }
 
-                string prefix = nameMatch.Groups[1].Value;
+                string 前缀 = 命名匹配.Groups[1].Value;
 
-                string? boyTemplate = null, girlTemplate = null, genericTemplate = null;
+                string? boy模板 = null, girl模板 = null, 通用模板 = null;
 
                 // 匹配模板（优先级：boy > girl > 通用）
-                foreach (var template in markedTemplates)
+                foreach (var 模板 in 已标记模板)
                 {
-                    string baseName = Path.GetFileName(template).Replace("_删", "");
-                    if (baseName.StartsWith(prefix + "_", StringComparison.OrdinalIgnoreCase))
+                    string 基名 = Path.GetFileName(模板).Replace("_删", "");
+                    if (基名.StartsWith(前缀 + "_", StringComparison.OrdinalIgnoreCase))
                     {
-                        if (baseName.EndsWith("_boy", StringComparison.OrdinalIgnoreCase))
-                            boyTemplate = template;
-                        else if (baseName.EndsWith("_girl", StringComparison.OrdinalIgnoreCase))
-                            girlTemplate = template;
-                        else if (!Regex.IsMatch(baseName, "_(boy|girl)$", RegexOptions.IgnoreCase))
-                            genericTemplate = template;
+                        if (基名.EndsWith("_boy", StringComparison.OrdinalIgnoreCase))
+                            boy模板 = 模板;
+                        else if (基名.EndsWith("_girl", StringComparison.OrdinalIgnoreCase))
+                            girl模板 = 模板;
+                        else if (!Regex.IsMatch(基名, "_(boy|girl)$", RegexOptions.IgnoreCase))
+                            通用模板 = 模板;
                     }
                 }
 
-                var templatesToProcess = new System.Collections.Generic.List<(string Template, string Suffix)>();
+                var 要处理的模板列表 = new System.Collections.Generic.List<(string 模板路径, string 后缀)>();
 
-                if (boyTemplate != null && girlTemplate != null)
+                if (boy模板 != null && girl模板 != null)
                 {
-                    templatesToProcess.Add((boyTemplate, "_boy"));
-                    templatesToProcess.Add((girlTemplate, "_girl"));
+                    要处理的模板列表.Add((boy模板, "_boy"));
+                    要处理的模板列表.Add((girl模板, "_girl"));
                 }
-                else if (genericTemplate != null)
+                else if (通用模板 != null)
                 {
-                    templatesToProcess.Add((genericTemplate, ""));
+                    要处理的模板列表.Add((通用模板, ""));
                 }
-                else if (boyTemplate != null || girlTemplate != null)
+                else if (boy模板 != null || girl模板 != null)
                 {
-                    if (boyTemplate != null) templatesToProcess.Add((boyTemplate, "_boy"));
-                    else templatesToProcess.Add((girlTemplate!, "_girl"));
+                    if (boy模板 != null) 要处理的模板列表.Add((boy模板, "_boy"));
+                    else 要处理的模板列表.Add((girl模板!, "_girl"));
                 }
                 else
                 {
-                    Log("未找到模板: " + fileName);
-                    errorCount++;
+                    记录日志($"未找到匹配模板：{文件命名}");
+                    失败数量++;
                     continue;
                 }
 
-                foreach (var tpl in templatesToProcess)
+                foreach (var tpl in 要处理的模板列表)
                 {
-                    string newFolderName = fileName + tpl.Suffix;
-                    string sourcePath = tpl.Template;
-                    string destPath = Path.Combine(targetFolder, newFolderName);
+                    string 新文件夹名 = 文件命名 + tpl.后缀;
+                    string 来源路径 = tpl.模板路径;
+                    string 目标路径 = Path.Combine(目标文件夹, 新文件夹名);
 
                     try
                     {
                         // 先删除可能存在的同名旧文件夹
-                        if (Directory.Exists(destPath))
-                            Directory.Delete(destPath, true);
+                        if (Directory.Exists(目标路径))
+                            Directory.Delete(目标路径, true);
 
-                        Directory.CreateDirectory(destPath);
-                        Log("创建文件夹: " + newFolderName);
+                        Directory.CreateDirectory(目标路径);
+                        记录日志($"成功创建文件夹：{新文件夹名}");
 
                         // 复制 .max 文件并重命名
-                        var maxFile = Directory.GetFiles(sourcePath, "*.max", SearchOption.TopDirectoryOnly).FirstOrDefault();
-                        if (maxFile != null)
+                        var max文件 = Directory.GetFiles(来源路径, "*.max", SearchOption.TopDirectoryOnly).FirstOrDefault();
+                        if (max文件 != null)
                         {
-                            string newMaxName = fileName + ".max";
-                            File.Copy(maxFile, Path.Combine(destPath, newMaxName), true);
-                            Log("  复制.max文件: " + newMaxName);
+                            string 新Max文件名 = 文件命名 + ".max";
+                            File.Copy(max文件, Path.Combine(目标路径, 新Max文件名), true);
+                            记录日志($"  已复制 .max 文件：{新Max文件名}");
                         }
                         else
                         {
-                            Log("  警告: 未找到.max文件");
+                            记录日志("  警告：未在模板中找到 .max 文件");
                         }
 
                         // 复制公共贴图，并按规范重命名
-                        foreach (var textureFile in commonTextures)
+                        foreach (var 贴图文件 in 公共贴图列表)
                         {
-                            string textureBase = Path.GetFileNameWithoutExtension(textureFile);
-                            string textureExt = Path.GetExtension(textureFile);
-                            var m2 = Regex.Match(textureBase, "_(A|D)$");
+                            string 贴图基名 = Path.GetFileNameWithoutExtension(贴图文件);
+                            string 扩展名 = Path.GetExtension(贴图文件);
+                            var m2 = Regex.Match(贴图基名, "_(A|D)$");
                             if (m2.Success)
                             {
-                                string suffix = m2.Value;
-                                string newTexName = fileName + suffix + textureExt;
-                                File.Copy(textureFile, Path.Combine(destPath, newTexName), true);
-                                Log("  复制贴图: " + newTexName);
+                                string 后缀 = m2.Value;
+                                string 新贴图名 = 文件命名 + 后缀 + 扩展名;
+                                File.Copy(贴图文件, Path.Combine(目标路径, 新贴图名), true);
+                                记录日志($"  已复制贴图：{新贴图名}");
                             }
                             else
                             {
-                                Log("  跳过非标准贴图: " + Path.GetFileName(textureFile));
+                                记录日志($"  跳过非标准贴图：{Path.GetFileName(贴图文件)}");
                             }
                         }
 
-                        successCount++;
+                        成功数量++;
                     }
                     catch (Exception ex)
                     {
-                        Log("创建失败: " + newFolderName + " - " + ex.Message);
-                        errorCount++;
+                        记录日志($"创建文件夹失败：{新文件夹名} - {ex.Message}");
+                        失败数量++;
                     }
                 }
             }
 
-            // ── 清理阶段 ─────────────────────────────────────────────
-            Log("正在删除原模板文件夹...");
-            foreach (var item in markedItems)
+            // ── 最终清理阶段 ─────────────────────────────────────────────
+            记录日志("开始清理原模板和公共贴图...");
+
+            foreach (var 项目 in 已标记项目)
             {
                 try
                 {
-                    if (Directory.Exists(item.MarkedPath))
-                        Directory.Delete(item.MarkedPath, true);
-                    Log("已删除: " + Path.GetFileName(item.MarkedPath));
+                    if (Directory.Exists(项目.新路径))
+                        Directory.Delete(项目.新路径, true);
+                    记录日志($"已彻底删除模板：{Path.GetFileName(项目.新路径)}");
                 }
                 catch { /* 忽略无法删除的情况 */ }
             }
 
-            Log("正在删除总文件夹中的原公共贴图...");
-            foreach (var tex in commonTextures)
+            记录日志("正在删除总文件夹中的原始公共贴图...");
+            foreach (var 贴图 in 公共贴图列表)
             {
                 try
                 {
-                    if (File.Exists(tex))
-                        File.Delete(tex);
-                    Log("已删除原贴图: " + Path.GetFileName(tex));
+                    if (File.Exists(贴图))
+                        File.Delete(贴图);
+                    记录日志($"已删除原始公共贴图：{Path.GetFileName(贴图)}");
                 }
                 catch { }
             }
 
-            Log($"创建完成：{successCount} 成功，{errorCount} 失败");
-            Log("文件夹规范整理完成");
+            记录日志($"规范整理完成：成功 {成功数量} 个，失败 {失败数量} 个");
+            记录日志("整个文件夹规范整理流程已结束");
         }
         catch (Exception ex)
         {
-            Log("处理过程中异常：" + ex.Message);
+            记录日志($"处理过程中发生严重异常：{ex.Message}");
         }
     }
 }

@@ -29,7 +29,7 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = ZW_PipelineTool
-build_property.ProjectDir = E:\Git仓库\ZW_PipelineTool\
+build_property.ProjectDir = e:\Git仓库\ZW_PipelineTool\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.CsWinRTUseWindowsUIXamlProjections = false
@@ -43,4 +43,7 @@ build_metadata.AdditionalFiles.SourceItemGroup =
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
 [e:/Git仓库/ZW_PipelineTool/其他/App.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[e:/Git仓库/ZW_PipelineTool/打印文件工具/FileCollectorWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml

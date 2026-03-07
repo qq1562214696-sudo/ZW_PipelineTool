@@ -34,7 +34,7 @@ namespace ZW_PipelineTool
             // 处理桌面应用程序生命周期
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                desktop.MainWindow = new MainWindow();
+                desktop.MainWindow = new 主窗口();
             }
 
             base.OnFrameworkInitializationCompleted();
