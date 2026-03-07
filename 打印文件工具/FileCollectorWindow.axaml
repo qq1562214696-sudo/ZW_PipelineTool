@@ -6,7 +6,7 @@
         mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="400"
         x:Class="ZW_PipelineTool.FileCollectorWindow"
         x:DataType="local:FileCollectorWindow"
-        Title="文件内容收集器" MinWidth="400" MinHeight="300"
+        Title="文件内容复制器" MinWidth="200" MinHeight="300"
         Width="500" Height="400"
         DragDrop.AllowDrop="True"  
         DragDrop.DragEnter="OnDragEnter"

@@ -8,7 +8,6 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Avalonia.Controls;  // ContentDialog 在这里
 using System.Threading.Tasks;
 
 namespace ZW_PipelineTool
@@ -16,7 +15,7 @@ namespace ZW_PipelineTool
 
     public partial class 主窗口//调试分块
     {
-        private void 打开文件收集器_Click(object? sender, RoutedEventArgs e)
+        private void 打开文件复制器_Click(object? sender, RoutedEventArgs e)
         {
             var 收集器窗口 = new FileCollectorWindow();
             收集器窗口.Show();          // 非模态打开
@@ -76,7 +75,7 @@ namespace ZW_PipelineTool
             }
         }
 
-      private async void CopyButton_Click(object sender, RoutedEventArgs e)
+        private async void CopyButton_Click(object sender, RoutedEventArgs e)
         {
             if (Items.Count == 0)
             {
@@ -100,57 +99,20 @@ namespace ZW_PipelineTool
 
                 sb.AppendLine($"{index}、{item.FileName}");
                 sb.AppendLine(content);
-                sb.AppendLine(); // 空行分隔
+                sb.AppendLine();
                 index++;
             }
 
             var text = sb.ToString().TrimEnd();
-
-            // 方案1：弹出消息框，让用户手动复制（最稳）
-            var dialog = new ContentDialog
+            var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
+            if (clipboard != null)
             {
-                Title = "文件内容已生成",
-                Content = new TextBox
-                {
-                    Text = text,
-                    AcceptsReturn = true,
-                    TextWrapping = TextWrapping.Wrap,
-                    Height = 400,
-                    IsReadOnly = false,
-                    FontFamily = new FontFamily("Consolas"),
-                    Padding = new Thickness(8)
-                },
-                PrimaryButtonText = "复制到剪贴板",
-                CloseButtonText = "关闭",
-                DefaultButton = ContentDialogButton.Primary
-            };
-
-            var result = await dialog.ShowAsync(this);
-
-            if (result == ContentDialogResult.Primary)
-            {
-                // 用户点了“复制到剪贴板”，再尝试写入
-                var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
-                if (clipboard != null)
-                {
-                    try
-                    {
-                        await clipboard.SetTextAsync(text);
-                        UpdateStatus("已复制到剪贴板");
-                    }
-                    catch (Exception ex)
-                    {
-                        UpdateStatus($"复制失败：{ex.Message}");
-                    }
-                }
-                else
-                {
-                    UpdateStatus("无法访问剪贴板");
-                }
+                await clipboard.SetTextAsync(text);
+                UpdateStatus("已复制到剪贴板");
             }
             else
             {
-                UpdateStatus("已关闭（可手动选中文本复制）");
+                UpdateStatus("无法访问剪贴板");
             }
         }
 

@@ -288,8 +288,6 @@ e:\Git仓库\ZW_PipelineTool\obj\Debug\net10.0-windows\win-x64\ZW_PipelineTool.A
 e:\Git仓库\ZW_PipelineTool\obj\Debug\net10.0-windows\win-x64\ZW_PipelineTool.AssemblyInfo.cs
 e:\Git仓库\ZW_PipelineTool\obj\Debug\net10.0-windows\win-x64\ZW_PipelineTool.csproj.CoreCompileInputs.cache
 e:\Git仓库\ZW_PipelineTool\obj\Debug\net10.0-windows\win-x64\ZW_PipelineTool.sourcelink.json
-e:\Git仓库\ZW_PipelineTool\obj\Debug\net10.0-windows\win-x64\ZW_PipelineTool.csproj.Fody.CopyLocal.cache
-e:\Git仓库\ZW_PipelineTool\obj\Debug\net10.0-windows\win-x64\ZW_PipelineTool.csproj.Fody.RuntimeCopyLocal.cache
 E:\Git仓库\ZW_PipelineTool\obj\Debug\net10.0-windows\win-x64\ZW_Pipel.8137C1F2.Up2Date
 e:\Git仓库\ZW_PipelineTool\obj\Debug\net10.0-windows\win-x64\ZW_PipelineTool.dll
 e:\Git仓库\ZW_PipelineTool\obj\Debug\net10.0-windows\win-x64\refint\ZW_PipelineTool.dll
@@ -632,3 +630,5 @@ D:\360MoveData\Users\s\Desktop\ZW_PipelineTool\bin\Debug\net10.0-windows\win-x64
 D:\360MoveData\Users\s\Desktop\ZW_PipelineTool\bin\Debug\net10.0-windows\win-x64\SocketIOClient.Common.dll
 D:\360MoveData\Users\s\Desktop\ZW_PipelineTool\bin\Debug\net10.0-windows\win-x64\SocketIOClient.Serializer.dll
 D:\360MoveData\Users\s\Desktop\ZW_PipelineTool\bin\Debug\net10.0-windows\win-x64\Tmds.DBus.Protocol.dll
+e:\Git仓库\ZW_PipelineTool\obj\Debug\net10.0-windows\win-x64\ZW_PipelineTool.csproj.Fody.CopyLocal.cache
+e:\Git仓库\ZW_PipelineTool\obj\Debug\net10.0-windows\win-x64\ZW_PipelineTool.csproj.Fody.RuntimeCopyLocal.cache

@@ -5,7 +5,6 @@
         Width="480"
         Height="560"
         WindowStartupLocation="CenterScreen"
-        Topmost="True"
         FontSize="12">
 
     <Window.Styles>
@@ -71,22 +70,25 @@
                   HorizontalScrollBarVisibility="Disabled">
         <StackPanel Margin="8" Spacing="2">
 
-            <Expander Header="工具基本设置" IsExpanded="True">
+            <!-- 工具基本设置 Expander（已添加 x:Name） -->
+            <Expander x:Name="工具基本设置" Header="工具基本设置" IsExpanded="True">
                 <StackPanel Margin="0,2,0,0" Spacing="2">
                     <CheckBox x:Name="置顶CheckBox"
                               Content="窗口始终置顶"
-                              IsChecked="True"/>
+                              IsChecked="{Binding Topmost, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"/>
                     <CheckBox x:Name="开机自启CheckBox"
                               Content="开机自动启动（待实现）"
                               IsChecked="False"/>
-                              <StackPanel>
-                                    <!-- 其他控件 -->
-                                    <Button Content="打开文件收集器" Click="打开文件收集器_Click" HorizontalAlignment="Center" Margin="5"/>
-                              </StackPanel>
+                    <StackPanel>
+                        <Button Content="打开文件复制器" 
+                                Click="打开文件复制器_Click" 
+                                HorizontalAlignment="Center" Margin="5"/>
+                    </StackPanel>
                 </StackPanel>
             </Expander>
 
-            <Expander Header="运行日志（支持复制）" IsExpanded="False">
+            <!-- 运行日志 Expander（已添加 x:Name） -->
+            <Expander x:Name="运行日志" Header="运行日志（支持复制）" IsExpanded="False">
                 <ScrollViewer VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled"
                               Height="110">
@@ -111,31 +113,46 @@
                                      Watermark="在此粘贴 Unity 主文件名（不含路径）"
                                      Height="20" Padding="4,1"/>
                             <Button x:Name="QF_初始化按钮" 
-                                    Content="执行初始化"/>
+                                    Content="执行初始化"
+                                    Click="初始化按钮_点击"/>
                         </StackPanel>
                     </Expander>
 
                     <Expander Header="3ds Max 常用工具" IsExpanded="True">
                         <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto" Margin="0,2,0,0">
-                            <Button x:Name="规范模型命名Btn" Grid.Row="0" Grid.Column="0" Content="规范模型命名" Tag="规范模型.ms"/>
-                            <Button x:Name="导出当前选中为FBXBtn" Grid.Row="0" Grid.Column="1" Content="导出当前选中为FBX" Tag="导出FBX(当前).ms"/>
-                            <Button x:Name="导出贴图加FBXBtn" Grid.Row="0" Grid.Column="2" Content="导出贴图+FBX" Tag="导出（贴图+FBX）.ms"/>
-                            <Button x:Name="选择多边面物体Btn" Grid.Row="1" Grid.Column="0" Content="选择多边面物体" Tag="选择多边面.ms"/>
-                            <Button x:Name="选择法线翻转的面Btn" Grid.Row="1" Grid.Column="1" Content="选择法线翻转的面" Tag="选择法线翻转的面.ms"/>
-                            <Button x:Name="快速面数检查Btn" Grid.Row="1" Grid.Column="2" Content="快速面数检查" Tag="面数检查.ms"/>
-                            <Button x:Name="Mesh01批量重命名Btn" Grid.Row="2" Grid.Column="0" Content="Mesh01 批量重命名" Tag="Mesh01_重命名.ms"/>
+                            <Button x:Name="规范模型命名Btn" Grid.Row="0" Grid.Column="0" 
+                                    Content="规范模型命名" Tag="规范模型.ms" Click="脚本按钮_点击"/>
+                            <Button x:Name="导出当前选中为FBXBtn" Grid.Row="0" Grid.Column="1" 
+                                    Content="导出当前选中为FBX" Tag="导出FBX(当前).ms" Click="脚本按钮_点击"/>
+                            <Button x:Name="导出贴图加FBXBtn" Grid.Row="0" Grid.Column="2" 
+                                    Content="导出贴图+FBX" Tag="导出（贴图+FBX）.ms" Click="脚本按钮_点击"/>
+                            <Button x:Name="选择多边面物体Btn" Grid.Row="1" Grid.Column="0" 
+                                    Content="选择多边面物体" Tag="选择多边面.ms" Click="脚本按钮_点击"/>
+                            <Button x:Name="选择法线翻转的面Btn" Grid.Row="1" Grid.Column="1" 
+                                    Content="选择法线翻转的面" Tag="选择法线翻转的面.ms" Click="脚本按钮_点击"/>
+                            <Button x:Name="快速面数检查Btn" Grid.Row="1" Grid.Column="2" 
+                                    Content="快速面数检查" Tag="面数检查.ms" Click="脚本按钮_点击"/>
+                            <Button x:Name="Mesh01批量重命名Btn" Grid.Row="2" Grid.Column="0" 
+                                    Content="Mesh01 批量重命名" Tag="Mesh01_重命名.ms" Click="脚本按钮_点击"/>
                         </Grid>
                     </Expander>
 
                     <Expander Header="Unity 常用工具" IsExpanded="True">
                         <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,2,0,0">
-                            <Button x:Name="Unity初始化Btn" Grid.Row="0" Grid.Column="0" Content="Unity 初始化（待实现）"/>
-                            <Button x:Name="打开头像编辑器Btn" Grid.Row="0" Grid.Column="1" Content="打开 Avatar 编辑器"/>
-                            <Button x:Name="复制并导出Btn" Grid.Row="0" Grid.Column="2" Content="复制选中并打开导出窗口"/>
-                            <Button x:Name="粘贴Max名称Btn" Grid.Row="1" Grid.Column="0" Content="粘贴 Max 文件名到 Unity"/>
-                            <Button x:Name="文件标准化Btn" Grid.Row="1" Grid.Column="1" Content="一键规范文件结构"/>
-                            <Button x:Name="批量导出Btn" Grid.Row="1" Grid.Column="2" Content="一键批量导出资产"/>
-                            <Button x:Name="清空Max名称Btn" Grid.Row="2" Grid.Column="0" Content="清空 Unity 中的 Max 名称列表"/>
+                            <Button x:Name="Unity初始化Btn" Grid.Row="0" Grid.Column="0" 
+                                    Content="Unity 初始化（待实现）" Click="初始化按钮_点击"/>
+                            <Button x:Name="打开头像编辑器Btn" Grid.Row="0" Grid.Column="1" 
+                                    Content="打开 Avatar 编辑器" Click="打开头像编辑器按钮_点击"/>
+                            <Button x:Name="复制并导出Btn" Grid.Row="0" Grid.Column="2" 
+                                    Content="复制选中并打开导出窗口" Click="复制并导出按钮_点击"/>
+                            <Button x:Name="粘贴Max名称Btn" Grid.Row="1" Grid.Column="0" 
+                                    Content="粘贴 Max 文件名到 Unity" Click="粘贴Max名称按钮_点击"/>
+                            <Button x:Name="文件标准化Btn" Grid.Row="1" Grid.Column="1" 
+                                    Content="一键规范文件结构" Click="文件标准化按钮_点击"/>
+                            <Button x:Name="批量导出Btn" Grid.Row="1" Grid.Column="2" 
+                                    Content="一键批量导出资产" Click="批量导出按钮_点击"/>
+                            <Button x:Name="清空Max名称Btn" Grid.Row="2" Grid.Column="0" 
+                                    Content="清空 Unity 中的 Max 名称列表" Click="清空Max名称按钮_点击"/>
                         </Grid>
                     </Expander>
                 </StackPanel>
@@ -152,13 +169,20 @@
 
                     <Expander Header="3ds Max 工具（小岛植物专用）" IsExpanded="True">
                         <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto" Margin="0,2,0,0">
-                            <Button x:Name="小岛_规范模型命名Btn" Grid.Row="0" Grid.Column="0" Content="规范模型命名（待实现）" Tag="规范模型.ms"/>
-                            <Button x:Name="小岛_导出当前为FBXBtn" Grid.Row="0" Grid.Column="1" Content="导出当前为FBX（待实现）" Tag="导出FBX(当前).ms"/>
-                            <Button x:Name="小岛_导出贴图加FBXBtn" Grid.Row="0" Grid.Column="2" Content="导出贴图+FBX（待实现）" Tag="导出（贴图+FBX）.ms"/>
-                            <Button x:Name="小岛_选择多边面Btn" Grid.Row="1" Grid.Column="0" Content="选择多边面（待实现）" Tag="选择多边面.ms"/>
-                            <Button x:Name="小岛_选择法线翻转Btn" Grid.Row="1" Grid.Column="1" Content="选择法线翻转的面（待实现）" Tag="选择法线翻转的面.ms"/>
-                            <Button x:Name="小岛_面数检查Btn" Grid.Row="1" Grid.Column="2" Content="面数检查（待实现）" Tag="面数检查.ms"/>
-                            <Button x:Name="小岛_Mesh01重命名Btn" Grid.Row="2" Grid.Column="0" Content="Mesh01 批量重命名（待实现）" Tag="Mesh01_重命名.ms"/>
+                            <Button x:Name="小岛_规范模型命名Btn" Grid.Row="0" Grid.Column="0" 
+                                    Content="规范模型命名（待实现）" Tag="规范模型.ms" Click="脚本按钮_点击"/>
+                            <Button x:Name="小岛_导出当前为FBXBtn" Grid.Row="0" Grid.Column="1" 
+                                    Content="导出当前为FBX（待实现）" Tag="导出FBX(当前).ms" Click="脚本按钮_点击"/>
+                            <Button x:Name="小岛_导出贴图加FBXBtn" Grid.Row="0" Grid.Column="2" 
+                                    Content="导出贴图+FBX（待实现）" Tag="导出（贴图+FBX）.ms" Click="脚本按钮_点击"/>
+                            <Button x:Name="小岛_选择多边面Btn" Grid.Row="1" Grid.Column="0" 
+                                    Content="选择多边面（待实现）" Tag="选择多边面.ms" Click="脚本按钮_点击"/>
+                            <Button x:Name="小岛_选择法线翻转Btn" Grid.Row="1" Grid.Column="1" 
+                                    Content="选择法线翻转的面（待实现）" Tag="选择法线翻转的面.ms" Click="脚本按钮_点击"/>
+                            <Button x:Name="小岛_面数检查Btn" Grid.Row="1" Grid.Column="2" 
+                                    Content="面数检查（待实现）" Tag="面数检查.ms" Click="脚本按钮_点击"/>
+                            <Button x:Name="小岛_Mesh01重命名Btn" Grid.Row="2" Grid.Column="0" 
+                                    Content="Mesh01 批量重命名（待实现）" Tag="Mesh01_重命名.ms" Click="脚本按钮_点击"/>
                         </Grid>
                     </Expander>
                 </StackPanel>
