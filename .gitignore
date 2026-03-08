@@ -1,0 +1,23 @@
+# 忽略 bin 和 obj 文件夹（最常见）
+bin/
+obj/
+
+# 忽略所有 bin 和 obj，不管在哪一层目录
+**/bin/
+**/obj/
+
+# 其他常见忽略（根据你的项目选加）
+.vs/               # Visual Studio 缓存
+.idea/             # Rider / IntelliJ
+*.csproj.user      # 用户配置文件
+*.sln.DotSettings  # Rider 设置
+Debug/
+Release/
+x64/
+x86/
+logs/
+*.log
+*.tmp
+*.cache
+Thumbs.db
+.DS_Store          # Mac 系统文件
