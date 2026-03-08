@@ -91,13 +91,13 @@
             <Expander x:Name="运行日志" Header="运行日志（支持复制）" IsExpanded="False">
                 <ScrollViewer VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled"
-                              Height="210">
+                              Height="160">
                     <TextBox x:Name="LogBox"
                              AcceptsReturn="True"
                              IsReadOnly="True"
                              TextWrapping="Wrap"
                              FontFamily="Consolas, Courier New, monospace"
-                             Height="200"
+                             Height="150"
                              Padding="4,2"/>
                 </ScrollViewer>
             </Expander>

@@ -24,9 +24,12 @@ public partial class 主窗口 : Window
     private static readonly string 存储路径;
     private 窗口数据 _窗口数据 = new 窗口数据();
     protected TextBox? 日志文本框;
-
     private Expander? 工具基本设置Expander;
     private Expander? 运行日志Expander;
+
+    // 新增：MaxScript 日志监控
+    private FileSystemWatcher? _logWatcher;
+    private readonly string _logFilePath = Path.Combine(Path.GetTempPath(), "Max_Log.txt");
 
     static 主窗口()
     {
@@ -39,7 +42,6 @@ public partial class 主窗口 : Window
     {
         InitializeComponent();
         日志文本框 = this.FindControl<TextBox>("LogBox");
-
         工具基本设置Expander = this.FindControl<Expander>("工具基本设置");
         运行日志Expander = this.FindControl<Expander>("运行日志");
 
@@ -53,31 +55,113 @@ public partial class 主窗口 : Window
         {
             加载窗口设置();
             应用窗口设置();
-
             if (工具基本设置Expander != null)
                 工具基本设置Expander.IsExpanded = _窗口数据.工具基本设置展开;
             if (运行日志Expander != null)
                 运行日志Expander.IsExpanded = _窗口数据.运行日志展开;
-
             if (_窗口数据.X坐标 <= 0 && _窗口数据.Y坐标 <= 0)
                 自动定位到右下角();
             else
                 确保窗口在可见区域内();
+
+            // 启动 Max 日志监控
+            StartMaxLogWatcher();
         };
 
-        Closing += (s, e) => 保存窗口设置();
+        Closing += (s, e) =>
+        {
+            保存窗口设置();
+            StopMaxLogWatcher();
+        };
     }
 
     private void InitializeComponent() => AvaloniaXamlLoader.Load(this);
 
-    // ========== 通用按钮事件处理方法 ==========
+    // ========== Max 日志监控相关方法 ==========
+
+    private void StartMaxLogWatcher()
+    {
+        try
+        {
+            string dir = Path.GetDirectoryName(_logFilePath) ?? Path.GetTempPath();
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+
+            _logWatcher = new FileSystemWatcher
+            {
+                Path = dir,
+                Filter = "Max_Log.txt",
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.FileName,
+                EnableRaisingEvents = true
+            };
+
+            _logWatcher.Changed += OnMaxLogChanged;
+            _logWatcher.Created += OnMaxLogChanged;
+
+            记录日志($"[系统] MaxScript 日志监控已启动：{_logFilePath}");
+        }
+        catch (Exception ex)
+        {
+            记录日志($"[系统] Max 日志监控启动失败：{ex.Message}");
+        }
+    }
+
+    private void StopMaxLogWatcher()
+    {
+        if (_logWatcher != null)
+        {
+            _logWatcher.Changed -= OnMaxLogChanged;
+            _logWatcher.Created -= OnMaxLogChanged;
+            _logWatcher.EnableRaisingEvents = false;
+            _logWatcher.Dispose();
+            _logWatcher = null;
+        }
+    }
+
+    private async void OnMaxLogChanged(object? sender, FileSystemEventArgs e)
+    {
+        await Task.Delay(400); // 避免文件锁定
+
+        await Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            try
+            {
+                if (File.Exists(_logFilePath))
+                {
+                    string content = "";
+                    using (var fs = new FileStream(_logFilePath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
+                    using (var sr = new StreamReader(fs, Encoding.UTF8))
+                    {
+                        content = sr.ReadToEnd();
+                        fs.SetLength(0); // 清空文件
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(content))
+                    {
+                        记录日志("┌──── MaxScript 日志 ──────");
+                        记录日志(content.Trim());
+                        记录日志("└───────────────────────────");
+                    }
+                }
+            }
+            catch (IOException ioEx) when (ioEx.Message.Contains("另一个进程") || ioEx.Message.Contains("正在使用"))
+            {
+                // 文件被占用，忽略本次读取
+            }
+            catch (Exception ex)
+            {
+                记录日志($"读取 Max 日志文件失败：{ex.Message}");
+            }
+        });
+    }
+
+    // ========== 其余原有方法保持不变 ==========
+    // （通用按钮、拖放、窗口设置、日志记录等全部保留原样）
 
     private void 初始化按钮_点击(object? sender, RoutedEventArgs e)
     {
         记录日志("初始化按钮被点击（待实现具体逻辑）");
     }
-
-    // ========== 拖放支持 ==========
 
     private void 窗口_拖入(object? sender, DragEventArgs e)
     {
@@ -99,33 +183,25 @@ public partial class 主窗口 : Window
             记录日志("未检测到任何文件/文件夹");
             return;
         }
-
         var 第一个项目 = 文件列表.First();
         var 路径 = 第一个项目.TryGetLocalPath();
-
         if (string.IsNullOrEmpty(路径))
         {
             记录日志("无法获取本地路径");
             return;
         }
-
         if (!Directory.Exists(路径))
         {
             记录日志($"拖入的不是文件夹：{路径}");
             return;
         }
-
         记录日志($"成功接收文件夹：{路径}");
-
         var 路径文本框 = this.FindControl<TextBox>("FolderPathTextBox");
         if (路径文本框 != null)
             路径文本框.Text = 路径;
-
         await 规范整理文件夹(路径);
         e.Handled = true;
     }
-
-    // ========== 窗口位置与状态持久化（保持不变） ==========
 
     private void 保存窗口设置()
     {
@@ -138,15 +214,12 @@ public partial class 主窗口 : Window
                 _窗口数据.X坐标 = Position.X;
                 _窗口数据.Y坐标 = Position.Y;
             }
-
             _窗口数据.窗口状态 = WindowState;
             _窗口数据.置顶 = Topmost;
-
             if (工具基本设置Expander != null)
                 _窗口数据.工具基本设置展开 = 工具基本设置Expander.IsExpanded;
             if (运行日志Expander != null)
                 _窗口数据.运行日志展开 = 运行日志Expander.IsExpanded;
-
             string json = JsonSerializer.Serialize(_窗口数据, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(存储路径, json);
         }
@@ -186,7 +259,6 @@ public partial class 主窗口 : Window
                     Position = new PixelPoint((int)_窗口数据.X坐标, (int)_窗口数据.Y坐标);
                 }
             }
-
             WindowState = _窗口数据.窗口状态;
             Topmost = _窗口数据.置顶;
         }
@@ -197,16 +269,13 @@ public partial class 主窗口 : Window
     {
         var 主屏幕 = Screens.Primary;
         if (主屏幕 == null) return;
-
         var 工作区 = 主屏幕.WorkingArea;
         int x = Position.X, y = Position.Y;
         int 宽 = (int)Width, 高 = (int)Height;
-
         if (x + 宽 > 工作区.X + 工作区.Width) x = 工作区.X + 工作区.Width - 宽;
         if (x < 工作区.X) x = 工作区.X;
         if (y + 高 > 工作区.Y + 工作区.Height) y = 工作区.Y + 工作区.Height - 高;
         if (y < 工作区.Y) y = 工作区.Y;
-
         Position = new PixelPoint(x, y);
     }
 
@@ -214,33 +283,25 @@ public partial class 主窗口 : Window
     {
         var 主屏幕 = Screens.Primary;
         if (主屏幕 == null) return;
-
         var 缩放 = 主屏幕.Scaling;
         var 窗口像素尺寸 = new PixelSize(
             (int)(ClientSize.Width * 缩放),
             (int)(ClientSize.Height * 缩放));
-
         var 工作区 = 主屏幕.WorkingArea;
         int 边距 = (int)(15 * 缩放);
         int x = 工作区.X + 工作区.Width - 窗口像素尺寸.Width - 边距;
         int y = 工作区.Y + 工作区.Height - 窗口像素尺寸.Height - 边距;
-
         x = Math.Max(工作区.X, x);
         y = Math.Max(工作区.Y, y);
-
         Position = new PixelPoint(x, y);
         WindowStartupLocation = WindowStartupLocation.Manual;
     }
 
-    // ========== 日志记录 ==========
-
     protected virtual void 记录日志(string 消息)
     {
         if (日志文本框 == null) return;
-
         string 时间 = DateTime.Now.ToString("HH:mm:ss");
         string 一行 = $"[{时间}] {消息}\n";
-
         Dispatcher.UIThread.InvokeAsync(() =>
         {
             try
