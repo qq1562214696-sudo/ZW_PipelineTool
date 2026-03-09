@@ -18,7 +18,7 @@ public partial class 主窗口
         string? 脚本文件名 = button.Tag?.ToString()?.Trim();
         if (string.IsNullOrWhiteSpace(脚本文件名))
         {
-            记录日志($"按钮缺少 Tag 属性，无法确定脚本：{button.Content}");
+            报错($"按钮缺少 Tag 属性，无法确定脚本：{button.Content}");
             return;
         }
         try
@@ -28,9 +28,9 @@ public partial class 主窗口
             string 脚本路径 = Path.Combine(程序目录, "MAX", 脚本文件名);
             if (!File.Exists(脚本路径))
             {
-                记录日志("请检查：");
-                记录日志("1. 根目录下是否存在 MAX 文件夹");
-                记录日志($"2. 其中是否包含文件：{脚本文件名}");
+                报错("请检查：");
+                报错("1. 根目录下是否存在 MAX 文件夹");
+                报错($"2. 其中是否包含文件：{脚本文件名}");
                 return;
             }
             // 核心发送逻辑
@@ -38,7 +38,7 @@ public partial class 主窗口
         }
         catch (Exception ex)
         {
-            记录日志($"MAX工具使用失败：{ex.Message}");
+            报错($"MAX工具使用失败：{ex.Message}");
         }
     }
 
@@ -78,7 +78,7 @@ public partial class 主窗口
     {
         if (!File.Exists(脚本路径))
         {
-            记录日志("脚本文件不存在（异常情况）");
+            报错("脚本文件不存在（异常情况）");
             return;
         }
         // 尝试多种可能的窗口类名/标题来定位 3ds Max 主窗口
@@ -89,7 +89,7 @@ public partial class 主窗口
         if (窗口句柄 == IntPtr.Zero) 窗口句柄 = FindWindow(null, "Autodesk 3ds Max 2014"); // 可根据版本增加更多
         if (窗口句柄 == IntPtr.Zero)
         {
-            记录日志("Max2014 未正确运行");
+            报错("Max2014 未正确运行");
             return;
         }
         try
@@ -99,7 +99,7 @@ public partial class 主窗口
             // 获取窗口矩形区域，用于计算中心点坐标
             if (!GetWindowRect(窗口句柄, out RECT 矩形区域))
             {
-                记录日志("获取 3ds Max 窗口失败");
+                报错("获取 3ds Max 窗口失败");
                 return;
             }
             int 中心X = 矩形区域.Left + (矩形区域.Right - 矩形区域.Left) / 2;
@@ -114,7 +114,7 @@ public partial class 主窗口
             IntPtr 全局内存句柄 = Marshal.AllocHGlobal(总内存大小);
             if (全局内存句柄 == IntPtr.Zero)
             {
-                记录日志("全局内存分配失败");
+                报错("全局内存分配失败");
                 return;
             }
             // 注意：这里移除了 finally 中的 FreeHGlobal，让 3ds Max 负责释放内存
@@ -136,13 +136,13 @@ public partial class 主窗口
             }
             catch (Exception ex)
             {
-                记录日志($"发送Max脚本发生异常：{ex.Message}");
+                报错($"发送Max脚本发生异常：{ex.Message}");
                 Marshal.FreeHGlobal(全局内存句柄); // 异常情况下，手动释放以防泄漏
             }
         }
         catch (Exception ex)
         {
-            记录日志($"与 3ds Max 交互时发生异常：{ex.Message}");
+            报错($"与 3ds Max 交互时发生异常：{ex.Message}");
         }
     }
 }

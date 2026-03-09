@@ -46,18 +46,18 @@ public partial class 主窗口
             await 客户端.WriteAsync(字节数据, 0, 字节数据.Length);
             await 客户端.FlushAsync();
 
-            记录日志($"已向 Unity 发送命令：{命令}{(参数值 != null ? $"（值：{参数值}）" : "")}");
+            日志($"已向 Unity 发送命令：{命令}{(参数值 != null ? $"（值：{参数值}）" : "")}");
         }
         catch (TimeoutException)
         {
-            记录日志("Unity 未响应，请确认：");
-            记录日志("1. Unity 编辑器已打开");
-            记录日志("2. ZW_UnityPipelineTool.cs 脚本已正确挂载并运行");
-            记录日志("3. 命名管道名称完全一致");
+            日志("Unity 未响应，请确认：");
+            日志("1. Unity 编辑器已打开");
+            日志("2. ZW_UnityPipelineTool.cs 脚本已正确挂载并运行");
+            日志("3. 命名管道名称完全一致");
         }
         catch (Exception ex)
         {
-            记录日志($"发送命令到 Unity 失败：{ex.Message}");
+            日志($"发送命令到 Unity 失败：{ex.Message}");
         }
     }
 
@@ -69,7 +69,7 @@ public partial class 主窗口
         var 顶层窗口 = TopLevel.GetTopLevel(this);
         if (顶层窗口?.Clipboard == null)
         {
-            记录日志("无法访问系统剪贴板（窗口未激活或剪贴板服务不可用）");
+            日志("无法访问系统剪贴板（窗口未激活或剪贴板服务不可用）");
             return null;
         }
 
@@ -79,7 +79,7 @@ public partial class 主窗口
         }
         catch (Exception ex)
         {
-            记录日志($"读取剪贴板失败：{ex.Message}");
+            日志($"读取剪贴板失败：{ex.Message}");
             return null;
         }
     }
@@ -104,13 +104,13 @@ public partial class 主窗口
         string? 剪贴板文本 = await 获取剪贴板文本Async();
         if (string.IsNullOrWhiteSpace(剪贴板文本))
         {
-            记录日志("剪贴板为空或读取失败");
+            日志("剪贴板为空或读取失败");
             return;
         }
 
         string 清理后文本 = 剪贴板文本.Trim();
         await 发送Unity命令("AddMaxFileName", 清理后文本);
-        记录日志($"已请求 Unity 添加 Max 文件名：{清理后文本}");
+        日志($"已请求 Unity 添加 Max 文件名：{清理后文本}");
     }
 
     private async void 文件标准化按钮_点击(object? sender, RoutedEventArgs e)
@@ -126,7 +126,7 @@ public partial class 主窗口
     private async void 清空Max名称按钮_点击(object? sender, RoutedEventArgs e)
     {
         await 发送Unity命令("ClearMaxFileNames");
-        记录日志("已请求 Unity 清空 Max 文件名列表");
+        日志("已请求 Unity 清空 Max 文件名列表");
     }
 
     #endregion

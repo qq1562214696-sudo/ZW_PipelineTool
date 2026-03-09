@@ -1,14 +1,15 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="using:ZW_PipelineTool"
         x:Class="ZW_PipelineTool.主窗口"
+        x:Name="ThisWindow"
+        x:CompileBindings="False"
         Title="创宇极 - 多项目整合代理工具 v1.0    作者：周维    VX:1562214696"
-        Width="480"
-        Height="560"
+        Width="500" Height="750"
         WindowStartupLocation="CenterScreen"
         FontSize="12">
 
     <Window.Styles>
-        <!-- 样式保持不变 -->
         <Style Selector="Button">
             <Setter Property="Height" Value="20"/>
             <Setter Property="Padding" Value="8,-5"/>
@@ -66,20 +67,19 @@
         </Style>
     </Window.Styles>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                  HorizontalScrollBarVisibility="Disabled">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
         <StackPanel Margin="8" Spacing="2">
 
-            <!-- 工具基本设置 Expander（已添加 x:Name） -->
+            <!-- 工具基本设置 -->
             <Expander x:Name="工具基本设置" Header="工具基本设置" IsExpanded="True">
                 <StackPanel Margin="0,2,0,0" Spacing="2">
                     <CheckBox x:Name="置顶CheckBox"
                               Content="窗口始终置顶"
-                              IsChecked="{Binding Topmost, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"/>
+                              IsChecked="{Binding Topmost, RelativeSource={RelativeSource AncestorType=Window}}"/>
                     <CheckBox x:Name="开机自启CheckBox"
-                            Content="开机自动启动"
-                            Checked="开机自启_Checked"
-                            Unchecked="开机自启_Unchecked"/>
+                              Content="开机自动启动"
+                              Checked="开机自启_Checked"
+                              Unchecked="开机自启_Unchecked"/>
                     <StackPanel>
                         <Button Content="打开文件复制器" 
                                 Click="打开文件复制器_Click" 
@@ -87,7 +87,7 @@
                             <ToolTip.Tip>
                                 <ToolTip>
                                     <TextBlock TextWrapping="Wrap" MaxWidth="300">
-                                        <Run Text="用于代码开发使用，功能是一键将拖入的 任何格式 文本文件 的内容复制到剪切板" />
+                                        用于代码开发使用，功能是一键将拖入的 任何格式 文本文件 的内容复制到剪切板
                                     </TextBlock>
                                 </ToolTip>
                             </ToolTip.Tip>
@@ -96,22 +96,27 @@
                 </StackPanel>
             </Expander>
 
-            <!-- 运行日志 Expander（已添加 x:Name） -->
+            <!-- 运行日志（关键修复在这里） -->
             <Expander x:Name="运行日志" Header="运行日志（支持复制）" IsExpanded="False">
                 <ScrollViewer VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled"
                               Height="160">
-                    <TextBox x:Name="LogBox"
-                             AcceptsReturn="True"
-                             IsReadOnly="True"
-                             TextWrapping="Wrap"
-                             FontFamily="Consolas, Courier New, monospace"
-                             Height="150"
-                             Padding="4,2"/>
-
-                    <!-- <Button x:Name="清空日志" 
-                            Content="清空日志" 
-                            Click="清空日志_Click"/> ////////待完善         -->
+                    <ListBox x:Name="LogListBox"
+                             ItemsSource="{Binding 日志列表}"
+                             Background="Transparent"
+                             BorderThickness="0"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             SelectionMode="Single">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate x:DataType="local:日志数据">
+                                <TextBlock Text="{Binding Message}"
+                                           Foreground="{Binding Color}"
+                                           TextWrapping="Wrap"
+                                           FontFamily="Consolas, Courier New, monospace"
+                                           Margin="2"/>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
                 </ScrollViewer>
             </Expander>
 
