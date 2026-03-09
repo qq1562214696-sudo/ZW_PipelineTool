@@ -1,234 +1,216 @@
--- 规范模型.ms 修复版
+-- 规范模型.ms （作用域修复版）
+
+fileIn (getFilenamePath (getThisScriptFilename()) + "\\QF_Tools_Lib.ms")
+
+qf_log "=== 规范模型.ms 开始加载 ==="
+
+-- ──────────────────────────────────────────────
+--  移到顶层定义的函数
+-- ──────────────────────────────────────────────
+
+fn setupBackgroundPlane = 
+(
+    try
+    (
+        local bgPlane = getNodeByName "原画" exact:true
+        if bgPlane == undefined or not (isKindOf bgPlane Plane) do 
+        (
+            qf_log "'原画' 对象不存在或不是 Plane 类型"
+            return false
+        )
+
+        if maxFileName == "" do 
+        (
+            qf_log "max 文件尚未保存"
+            return false
+        )
+
+        local maxFileNameOnly = getFilenameFile maxFileName
+        local currentDir = maxFilePath
+        local psdFile = undefined
+        local levels = 0
+
+        while levels < 5 and currentDir != "" do
+        (
+            currentDir = getFilenamePath (pathConfig.removePathLeaf currentDir)
+            local psdFiles = getFiles (currentDir + "*.psd")
+            for f in psdFiles while psdFile == undefined do
+            (
+                if findString (filenameFromPath f) maxFileNameOnly != undefined do
+                    psdFile = f
+            )
+            if psdFile != undefined do exit
+            levels += 1
+        )
+
+        if psdFile == undefined do 
+        (
+            qf_log "向上 5 级目录未找到匹配的 PSD 文件"
+            return false
+        )
+
+        qf_log ("找到原画 PSD: " + psdFile)
+
+        local mat = Standard name:"原画材质"
+        local bmpTex = Bitmaptexture filename:psdFile name:"原画贴图"
+        mat.diffuseMap = bmpTex
+        mat.diffuseMapEnable = true
+        mat.showInViewport = true
+        bgPlane.material = mat
+
+        try
+        (
+            local b = openBitmap psdFile
+            if b != undefined do
+            (
+                bgPlane.length = b.height / 1000.0
+                bgPlane.width  = b.width  / 1000.0
+                close b
+            )
+        )
+        catch
+        (
+            qf_log "读取 PSD 尺寸失败，不调整平面大小"
+        )
+
+        bgPlane.isFrozen = true
+        qf_log "原画平面已设置完成并冻结"
+        return true
+    )
+    catch
+    (
+        qf_log ("setupBackgroundPlane 异常: " + getCurrentException())
+        return false
+    )
+)
+
+fn ResetPivotFn Obj =
+(
+    local target = matrix3 [1,0,0] [0,0,1] [0,-1,0] [0,0,0]
+    local ChldTms = in coordsys target (for c in Obj.children collect c.transform)
+
+    local TmScale   = scaleMatrix   Obj.objectOffsetScale
+    local TmRot     = Obj.objectOffsetRot as matrix3
+    local TmPos     = transMatrix    Obj.objectOffsetPos
+    local TmOffset  = TmScale * TmRot * TmPos
+
+    TmOffset *= Obj.transform * inverse target
+
+    Obj.transform = target
+    Obj.objectOffsetPos   = TmOffset.translationpart
+    Obj.objectOffsetRot   = TmOffset.rotationpart
+    Obj.objectOffsetScale = TmOffset.scalepart
+
+    for i = 1 to Obj.children.count do
+        Obj.children[i].transform = ChldTms[i] * inverse target * Obj.transform
+)
+
+-- ──────────────────────────────────────────────
+--  主逻辑
+-- ──────────────────────────────────────────────
 
 fn main =
 (
-    local thisDir = getFilenamePath (getThisScriptFilename())
-    fileIn (thisDir + "\\QF_Tools_Lib.ms")
-   
     qf_log "=== 规范模型 开始执行 ==="
-    qf_log ("当前 max 文件: " + maxFileName)
-    qf_log ("路径: " + maxFilePath)
-   
-    fn setupBackgroundPlane =
-    (
-        -- 原函数内容保持不变
-        try
-        (
-            local bgPlane = getNodeByName "原画" exact:true
-            if bgPlane == undefined do (qf_log "未找到 '原画' 对象"; return false)
-            if not (isKindOf bgPlane Plane) do (qf_log "'原画' 不是 Plane 类型"; return false)
-           
-            if maxFileName == "" do (qf_log "max 文件未保存"; return false)
-            local maxFileDir = maxFilePath
-            local maxFileNameOnly = getFilenameFile maxFileName
-           
-            local currentDir = maxFileDir
-            local psdFile = undefined
-            local levelsChecked = 0
-            while levelsChecked < 5 and currentDir != "" do
-            (
-                currentDir = getFilenamePath (pathConfig.removePathLeaf currentDir)
-                if currentDir == "" do exit
-                local psdFiles = getFiles (currentDir + "\\*.psd")
-                for file in psdFiles do
-                (
-                    local fileNameOnly = filenameFromPath file
-                    if findString fileNameOnly maxFileNameOnly != undefined do
-                    (
-                        psdFile = file
-                        qf_log ("找到匹配 PSD: " + file)
-                        exit
-                    )
-                )
-                if psdFile != undefined do exit
-                levelsChecked += 1
-            )
-            if psdFile == undefined do (qf_log "未找到匹配 PSD"; return false)
-           
-            local bgMaterial = Standard()
-            bgMaterial.name = "原画材质"
-            local diffuseMap = Bitmaptexture()
-            diffuseMap.filename = psdFile
-            diffuseMap.name = "原画贴图"
-            bgMaterial.diffuseMap = diffuseMap
-            bgMaterial.diffuseMapEnable = true
-            bgMaterial.showInViewport = true
-            bgPlane.material = bgMaterial
-           
-            try
-            (
-                local bmp = openBitMap psdFile
-                if bmp != undefined do
-                (
-                    local widthInPixels = bmp.width
-                    local heightInPixels = bmp.height
-                    close bmp
-                    local widthInMeters = widthInPixels / 1000.0
-                    local heightInMeters = heightInPixels / 1000.0
-                    bgPlane.length = heightInMeters
-                    bgPlane.width = widthInMeters
-                    qf_log ("调整原画平面大小: " + widthInMeters as string + " x " + heightInMeters as string)
-                )
-            )
-            catch (qf_log "PSD 尺寸读取失败，不调整大小")
-           
-            bgPlane.isFrozen = true
-            qf_log "原画对象已冻结并应用材质"
-            return true
-        )
-        catch (qf_log ("setupBackgroundPlane 异常: " + (getCurrentException())); return false)
-    )
-   
-    fn ResetPivotFn Obj =
-    (
-        -- 原函数保持不变
-        local target = matrix3 [1,0,0] [0,0,1] [0,-1,0] [0,0,0]
-        local ChldTms = in coordSys target (for Chld in Obj.children collect Chld.transform)
-        local TmScale = scaleMatrix Obj.objectOffsetScale
-        local TmRot = Obj.objectOffsetRot as matrix3
-        local TmPos = transMatrix Obj.objectOffsetPos
-        local TmOffset = TmScale * TmRot * TmPos
-        TmOffset *= Obj.transform * inverse target
-        Obj.transform = target
-        Obj.objectOffsetPos = TmOffset.translation
-        Obj.objectOffsetRot = TmOffset.rotation
-        Obj.objectOffsetScale = TmOffset.scale
-        for i = 1 to Obj.children.count do
-            Obj.children[i].transform = ChldTms[i] * inverse target * Obj.transform
-    )
-   
-    local bgSuccess = setupBackgroundPlane()
-    qf_log ("背景平面设置结果: " + (bgSuccess as string))
-   
-    local pureMaxFileName = getFilenameFile (maxFilePath + maxFileName)
-    if matchPattern pureMaxFileName pattern:"*_fin" ignoreCase:true do
-        pureMaxFileName = substring pureMaxFileName 1 (pureMaxFileName.count - 4)
-   
+
     if maxFileName == "" do
     (
-        qf_log "错误：max 文件未保存"
         messageBox "请先保存当前max文件！"
         return()
     )
-   
-    for i in 1 to 24 do meditMaterials[i] = Standard()
-    qf_log "已清空 24 个材质球"
-   
-    local firstMat = Standard()
-    firstMat.name = pureMaxFileName + "_D"
-    firstMat.showInViewport = true
-   
-    local diffuseMapPath = maxFilePath + pureMaxFileName + "_D.png"
-    local alphaMapPath = maxFilePath + pureMaxFileName + "_A.png"
-   
-    if doesFileExist diffuseMapPath then
+
+    local bgSuccess = setupBackgroundPlane()
+    qf_log ("背景平面设置结果: " + bgSuccess as string)
+
+    local pureName = getFilenameFile maxFileName
+    if matchPattern pureName pattern:"*_fin" ignoreCase:true do
+        pureName = substring pureName 1 (pureName.count - 4)
+
+    for i = 1 to 24 do meditMaterials[i] = Standard()
+
+    local mat = Standard name:(pureName + "_D") showInViewport:true
+
+    local diffPath = maxFilePath + pureName + "_D.png"
+    local opacPath = maxFilePath + pureName + "_A.png"
+
+    if doesFileExist diffPath then
     (
-        local diffuseMap = Bitmaptexture()
-        diffuseMap.filename = filenameFromPath diffuseMapPath
-        diffuseMap.name = pureMaxFileName + "_D"
-        firstMat.diffuseMap = diffuseMap
-        firstMat.diffuseMapEnable = true
-        qf_log ("漫反射贴图加载成功: " + diffuseMapPath)
+        mat.diffuseMap = Bitmaptexture filename:(filenameFromPath diffPath)
+        mat.diffuseMapEnable = true
+        qf_log "漫反射贴图已加载"
     )
     else
     (
-        qf_log ("未找到漫反射贴图: " + diffuseMapPath)
-        messageBox ("未找到漫反射贴图: " + pureMaxFileName + "_D.png" + "\n请确保贴图文件与max文件在同一目录下。")
+        messageBox ("未找到漫反射贴图:\n" + diffPath)
+        qf_log "未找到漫反射贴图"
     )
-   
-    if doesFileExist alphaMapPath then
+
+    if doesFileExist opacPath then
     (
-        local alphaMap = Bitmaptexture()
-        alphaMap.filename = filenameFromPath alphaMapPath
-        alphaMap.name = pureMaxFileName + "_A"
-        firstMat.opacityMap = alphaMap
-        firstMat.opacityMapEnable = true
-        qf_log ("透明贴图加载成功: " + alphaMapPath)
+        mat.opacityMap = Bitmaptexture filename:(filenameFromPath opacPath)
+        mat.opacityMapEnable = true
+        qf_log "透明贴图已加载"
     )
-    else
-    (
-        qf_log ("未找到透明贴图: " + alphaMapPath)
-    )
-   
-    meditMaterials[1] = firstMat
-    qf_log "主材质已赋给材质槽 1"
-   
-    undo on
+
+    meditMaterials[1] = mat
+
+    undo "规范模型" on
     (
         local meshCount = 0
-        for obj in objects where matchPattern obj.name pattern:"Mesh*" ignoreCase:true do
+        for o in objects where matchPattern o.name pattern:"Mesh*" ignoreCase:true do
         (
-            try
-            (
-                obj.material = firstMat
-                meshCount += 1
-            )
-            catch ()
+            try (o.material = mat; meshCount += 1) catch ()
         )
-        qf_log ("已为 " + meshCount as string + " 个 Mesh* 对象赋材质")
-       
-        for obj in objects where matchPattern obj.name pattern:"Mesh*" ignoreCase:true do
+        qf_log ("已为 " + meshCount as string + " 个 Mesh 对象赋材质")
+
+        for o in objects where matchPattern o.name pattern:"Mesh*" ignoreCase:true do
+            if o.parent != undefined do o.parent = undefined
+
+        local polys = for o in objects where classOf o == Editable_Poly collect o
+
+        for p in polys do
         (
-            if obj.parent != undefined do obj.parent = undefined
+            polyop.setMapSupport p 0 off
+            polyop.setMapSupport p 2 off
+            polyop.setMapSupport p 3 off
         )
-        qf_log "已断开所有 Mesh* 对象的父链接"
-       
-        local allPolyObjects = for obj in objects where classOf obj == Editable_Poly collect obj
-        qf_log ("找到 Editable_Poly 对象: " + allPolyObjects.count as string + " 个")
-       
-        for obj in allPolyObjects do
+
+        if polys.count > 0 do
         (
-            polyop.setMapSupport obj 0 false
-            polyop.setMapSupport obj 2 false
-            polyop.setMapSupport obj 3 false
-        )
-        qf_log "已关闭所有 Editable_Poly 的贴图通道 0/2/3"
-       
-        if allPolyObjects.count > 0 do
-        (
-            local oldSelection = selection as array
-            select allPolyObjects
+            local oldSel = selection as array
+            select polys
             macros.run "Animation Tools" "DeleteSelectedAnimation"
-            select oldSelection
-            qf_log "已删除选中对象的动画键"
+            select oldSel
         )
-       
-        for obj in allPolyObjects do
+
+        for p in polys do
         (
-            ResetPivotFn obj
-            obj.scale = [1.0,1.0,1.0]
+            ResetPivotFn p
+            p.scale = [1,1,1]
         )
-        qf_log "已对所有 Editable_Poly 执行轴心重置和缩放归一"
-       
-        local hasRoot = false; local hasBip = false
-        local rootObj = undefined; local bipObj = undefined; local nodeObj = undefined
-       
+
+        local root, bip, nodeObj
         for o in objects do
         (
-            local n = o.name
-            if matchPattern n pattern:"Root*" do (hasRoot = true; if rootObj == undefined do rootObj = o)
-            if matchPattern n pattern:"Bip*" do (hasBip = true; if bipObj == undefined do bipObj = o)
-            if matchPattern n pattern:"Node*" and nodeObj == undefined do nodeObj = o
+            if matchPattern o.name pattern:"Root*" do root = o
+            if matchPattern o.name pattern:"Bip*"  do bip = o
+            if matchPattern o.name pattern:"Node*" and nodeObj == undefined do nodeObj = o
         )
-       
-        local linkTarget = undefined
-        if hasRoot and not hasBip and nodeObj == undefined then linkTarget = rootObj
-        else if not hasRoot and nodeObj != undefined and not hasBip then linkTarget = nodeObj
-        else if hasRoot and hasBip then linkTarget = bipObj
-       
+
+        local linkTarget = if bip != undefined then bip \
+                          else if root != undefined then root \
+                          else nodeObj
+
         if linkTarget != undefined do
         (
-            local allMeshes = for o in objects where matchPattern o.name pattern:"Mesh*" collect o
-            for m in allMeshes do
-            (
-                if m != linkTarget and m.parent != linkTarget do
-                    m.parent = linkTarget
-            )
-            qf_log "所有 Mesh* 已链接到目标根节点"
+            local meshes = for o in objects where matchPattern o.name pattern:"Mesh*" collect o
+            for m in meshes where m != linkTarget and m.parent != linkTarget do
+                m.parent = linkTarget
         )
     )
-   
+
     qf_log "=== 规范模型 执行结束 ==="
 )
 
+-- 执行主函数
 main()

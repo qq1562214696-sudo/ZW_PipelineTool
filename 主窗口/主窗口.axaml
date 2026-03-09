@@ -77,12 +77,21 @@
                               Content="窗口始终置顶"
                               IsChecked="{Binding Topmost, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"/>
                     <CheckBox x:Name="开机自启CheckBox"
-                              Content="开机自动启动（待实现）"
+                              Content="开机自动启动（待实现）"  
                               IsChecked="False"/>
+                              <!-- ////////待完善  -->
                     <StackPanel>
                         <Button Content="打开文件复制器" 
                                 Click="打开文件复制器_Click" 
                                 HorizontalAlignment="Center" Margin="5"/>
+                            <ToolTip.Tip>
+                                <ToolTip>
+                                    <TextBlock TextWrapping="Wrap" MaxWidth="300">
+                                        <Run Text="&quot;用于代码开发使用，功能是一键将拖入的 任何文本内容 复制到剪切板&quot;" />
+                                    </TextBlock>
+                                </ToolTip>
+                            </ToolTip.Tip>
+                        </Button>                                
                     </StackPanel>
                 </StackPanel>
             </Expander>
@@ -99,6 +108,10 @@
                              FontFamily="Consolas, Courier New, monospace"
                              Height="150"
                              Padding="4,2"/>
+
+                    <!-- <Button x:Name="清空日志" 
+                            Content="清空日志" 
+                            Click="清空日志_Click"/> ////////待完善         -->
                 </ScrollViewer>
             </Expander>
 
@@ -107,33 +120,59 @@
                     <Expander Header="首次初始化（只需设置一次）" IsExpanded="True">
                         <StackPanel Spacing="2">
                             <TextBox x:Name="QF_MaxPathInput" 
-                                     Watermark="在此粘贴 Max 主文件名（不含路径）"
+                                     Watermark="Max 2014 快捷方式或exe（拖入或手动输入）"
                                      Height="20" Padding="4,1"/>
                             <TextBox x:Name="QF_UnityPathInput" 
-                                     Watermark="在此粘贴 Unity 主文件名（不含路径）"
+                                     Watermark="Unity Assets路径（拖入或手动输入）"
                                      Height="20" Padding="4,1"/>
                             <Button x:Name="QF_初始化按钮" 
                                     Content="执行初始化"
                                     Click="初始化按钮_点击"/>
                         </StackPanel>
                     </Expander>
-
+                            <!-- ///////////////////////这里需要加一个处理文件储存列表，用于后续规范的使用 -->
                     <Expander Header="3ds Max 常用工具" IsExpanded="True">
                         <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto" Margin="0,2,0,0">
-                            <Button x:Name="规范模型命名Btn" Grid.Row="0" Grid.Column="0" 
-                                    Content="规范模型命名" Tag="规范模型.ms" Click="脚本按钮_点击"/>
-                            <Button x:Name="导出当前选中为FBXBtn" Grid.Row="0" Grid.Column="1" 
-                                    Content="导出当前选中为FBX" Tag="导出FBX(当前).ms" Click="脚本按钮_点击"/>
+
+                            <Button x:Name="规范模型Btn" Grid.Row="0" Grid.Column="0" 
+                                    Content="规范模型" Tag="规范模型.ms" Click="脚本按钮_点击">
+                                <ToolTip.Tip>
+                                    <ToolTip>
+                                        <TextBlock TextWrapping="Wrap" MaxWidth="300">
+                                            <Run Text="包含功能：" />
+                                            <LineBreak/>
+                                            <Run Text="1.贴原画到&quot;原画&quot;Plane、自动调整宽高比例" />
+                                            <LineBreak/>
+                                            <Run Text="2.清空、创建、命名材质" />
+                                            <LineBreak/>
+                                            <Run Text="3.通道贴图、命名、贴图条带" />
+                                            <LineBreak/>
+                                            <Run Text="4.重置轴心、缩放归一、90度旋转、纠正链接" />
+                                            <LineBreak/>
+                                            <Run Text="5.删除模型动画、多余 UV 通道、模型贴材质" />
+                                        </TextBlock>
+                                    </ToolTip>
+                                </ToolTip.Tip>
+                            </Button>
+
+                            <Button x:Name="导出FBXBtn" Grid.Row="0" Grid.Column="1" 
+                                    Content="导出FBX(当前)" Tag="导出FBX(当前).ms" Click="脚本按钮_点击"/>
+
                             <Button x:Name="导出贴图加FBXBtn" Grid.Row="0" Grid.Column="2" 
-                                    Content="导出贴图+FBX" Tag="导出（贴图+FBX）.ms" Click="脚本按钮_点击"/>
-                            <Button x:Name="选择多边面物体Btn" Grid.Row="1" Grid.Column="0" 
-                                    Content="选择多边面物体" Tag="选择多边面.ms" Click="脚本按钮_点击"/>
+                                    Content="导出（贴图+FBX）" Tag="导出（贴图+FBX）.ms" Click="脚本按钮_点击"/>
+
+                            <Button x:Name="选择多边面Btn" Grid.Row="1" Grid.Column="0" 
+                                    Content="选择多边面" Tag="选择多边面.ms" Click="脚本按钮_点击"/>
+
                             <Button x:Name="选择法线翻转的面Btn" Grid.Row="1" Grid.Column="1" 
                                     Content="选择法线翻转的面" Tag="选择法线翻转的面.ms" Click="脚本按钮_点击"/>
-                            <Button x:Name="快速面数检查Btn" Grid.Row="1" Grid.Column="2" 
-                                    Content="快速面数检查" Tag="面数检查.ms" Click="脚本按钮_点击"/>
-                            <Button x:Name="Mesh01批量重命名Btn" Grid.Row="2" Grid.Column="0" 
-                                    Content="Mesh01 批量重命名" Tag="Mesh01_重命名.ms" Click="脚本按钮_点击"/>
+
+                            <Button x:Name="面数检查Btn" Grid.Row="1" Grid.Column="2" 
+                                    Content="面数检查" Tag="面数检查.ms" Click="脚本按钮_点击"/>
+
+                            <Button x:Name="Mesh01_重命名Btn" Grid.Row="2" Grid.Column="0" 
+                                    Content="Mesh01_重命名" Tag="Mesh01_重命名.ms" Click="脚本按钮_点击"/>
+
                         </Grid>
                     </Expander>
 
