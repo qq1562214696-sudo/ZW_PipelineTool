@@ -29,7 +29,7 @@ fn qf_log msg =
 )
 
 -- 加载时记录（确认路径）
-qf_log "QF_Tools_Lib.ms 已加载"
+qf_log "公共方法库正确加载"
 
 -- 前缀数组（公共常量）
 global prefixArray = #("H","L","HHair","HFace","HTop","HBottom","HShoe","LHair","LFace","LTop","LBottom","LShoe","HPet","LPet",\

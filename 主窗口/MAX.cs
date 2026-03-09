@@ -3,33 +3,11 @@ using System.IO;
 using System.Runtime.InteropServices;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace ZW_PipelineTool;
 public partial class 主窗口
 {
-    // 新增方法
-    private string GetLogPathFromIni()
-    {
-        string iniPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "MAX", "Max_Log.ini");
-        if (File.Exists(iniPath))
-        {
-            var content = File.ReadAllText(iniPath);
-            var match = Regex.Match(content, @"Path\s*=\s*(.+)", RegexOptions.IgnoreCase);
-            if (match.Success)
-            {
-                string path = match.Groups[1].Value.Trim();
-                记录日志($"从 Max_Log.ini 读取日志路径: {path}");
-                return path;
-            }
-        }
-        // fallback
-        var fallback = Path.Combine(Path.GetTempPath(), "Max_Log.ini");
-        记录日志($"未找到/无效 ini，使用 fallback: {fallback}");
-        return fallback;
-    }
-
     /// <summary>
     /// MaxScript 按钮点击事件：根据按钮的 Tag 属性找到对应的 .ms 文件并发送给 3ds Max
     /// </summary>

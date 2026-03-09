@@ -10,11 +10,7 @@ using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Runtime.InteropServices;
-using System.Collections.Generic;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.IO.Pipes;
 using System.Threading; // 新增：用于 SemaphoreSlim
 
 namespace ZW_PipelineTool;
@@ -105,6 +101,7 @@ public partial class 主窗口 : Window
             };
             _logWatcher.Changed += OnMaxLogChanged;
             _logWatcher.Created += OnMaxLogChanged;
+            记录日志($"日志记录激活");
         }
         catch (Exception ex)
         {
