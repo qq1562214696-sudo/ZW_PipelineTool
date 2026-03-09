@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.IO.Pipes;
+using System.Threading; // 新增：用于 SemaphoreSlim
 
 namespace ZW_PipelineTool;
 
@@ -27,12 +28,18 @@ public partial class 主窗口 : Window
     private Expander? 工具基本设置Expander;
     private Expander? 运行日志Expander;
 
-    // 新增：MaxScript 日志监控
+    // MaxScript 日志监控相关字段
     private FileSystemWatcher? _logWatcher;
-    private readonly string _logFilePath = Path.Combine(Path.GetTempPath(), "Max_Log.txt");
+    private string _logFilePath;
+
+    // 用于确保日志文件读写原子性的异步锁
+    private static readonly SemaphoreSlim _logFileSemaphore = new SemaphoreSlim(1, 1);
 
     static 主窗口()
     {
+        // 注册 GB2312 编码支持（必须在使用之前调用）
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
         string appData目录 = Path.Combine(AppContext.BaseDirectory, "AppData");
         Directory.CreateDirectory(appData目录);
         存储路径 = Path.Combine(appData目录, 设置文件名);
@@ -64,6 +71,9 @@ public partial class 主窗口 : Window
             else
                 确保窗口在可见区域内();
 
+            // 设置日志路径：与拖入 .ms 文件的目录一致（程序目录\MAX\Max_Log.txt）
+            string exeDir = AppDomain.CurrentDomain.BaseDirectory;
+            _logFilePath = Path.Combine(exeDir, "MAX", "Max_Log.txt");
             // 启动 Max 日志监控
             StartMaxLogWatcher();
         };
@@ -78,12 +88,11 @@ public partial class 主窗口 : Window
     private void InitializeComponent() => AvaloniaXamlLoader.Load(this);
 
     // ========== Max 日志监控相关方法 ==========
-
     private void StartMaxLogWatcher()
     {
         try
         {
-            string dir = Path.GetDirectoryName(_logFilePath) ?? Path.GetTempPath();
+            string dir = Path.GetDirectoryName(_logFilePath);
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
 
@@ -94,11 +103,8 @@ public partial class 主窗口 : Window
                 NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.FileName,
                 EnableRaisingEvents = true
             };
-
             _logWatcher.Changed += OnMaxLogChanged;
             _logWatcher.Created += OnMaxLogChanged;
-
-            记录日志($"[系统] MaxScript 日志监控已启动：{_logFilePath}");
         }
         catch (Exception ex)
         {
@@ -120,44 +126,68 @@ public partial class 主窗口 : Window
 
     private async void OnMaxLogChanged(object? sender, FileSystemEventArgs e)
     {
-        await Task.Delay(400); // 避免文件锁定
-
-        await Dispatcher.UIThread.InvokeAsync(() =>
+        await Task.Delay(400); // 初始延迟，避免文件刚写入时锁定
+        await Dispatcher.UIThread.InvokeAsync(async () =>
         {
+            // 使用异步信号量保证同一时间只有一个线程读写文件
+            await _logFileSemaphore.WaitAsync();
             try
             {
-                if (File.Exists(_logFilePath))
+                const int maxRetries = 5;
+                int retryDelay = 200; // 毫秒
+                for (int i = 0; i < maxRetries; i++)
                 {
-                    string content = "";
-                    using (var fs = new FileStream(_logFilePath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
-                    using (var sr = new StreamReader(fs, Encoding.UTF8))
+                    try
                     {
-                        content = sr.ReadToEnd();
-                        fs.SetLength(0); // 清空文件
-                    }
+                        if (!File.Exists(_logFilePath))
+                            return;
 
-                    if (!string.IsNullOrWhiteSpace(content))
+                        string content = "";
+                        // 使用 GB2312 编码读取（MaxScript 默认写入 ANSI 中文）
+                        using (var fs = new FileStream(_logFilePath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
+                        using (var sr = new StreamReader(fs, Encoding.GetEncoding("GB2312")))
+                        {
+                            content = await sr.ReadToEndAsync();
+                            // 清空文件，以便下次只读新增内容
+                            fs.SetLength(0);
+                            await fs.FlushAsync(); // 确保清空立即生效
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(content))
+                        {
+                            记录日志("┌──── MaxScript 日志 ──────");
+                            记录日志(content.Trim());
+                            记录日志("└───────────────────────────");
+                        }
+                        break; // 成功则退出循环
+                    }
+                    catch (IOException ioEx) when (ioEx.Message.Contains("being used by another process") ||
+                                                    ioEx.Message.Contains("正由另一进程使用"))
                     {
-                        记录日志("┌──── MaxScript 日志 ──────");
-                        记录日志(content.Trim());
-                        记录日志("└───────────────────────────");
+                        if (i == maxRetries - 1)
+                        {
+                            记录日志($"读取 Max 日志文件失败（重试 {maxRetries} 次后）：{ioEx.Message}");
+                        }
+                        else
+                        {
+                            await Task.Delay(retryDelay);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        记录日志($"读取 Max 日志文件失败：{ex.Message}");
+                        break;
                     }
                 }
             }
-            catch (IOException ioEx) when (ioEx.Message.Contains("另一个进程") || ioEx.Message.Contains("正在使用"))
+            finally
             {
-                // 文件被占用，忽略本次读取
-            }
-            catch (Exception ex)
-            {
-                记录日志($"读取 Max 日志文件失败：{ex.Message}");
+                _logFileSemaphore.Release();
             }
         });
     }
 
     // ========== 其余原有方法保持不变 ==========
-    // （通用按钮、拖放、窗口设置、日志记录等全部保留原样）
-
     private void 初始化按钮_点击(object? sender, RoutedEventArgs e)
     {
         记录日志("初始化按钮被点击（待实现具体逻辑）");
@@ -220,6 +250,7 @@ public partial class 主窗口 : Window
                 _窗口数据.工具基本设置展开 = 工具基本设置Expander.IsExpanded;
             if (运行日志Expander != null)
                 _窗口数据.运行日志展开 = 运行日志Expander.IsExpanded;
+
             string json = JsonSerializer.Serialize(_窗口数据, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(存储路径, json);
         }

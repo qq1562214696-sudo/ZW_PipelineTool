@@ -9,7 +9,6 @@ fn main =
     if doesFileExist libPath then
     (
         fileIn libPath
-        qf_log "成功加载 QF_Tools_Lib.ms"
     )
     else
     (
@@ -24,16 +23,12 @@ fn main =
         return()
     )
     
-    qf_log "=== Mesh01_ 重命名 开始 ==="
-    
     undo "重命名所有Poly为Mesh01_" on
     (
         max unhide all
-        qf_log "已执行 max unhide all"
         
         local allPolys = for o in objects where classOf o == Editable_Poly collect o
-        qf_log ("找到 Editable_Poly 对象: " + allPolys.count as string + " 个")
-        
+
         if allPolys.count == 0 do
         (
             qf_log "错误：未找到 Editable_Poly"
@@ -51,11 +46,6 @@ fn main =
         
         qf_log ("重命名完成，共 " + allPolys.count as string + " 个对象")
     )
-    
-    qf_log "=== Mesh01_ 重命名 结束 ==="
-    
-    -- 最后提示日志位置
-    messageBox ("操作完成\n日志已记录到:\n" + MAX_LOG_PATH) title:"完成"
 )
 
 -- 执行主函数
