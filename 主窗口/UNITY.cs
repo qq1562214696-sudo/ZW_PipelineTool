@@ -10,7 +10,7 @@ using Avalonia.Interactivity;
 
 namespace ZW_PipelineTool;
 
-public partial class 主窗口
+public partial class 主窗口//Unity区块
 {
     // Unity 端命名管道名称（必须与 Unity 脚本中完全一致）
     private const string Unity管道名称 = "ZW_UnityPipelineTool";

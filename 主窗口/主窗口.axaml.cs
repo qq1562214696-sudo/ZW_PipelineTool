@@ -1,20 +1,27 @@
 using System;
 using System.IO;
-using System.Text.Json;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
-using Avalonia.Platform.Storage;
-using Avalonia.Threading;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Text;
 
 namespace ZW_PipelineTool;
 
-public partial class 主窗口 : Window
+// 1.Unity待测试优化
+// 2.自启动实现了，但是UI保存的逻辑没有做好，需要完善
+// 3.将max unity main的QF和主要使用部分分离出来
+// 4.除了Mesh01其他ms脚本日志待优化
+// 5.后续还需要观察是否功能和QF原工具有出入
+// 6.UI优化
+// 7.Unity导入路径待优化
+// 8.面数检查等检查项可以合做一个
+// 9.检查面数检查是否为将满足命名条件的对象全部三角面算到一起
+// 10.拖入文件功能后续还需优化，区分拖入区块或者窗口
+// 11.交互需要进一步优化，现在只有QF模板文件夹，后续很多东西都需要拖入处理
+// 12.其他暂时记不起来，想起来再补充
+
+public partial class 主窗口 : Window//主窗口核心区块
 {
     static 主窗口()
     {
@@ -74,174 +81,6 @@ public partial class 主窗口 : Window
     }
 
     private void InitializeComponent() => AvaloniaXamlLoader.Load(this);
-
-    // ========== Max 日志监控相关方法 ==========
-    private void StartMaxLogWatcher()
-    {
-        try
-        {
-            string dir = Path.GetDirectoryName(_logFilePath);
-            if (!Directory.Exists(dir))
-                Directory.CreateDirectory(dir);
-
-            _logWatcher = new FileSystemWatcher
-            {
-                Path = dir,
-                Filter = "Max_Log.txt",
-                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.FileName,
-                EnableRaisingEvents = true
-            };
-            _logWatcher.Changed += OnMaxLogChanged;
-            _logWatcher.Created += OnMaxLogChanged;
-            日志($"日志记录激活");
-        }
-        catch (Exception ex)
-        {
-            日志($"[系统] Max 日志监控启动失败：{ex.Message}");
-        }
-    }
-
-    private void StopMaxLogWatcher()
-    {
-        if (_logWatcher != null)
-        {
-            _logWatcher.Changed -= OnMaxLogChanged;
-            _logWatcher.Created -= OnMaxLogChanged;
-            _logWatcher.EnableRaisingEvents = false;
-            _logWatcher.Dispose();
-            _logWatcher = null;
-        }
-    }
-
-    private async void OnMaxLogChanged(object? sender, FileSystemEventArgs e)
-    {
-        await Task.Delay(400); // 初始延迟，避免文件刚写入时锁定
-        await Dispatcher.UIThread.InvokeAsync(async () =>
-        {
-            // 使用异步信号量保证同一时间只有一个线程读写文件
-            await _logFileSemaphore.WaitAsync();
-            try
-            {
-                const int maxRetries = 5;
-                int retryDelay = 200; // 毫秒
-                for (int i = 0; i < maxRetries; i++)
-                {
-                    try
-                    {
-                        if (!File.Exists(_logFilePath))
-                            return;
-
-                        string content = "";
-                        // 使用 GB2312 编码读取（MaxScript 默认写入 ANSI 中文）
-                        using (var fs = new FileStream(_logFilePath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
-                        using (var sr = new StreamReader(fs, Encoding.GetEncoding("GB2312")))
-                        {
-                            content = await sr.ReadToEndAsync();
-                            // 清空文件，以便下次只读新增内容
-                            fs.SetLength(0);
-                            await fs.FlushAsync(); // 确保清空立即生效
-                        }
-
-                        if (!string.IsNullOrWhiteSpace(content))
-                        {
-                            日志("┌──── MaxScript 日志 ──────");
-                            日志(content.Trim());
-                            日志("└──────────────────────────");
-                        }
-                        break; // 成功则退出循环
-                    }
-                    catch (IOException ioEx) when (ioEx.Message.Contains("being used by another process") ||
-                                                    ioEx.Message.Contains("正由另一进程使用"))
-                    {
-                        if (i == maxRetries - 1)
-                        {
-                            日志($"读取 Max 日志文件失败（重试 {maxRetries} 次后）：{ioEx.Message}");
-                        }
-                        else
-                        {
-                            await Task.Delay(retryDelay);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        日志($"读取 Max 日志文件失败：{ex.Message}");
-                        break;
-                    }
-                }
-            }
-            finally
-            {
-                _logFileSemaphore.Release();
-            }
-        });
-    }
-
-    // ========== 其余原有方法保持不变 ==========
-    private void 初始化按钮_点击(object? sender, RoutedEventArgs e)
-    {
-        日志("初始化按钮被点击（待实现具体逻辑）");
-    }
-
-    private void 窗口_拖入(object? sender, DragEventArgs e)
-    {
-        e.DragEffects = DragDropEffects.Copy;
-        e.Handled = true;
-    }
-
-    private void 窗口_拖拽中(object? sender, DragEventArgs e)
-    {
-        e.DragEffects = DragDropEffects.Copy;
-        e.Handled = true;
-    }
-
-    protected async void 窗口_放下(object? sender, DragEventArgs e)
-    {
-        var 文件列表 = e.Data.GetFiles();
-        if (文件列表 == null || !文件列表.Any())
-        {
-            日志("未检测到任何文件/文件夹");
-            return;
-        }
-        var 第一个项目 = 文件列表.First();
-        var 路径 = 第一个项目.TryGetLocalPath();
-        if (string.IsNullOrEmpty(路径))
-        {
-            日志("无法获取本地路径");
-            return;
-        }
-        if (!Directory.Exists(路径))
-        {
-            日志($"拖入的不是文件夹：{路径}");
-            return;
-        }
-        日志($"成功接收文件夹：{路径}");
-        var 路径文本框 = this.FindControl<TextBox>("FolderPathTextBox");
-        if (路径文本框 != null)
-            路径文本框.Text = 路径;
-        await 规范整理文件夹(路径);
-        e.Handled = true;
-    }
-
-
-
-    private void 应用窗口设置()
-    {
-        try
-        {
-            if (_窗口数据.窗口状态 == WindowState.Normal)
-            {
-                if (_窗口数据.宽度 > 0) Width = _窗口数据.宽度;
-                if (_窗口数据.高度 > 0) Height = _窗口数据.高度;
-                if (_窗口数据.X坐标 >= 0 && _窗口数据.Y坐标 >= 0)
-                {
-                    Position = new PixelPoint((int)_窗口数据.X坐标, (int)_窗口数据.Y坐标);
-                }
-            }
-            WindowState = _窗口数据.窗口状态;
-            Topmost = _窗口数据.置顶;
-        }
-        catch { }
-    }
 
     private void 确保窗口在可见区域内()
     {

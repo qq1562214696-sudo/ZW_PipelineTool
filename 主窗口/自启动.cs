@@ -5,7 +5,7 @@ using Microsoft.Win32; // 新增：用于 SemaphoreSlim
 
 namespace ZW_PipelineTool;
 
-public partial class 主窗口 : Window
+public partial class 主窗口 : Window//自启动区块
 {
     // 新增常量（建议放在类开头附近）
     private const string StartupRegistryKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run";

@@ -9,7 +9,7 @@ using Avalonia.Platform.Storage;
 
 namespace ZW_PipelineTool;
 
-public partial class 主窗口
+public partial class 主窗口//Main区块，暂时存放着QF文件整理逻辑
 {
     /// <summary>
     /// “浏览”按钮点击 → 打开文件夹选择对话框 → 执行规范整理

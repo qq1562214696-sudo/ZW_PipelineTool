@@ -3,10 +3,9 @@ using System.IO;
 using System.Runtime.InteropServices;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using System.Text.RegularExpressions;
 
 namespace ZW_PipelineTool;
-public partial class 主窗口
+public partial class 主窗口//MAX区块
 {
     /// <summary>
     /// MaxScript 按钮点击事件：根据按钮的 Tag 属性找到对应的 .ms 文件并发送给 3ds Max

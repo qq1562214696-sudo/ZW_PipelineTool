@@ -3,25 +3,34 @@ using System.IO;
 using System.Text.Json;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Input;
-using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
-using Avalonia.Platform.Storage;
-using Avalonia.Threading;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Text;
-using System.Threading; // 新增：用于 SemaphoreSlim
 
 namespace ZW_PipelineTool;
 
-public partial class 主窗口 : Window
+public partial class 主窗口 : Window//储存数据区块
 {
     private const string 设置文件名 = "主窗口数据.json";
     private static readonly string 存储路径;
     private 窗口数据 _窗口数据 = new 窗口数据();
     private Expander? 工具基本设置Expander;
 
+    private void 应用窗口设置()
+    {
+        try
+        {
+            if (_窗口数据.窗口状态 == WindowState.Normal)
+            {
+                if (_窗口数据.宽度 > 0) Width = _窗口数据.宽度;
+                if (_窗口数据.高度 > 0) Height = _窗口数据.高度;
+                if (_窗口数据.X坐标 >= 0 && _窗口数据.Y坐标 >= 0)
+                {
+                    Position = new PixelPoint((int)_窗口数据.X坐标, (int)_窗口数据.Y坐标);
+                }
+            }
+            WindowState = _窗口数据.窗口状态;
+            Topmost = _窗口数据.置顶;
+        }
+        catch { }
+    }
 
     private void 保存窗口设置()
     {
