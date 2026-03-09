@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "E:\\Git仓库\\ZW_PipelineTool\\ZW_PipelineTool.csproj": {}
+    "D:\\360MoveData\\Users\\s\\Desktop\\ZW_PipelineTool\\ZW_PipelineTool.csproj": {}
   },
   "projects": {
-    "E:\\Git仓库\\ZW_PipelineTool\\ZW_PipelineTool.csproj": {
+    "D:\\360MoveData\\Users\\s\\Desktop\\ZW_PipelineTool\\ZW_PipelineTool.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\Git仓库\\ZW_PipelineTool\\ZW_PipelineTool.csproj",
+        "projectUniqueName": "D:\\360MoveData\\Users\\s\\Desktop\\ZW_PipelineTool\\ZW_PipelineTool.csproj",
         "projectName": "ZW_PipelineTool",
-        "projectPath": "E:\\Git仓库\\ZW_PipelineTool\\ZW_PipelineTool.csproj",
-        "packagesPath": "C:\\Users\\Administrator\\.nuget\\packages\\",
-        "outputPath": "E:\\Git仓库\\ZW_PipelineTool\\obj\\",
+        "projectPath": "D:\\360MoveData\\Users\\s\\Desktop\\ZW_PipelineTool\\ZW_PipelineTool.csproj",
+        "packagesPath": "C:\\Users\\s\\.nuget\\packages\\",
+        "outputPath": "D:\\360MoveData\\Users\\s\\Desktop\\ZW_PipelineTool\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Administrator\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\s\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0-windows"
@@ -77,7 +77,7 @@
             "Microsoft.NET.ILLink.Tasks": {
               "suppressParent": "All",
               "target": "Package",
-              "version": "[10.0.3, )",
+              "version": "[10.0.2, )",
               "autoReferenced": true
             },
             "SocketIOClient": {
@@ -99,15 +99,15 @@
           "downloadDependencies": [
             {
               "name": "Microsoft.AspNetCore.App.Runtime.win-x64",
-              "version": "[10.0.3, 10.0.3]"
+              "version": "[10.0.2, 10.0.2]"
             },
             {
               "name": "Microsoft.NETCore.App.Runtime.win-x64",
-              "version": "[10.0.3, 10.0.3]"
+              "version": "[10.0.2, 10.0.2]"
             },
             {
               "name": "Microsoft.WindowsDesktop.App.Runtime.win-x64",
-              "version": "[10.0.3, 10.0.3]"
+              "version": "[10.0.2, 10.0.2]"
             }
           ],
           "frameworkReferences": {
@@ -118,7 +118,7 @@
               "privateAssets": "none"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.103/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.102/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.CSharp": "(,4.7.32767]",
             "Microsoft.VisualBasic": "(,10.4.32767]",
