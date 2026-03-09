@@ -77,9 +77,9 @@
                               Content="窗口始终置顶"
                               IsChecked="{Binding Topmost, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"/>
                     <CheckBox x:Name="开机自启CheckBox"
-                              Content="开机自动启动（待实现）"  
-                              IsChecked="False"/>
-                              <!-- ////////待完善  -->
+                            Content="开机自动启动"
+                            Checked="开机自启_Checked"
+                            Unchecked="开机自启_Unchecked"/>
                     <StackPanel>
                         <Button Content="打开文件复制器" 
                                 Click="打开文件复制器_Click" 

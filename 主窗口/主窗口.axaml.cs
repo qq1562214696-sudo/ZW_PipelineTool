@@ -72,6 +72,12 @@ public partial class 主窗口 : Window
             _logFilePath = Path.Combine(exeDir, "MAX", "Max_Log.txt");
             // 启动 Max 日志监控
             StartMaxLogWatcher();
+
+            // 判断是否开机自启
+            if (开机自启CheckBox != null)
+            {
+                开机自启CheckBox.IsChecked = IsStartupEnabled();
+            }
         };
 
         Closing += (s, e) =>
@@ -353,7 +359,6 @@ public class 窗口数据
     public double Y坐标 { get; set; }
     public WindowState 窗口状态 { get; set; } = WindowState.Normal;
     public bool 置顶 { get; set; } = true;
-    public bool 开机自启 { get; set; } = true;
     public bool 工具基本设置展开 { get; set; } = true;
     public bool 运行日志展开 { get; set; } = false;
 }
