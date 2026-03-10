@@ -8,20 +8,15 @@ using Avalonia.Interactivity;
 namespace ZW_PipelineTool;
 public partial class 主窗口//MAX区块
 {
-
     private async void 初始化按钮_点击(object? sender, RoutedEventArgs e)
     {
         // 动态查找 Unity 路径输入框（防止字段为 null）
         var unityPathBox = this.FindControl<TextBox>("QF_UnityPathInput");
         string 输入原始 = unityPathBox?.Text?.Trim() ?? "";
-        日志($"用户输入的原始路径: '{输入原始}' (长度: {输入原始.Length})");
 
-        // 自动修剪：去除首尾空格、换行、不可见字符，并统一用反斜杠
         string 新路径 = 输入原始.Trim()
                                 .Replace("/", "\\")
                                 .TrimEnd('\\');
-
-        日志($"修剪后的路径: '{新路径}'");
 
         if (string.IsNullOrWhiteSpace(新路径))
         {

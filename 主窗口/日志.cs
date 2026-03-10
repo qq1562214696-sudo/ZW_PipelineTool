@@ -2,27 +2,15 @@ using System;
 using Avalonia.Controls;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
-using System.Collections.ObjectModel;
-using System.Threading;
 using System.IO;
 using System.Threading.Tasks;
 using System.Text;
 using Avalonia.Interactivity;
-using Avalonia.Input;
 
 namespace ZW_PipelineTool;
 
 public partial class 主窗口 : Window//日志区块
 {
-    private ListBox? 日志列表框;  // 用于后续查找
-    private Expander? 运行日志Expander;       
-    private static readonly SemaphoreSlim _logFileSemaphore = new(1, 1);
-    public ObservableCollection<日志数据> 日志列表 { get; } = new();
-
-    // MaxScript 日志监控相关字段
-    private FileSystemWatcher? _logWatcher;
-    private string _logFilePath = string.Empty;
-
     protected void 日志(string 消息)
     {
         Dispatcher.UIThread.Post(() =>

@@ -1,36 +1,11 @@
 using System;
-using Avalonia.Controls;
-using Avalonia.Interactivity;
 using System.ComponentModel;
 using Microsoft.Win32;
 
 namespace ZW_PipelineTool;
 
-public partial class 主窗口 : INotifyPropertyChanged
+public partial class 主窗口
 {
-    // 自启动常量
-    private const string StartupRegistryKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run";
-    private const string AppStartupName = "ZW_PipelineTool";
-
-    // 自启动属性（绑定用）
-    private bool _开机自启;
-    public bool 开机自启
-    {
-        get => _开机自启;
-        set
-        {
-            if (_开机自启 != value)
-            {
-                _开机自启 = value;
-                SetStartupEnabled(value);
-                OnPropertyChanged(nameof(开机自启));
-            }
-        }
-    }
-
-    // INotifyPropertyChanged 实现
-    public new event PropertyChangedEventHandler? PropertyChanged;
-
     protected virtual void OnPropertyChanged(string propertyName)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

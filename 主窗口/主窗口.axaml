@@ -150,9 +150,9 @@
                 </Grid>
             </Expander>
 
-            <Expander Header="QF 项目流程" IsExpanded="True">
+            <Expander Header="QF 项目" IsExpanded="True">
                 <StackPanel Margin="0,2,0,0" Spacing="2">
-                    <Expander Header="首次初始化（只需设置一次）" IsExpanded="True">
+                    <Expander Header="初始化（只需设置一次）" IsExpanded="True">
                         <StackPanel Spacing="2">
                             <TextBox x:Name="QF_MaxPathInput" 
                                      Watermark="Max 2014 快捷方式或exe（拖入或手动输入）"

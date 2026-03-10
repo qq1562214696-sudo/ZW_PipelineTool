@@ -6,7 +6,7 @@ using Avalonia.Controls;
 
 namespace ZW_PipelineTool;
 
-public partial class 主窗口 : Window
+public partial class 主窗口
 {
     private const string 设置文件名 = "主窗口数据.json";
     private static readonly string 存储路径;
