@@ -6,12 +6,18 @@ using Avalonia.Controls;
 
 namespace ZW_PipelineTool;
 
-public partial class 主窗口 : Window//储存数据区块
+public partial class 主窗口 : Window
 {
     private const string 设置文件名 = "主窗口数据.json";
     private static readonly string 存储路径;
     private 窗口数据 _窗口数据 = new 窗口数据();
-    private Expander? 工具基本设置Expander;
+
+    static 主窗口()
+    {
+        string appData目录 = Path.Combine(AppContext.BaseDirectory, "AppData");
+        Directory.CreateDirectory(appData目录);
+        存储路径 = Path.Combine(appData目录, 设置文件名);
+    }
 
     private void 应用窗口设置()
     {
@@ -45,7 +51,8 @@ public partial class 主窗口 : Window//储存数据区块
             }
             _窗口数据.窗口状态 = WindowState;
             _窗口数据.置顶 = Topmost;
-            _窗口数据.开机自启 = 开机自启CheckBox?.IsChecked ?? false; // 保存复选框状态
+            _窗口数据.开机自启 = 开机自启;  // 直接从属性取值
+
             if (工具基本设置Expander != null)
                 _窗口数据.工具基本设置展开 = 工具基本设置Expander.IsExpanded;
             if (运行日志Expander != null)
@@ -86,7 +93,7 @@ public class 窗口数据
     public double Y坐标 { get; set; }
     public WindowState 窗口状态 { get; set; } = WindowState.Normal;
     public bool 置顶 { get; set; } = true;
-    public bool 开机自启 { get; set; } = false; // 默认不开启
+    public bool 开机自启 { get; set; } = false;
     public bool 工具基本设置展开 { get; set; } = true;
     public bool 运行日志展开 { get; set; } = false;
 }

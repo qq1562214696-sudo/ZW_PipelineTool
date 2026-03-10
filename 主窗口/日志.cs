@@ -7,11 +7,14 @@ using System.Threading;
 using System.IO;
 using System.Threading.Tasks;
 using System.Text;
+using Avalonia.Interactivity;
+using Avalonia.Input;
 
 namespace ZW_PipelineTool;
 
 public partial class 主窗口 : Window//日志区块
 {
+    private ListBox? 日志列表框;  // 用于后续查找
     private Expander? 运行日志Expander;       
     private static readonly SemaphoreSlim _logFileSemaphore = new(1, 1);
     public ObservableCollection<日志数据> 日志列表 { get; } = new();
@@ -48,10 +51,13 @@ public partial class 主窗口 : Window//日志区块
 
     private void ScrollToEnd()
     {
-        if (LogListBox is null) return;
-
-        var scrollViewer = LogListBox.FindDescendantOfType<ScrollViewer>();
-        scrollViewer?.ScrollToEnd();
+        if (LogListBox == null) return;
+        
+        Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            var scrollViewer = LogListBox.FindDescendantOfType<ScrollViewer>();
+            scrollViewer?.ScrollToEnd();
+        }, DispatcherPriority.Background);
     }
 
 
@@ -92,7 +98,7 @@ public partial class 主窗口 : Window//日志区块
             _logWatcher.Changed += OnMaxLogChanged;
             _logWatcher.Created += OnMaxLogChanged;
 
-            日志($"日志记录激活（监控: {_logFilePath}）");
+            // 日志($"日志记录激活");
         }
         catch (Exception ex)
         {
@@ -143,9 +149,7 @@ public partial class 主窗口 : Window//日志区块
 
                         if (!string.IsNullOrWhiteSpace(content))
                         {
-                            日志("┌──── MaxScript 日志 ──────");
-                            日志(content.Trim());
-                            日志("└──────────────────────────");
+                            日志($"────── MaxScript 日志 ──────\n{content.Trim()}");
                         }
                         break; // 成功则退出循环
                     }
@@ -173,6 +177,65 @@ public partial class 主窗口 : Window//日志区块
                 _logFileSemaphore.Release();
             }
         });
+    }
+
+    // 清空全部日志
+    private void 清空日志_Click(object? sender, RoutedEventArgs e)
+    {
+        日志列表.Clear();
+        日志("日志已清空");
+    }
+
+    // 复制全部日志
+    private void 复制全部日志_Click(object? sender, RoutedEventArgs e)
+    {
+        if (日志列表.Count == 0)
+        {
+            日志("[提示] 没有可复制的日志");
+            return;
+        }
+
+        var sb = new StringBuilder();
+        foreach (var item in 日志列表)
+        {
+            sb.AppendLine(item.Message);
+        }
+
+        try
+        {
+            TopLevel.GetTopLevel(this)?.Clipboard?.SetTextAsync(sb.ToString());
+            日志("[系统] 已复制全部日志到剪贴板");
+        }
+        catch (Exception ex)
+        {
+            报错($"复制全部日志失败：{ex.Message}");
+        }
+    }
+
+    // 复制选中的日志（右键菜单或 Ctrl+C）
+    private void 复制选中日志_Click(object? sender, RoutedEventArgs e)
+    {
+        if (LogListBox == null || LogListBox.SelectedItems == null || LogListBox.SelectedItems.Count == 0)
+        {
+            日志("[提示] 没有选中任何日志");
+            return;
+        }
+
+        var sb = new StringBuilder();
+        foreach (日志数据 item in LogListBox.SelectedItems)
+        {
+            sb.AppendLine(item.Message);
+        }
+
+        try
+        {
+            TopLevel.GetTopLevel(this)?.Clipboard?.SetTextAsync(sb.ToString());
+            日志($"[系统] 已复制 {LogListBox.SelectedItems.Count} 条选中日志");
+        }
+        catch (Exception ex)
+        {
+            报错($"复制选中日志失败：{ex.Message}");
+        }
     }
 }
 

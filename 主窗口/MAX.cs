@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
@@ -7,6 +8,82 @@ using Avalonia.Interactivity;
 namespace ZW_PipelineTool;
 public partial class 主窗口//MAX区块
 {
+
+    private async void 初始化按钮_点击(object? sender, RoutedEventArgs e)
+    {
+        // 动态查找 Unity 路径输入框（防止字段为 null）
+        var unityPathBox = this.FindControl<TextBox>("QF_UnityPathInput");
+        string 输入原始 = unityPathBox?.Text?.Trim() ?? "";
+        日志($"用户输入的原始路径: '{输入原始}' (长度: {输入原始.Length})");
+
+        // 自动修剪：去除首尾空格、换行、不可见字符，并统一用反斜杠
+        string 新路径 = 输入原始.Trim()
+                                .Replace("/", "\\")
+                                .TrimEnd('\\');
+
+        日志($"修剪后的路径: '{新路径}'");
+
+        if (string.IsNullOrWhiteSpace(新路径))
+        {
+            报错("请输入 Unity Assets 路径！");
+            return;
+        }
+
+        if (!Directory.Exists(新路径))
+        {
+            报错($"路径不存在或无效：\n{新路径}\n请检查文件夹是否真的存在！");
+            return;
+        }
+
+        try
+        {
+            string 程序目录 = AppDomain.CurrentDomain.BaseDirectory;
+            string config路径 = Path.Combine(程序目录, "MAX", "QF_Config.txt");
+
+            // 确保 MAX 文件夹存在
+            string configDir = Path.GetDirectoryName(config路径);
+            if (!Directory.Exists(configDir))
+            {
+                Directory.CreateDirectory(configDir);
+                日志($"已创建 MAX 文件夹：{configDir}");
+            }
+
+            // 如果配置文件不存在，先创建空文件
+            if (!File.Exists(config路径))
+            {
+                await File.WriteAllTextAsync(config路径, "");
+                日志($"已创建配置文件：{config路径}");
+            }
+
+            // 读取现有内容
+            string 现有内容 = await File.ReadAllTextAsync(config路径);
+
+            // 更新或添加 AssetsPath
+            var lines = 现有内容.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None).ToList();
+            bool found = false;
+            for (int i = 0; i < lines.Count; i++)
+            {
+                if (lines[i].StartsWith("AssetsPath=", StringComparison.OrdinalIgnoreCase))
+                {
+                    lines[i] = $"AssetsPath={新路径}";
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+                lines.Add($"AssetsPath={新路径}");
+
+            // 写回文件（加空行美观）
+            await File.WriteAllTextAsync(config路径, string.Join(Environment.NewLine, lines) + Environment.NewLine);
+
+            日志($"成功更新 QF_Config.txt 中的 AssetsPath 为：{新路径}");
+        }
+        catch (Exception ex)
+        {
+            报错($"保存配置失败：{ex.Message}");
+        }
+    }
+
     /// <summary>
     /// MaxScript 按钮点击事件：根据按钮的 Tag 属性找到对应的 .ms 文件并发送给 3ds Max
     /// </summary>

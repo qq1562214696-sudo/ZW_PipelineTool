@@ -77,10 +77,9 @@
                               Content="窗口始终置顶"
                               IsChecked="{Binding Topmost, RelativeSource={RelativeSource AncestorType=Window}}"/>
                     <CheckBox x:Name="开机自启CheckBox"
-                              Content="开机自动启动"
-                              Checked="开机自启_Checked"
-                              Unchecked="开机自启_Unchecked"/>
-                    <StackPanel>
+                            Content="开机自动启动"
+                            IsChecked="{Binding 开机自启, Mode=TwoWay}"/>
+                        <StackPanel>
                         <Button Content="打开文件复制器" 
                                 Click="打开文件复制器_Click" 
                                 HorizontalAlignment="Center" Margin="5">
@@ -98,26 +97,57 @@
 
             <!-- 运行日志（关键修复在这里） -->
             <Expander x:Name="运行日志" Header="运行日志（支持复制）" IsExpanded="False">
-                <ScrollViewer VerticalScrollBarVisibility="Auto"
-                              HorizontalScrollBarVisibility="Disabled"
-                              Height="160">
-                    <ListBox x:Name="LogListBox"
-                             ItemsSource="{Binding 日志列表}"
-                             Background="Transparent"
-                             BorderThickness="0"
-                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                             SelectionMode="Single">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate x:DataType="local:日志数据">
-                                <TextBlock Text="{Binding Message}"
-                                           Foreground="{Binding Color}"
-                                           TextWrapping="Wrap"
-                                           FontFamily="Consolas, Courier New, monospace"
-                                           Margin="2"/>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                </ScrollViewer>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- 日志列表 -->
+                    <ScrollViewer Grid.Column="0" 
+                                VerticalScrollBarVisibility="Auto"
+                                HorizontalScrollBarVisibility="Disabled"
+                                Height="160">
+                        <ListBox x:Name="LogListBox"
+                                ItemsSource="{Binding 日志列表}"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                SelectionMode="Multiple"          
+                                ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="local:日志数据">
+                                    <TextBlock Text="{Binding Message}"
+                                            Foreground="{Binding Color}"
+                                            TextWrapping="Wrap"
+                                            FontFamily="Consolas, Courier New, monospace"
+                                            Margin="2,1"/> 
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                            
+                            <!-- 右键菜单 -->
+                            <ListBox.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="复制选中日志" Click="复制选中日志_Click"/>
+                                    <MenuItem Header="清空全部日志" Click="清空日志_Click"/>
+                                </ContextMenu>
+                            </ListBox.ContextMenu>
+                        </ListBox>
+                    </ScrollViewer>
+                    
+                    <!-- 右侧按钮栏 -->
+                    <StackPanel Grid.Column="1" 
+                                Orientation="Vertical" 
+                                Spacing="4" 
+                                Margin="4,0,0,0"
+                                VerticalAlignment="Top">
+                        <Button Content="清空" 
+                                Width="60" Height="24" 
+                                Click="清空日志_Click"/>
+                        <Button Content="复制" 
+                                Width="60" Height="24" 
+                                Click="复制全部日志_Click"/>
+                    </StackPanel>
+                </Grid>
             </Expander>
 
             <Expander Header="QF 项目流程" IsExpanded="True">

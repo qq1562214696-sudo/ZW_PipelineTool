@@ -9,11 +9,6 @@ namespace ZW_PipelineTool;
 
 public partial class 主窗口 : Window//交互区块
 {
-    private void 初始化按钮_点击(object? sender, RoutedEventArgs e)
-    {
-        日志("初始化按钮被点击（待实现具体逻辑）");
-    }
-
     private void 窗口_拖入(object? sender, DragEventArgs e)
     {
         e.DragEffects = DragDropEffects.Copy;

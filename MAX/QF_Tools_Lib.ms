@@ -2,6 +2,9 @@
 -- 日志文件路径：固定放在脚本同级目录（即 MAX 文件夹下）
 global MAX_LOG_PATH = (getFilenamePath (getThisScriptFilename())) + "Max_Log.txt"
 
+-- 配置文件路径：与日志文件同级
+global QF_CONFIG_PATH = (getFilenamePath (getThisScriptFilename())) + "QF_Config.txt"
+
 -- 统一的日志写入函数（加强版：失败时输出到 Listener）
 fn qf_log msg =
 (
@@ -10,7 +13,6 @@ fn qf_log msg =
         local f = openFile MAX_LOG_PATH mode:"a"
         if f != undefined then
         (
-            -- 只写入消息，不加任何时间戳（时间由 C# 端统一添加）
             format "%\n" msg to:f
             close f
         )
@@ -28,32 +30,105 @@ fn qf_log msg =
     )
 )
 
--- 加载时记录（确认路径）
+-- 加载时记录
 qf_log "公共方法库正确加载"
+
+-- ================== 配置文件操作 ==================
+-- 读取配置文件中的键值（如果不存在或没找到，返回 undefined）
+fn loadQFConfig key =
+(
+    if not (doesFileExist QF_CONFIG_PATH) do
+    (
+        qf_log ("错误：配置文件不存在 -> " + QF_CONFIG_PATH)
+        return undefined
+    )
+    
+    local f = openFile QF_CONFIG_PATH mode:"r"
+    if f == undefined do
+    (
+        qf_log ("错误：无法打开配置文件 -> " + QF_CONFIG_PATH)
+        return undefined
+    )
+    
+    local value = undefined
+    seek f 0
+    while not eof f do
+    (
+        local line = readline f
+        if matchPattern line pattern:(key + "=*") do
+        (
+            value = substring line (key.count + 2) -1  -- 跳过 "key="
+            exit
+        )
+    )
+    close f
+    
+    if value == undefined do
+        qf_log ("警告：配置文件中未找到键: " + key)
+    
+    value
+)
+
+-- 保存或更新配置文件中的键值（追加或覆盖）
+fn saveQFConfig key value =
+(
+    local lines = #()
+    local found = false
+    
+    if doesFileExist QF_CONFIG_PATH do
+    (
+        local f = openFile QF_CONFIG_PATH mode:"r"
+        while not eof f do
+        (
+            local line = readline f
+            if matchPattern line pattern:(key + "=*") then
+            (
+                append lines (key + "=" + value)
+                found = true
+            )
+            else
+                append lines line
+        )
+        close f
+    )
+    
+    if not found do
+        append lines (key + "=" + value)
+    
+    local f = openFile QF_CONFIG_PATH mode:"w"
+    for l in lines do format "%\n" l to:f
+    close f
+    
+    qf_log ("已保存配置: " + key + "=" + value)
+)
+
+-- ================== Assets 路径加载（强制从配置文件读取） ==================
+fn loadAssetsPath =
+(
+    local cfgPath = loadQFConfig "AssetsPath"
+    
+    if cfgPath == undefined or cfgPath == "" do
+    (
+        qf_log "错误：配置文件中缺少 AssetsPath 或路径为空！请在工具界面设置 Unity Assets 路径并执行初始化。"
+        messageBox "Assets 路径未设置！\n请在工具界面输入 Unity Assets 路径并点击【执行初始化】。" title:"路径错误"
+        return ""  -- 返回空字符串，让调用方处理错误
+    )
+    
+    if not (doesFileExist cfgPath) do
+    (
+        qf_log ("错误：配置中的 Assets 路径无效或不存在 -> " + cfgPath)
+        messageBox ("配置中的 Assets 路径无效：\n" + cfgPath + "\n请检查路径并重新初始化。") title:"路径错误"
+        return ""
+    )
+    
+    qf_log ("当前使用的 Assets 路径: " + cfgPath)
+    cfgPath
+)
 
 -- 前缀数组（公共常量）
 global prefixArray = #("H","L","HHair","HFace","HTop","HBottom","HShoe","LHair","LFace","LTop","LBottom","LShoe","HPet","LPet",\
 "Head","Wing","Hand","FlyDecoration","Tail","LeftBracelet","RightBracelet","LeftAnklet","RightAnklet","Earring","Mask","Glass",\
 "LeftHandChain","RightHandRing")
-
--- 从配置文件读取 Assets 路径
-fn loadAssetsPath =
-(
-    try
-    (
-        local configFilePath = GetDir #plugcfg + "\\AvatorExpConfig.xml"
-        if not (doesFileExist configFilePath) do return ""
-        local doc = dotNetObject "system.xml.xmlDocument"
-        doc.Load configFilePath
-        local rootElem = doc.DocumentElement
-        return rootElem.GetAttribute "UnityAssetsPath"
-    )
-    catch
-    (
-        qf_log ("loadAssetsPath 失败: " + getCurrentException())
-        return ""
-    )
-)
 
 -- 从路径猜测性别文件夹（Male / Female）
 fn detectGender =
@@ -136,6 +211,7 @@ fn getExportFolder prefix playerID genderFolder isPetNum assetsBase =
     )
     else if isPetNum == 27 then
         exportFolder = assetsBase + "\\ArtWork\\Avatar\\Hang\\21LeftHandChain\\LeftHandChain_" + playerID + "\\Model"
+    )
     else if isPetNum == 28 then
     (
         if genderFolder == "" do return ""
@@ -204,6 +280,7 @@ fn getTexFolder prefix playerID genderFolder isPetNum assetsBase =
     )
     else if isPetNum == 27 then
         texFolder = assetsBase + "\\ArtWork\\Avatar\\Hang\\21LeftHandChain\\LeftHandChain_" + playerID + "\\Textures"
+    )
     else if isPetNum == 28 then
     (
         if genderFolder == "" do return ""
@@ -211,3 +288,6 @@ fn getTexFolder prefix playerID genderFolder isPetNum assetsBase =
     )
     texFolder
 )
+
+-- 脚本加载时自动尝试加载路径（如果失败会记录日志）
+loadAssetsPath()
