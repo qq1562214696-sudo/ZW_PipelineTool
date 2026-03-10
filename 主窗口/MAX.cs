@@ -6,7 +6,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 
 namespace ZW_PipelineTool;
-public partial class 主窗口//MAX区块
+public partial class 主窗口//Max区块
 {
     private async void 初始化按钮_点击(object? sender, RoutedEventArgs e)
     {
@@ -33,14 +33,14 @@ public partial class 主窗口//MAX区块
         try
         {
             string 程序目录 = AppDomain.CurrentDomain.BaseDirectory;
-            string config路径 = Path.Combine(程序目录, "MAX", "QF_Config.txt");
+            string config路径 = Path.Combine(程序目录, "Max", "QF_Config.txt");
 
-            // 确保 MAX 文件夹存在
+            // 确保 Max 文件夹存在
             string configDir = Path.GetDirectoryName(config路径);
             if (!Directory.Exists(configDir))
             {
                 Directory.CreateDirectory(configDir);
-                日志($"已创建 MAX 文件夹：{configDir}");
+                日志($"已创建 Max 文件夹：{configDir}");
             }
 
             // 如果配置文件不存在，先创建空文件
@@ -94,13 +94,13 @@ public partial class 主窗口//MAX区块
         }
         try
         {
-            // 脚本应放在程序目录下的 MAX 文件夹
+            // 脚本应放在程序目录下的 Max 文件夹
             string 程序目录 = AppDomain.CurrentDomain.BaseDirectory;
-            string 脚本路径 = Path.Combine(程序目录, "MAX", 脚本文件名);
+            string 脚本路径 = Path.Combine(程序目录, "Max", 脚本文件名);
             if (!File.Exists(脚本路径))
             {
                 报错("请检查：");
-                报错("1. 根目录下是否存在 MAX 文件夹");
+                报错("1. 根目录下是否存在 Max 文件夹");
                 报错($"2. 其中是否包含文件：{脚本文件名}");
                 return;
             }
@@ -109,7 +109,7 @@ public partial class 主窗口//MAX区块
         }
         catch (Exception ex)
         {
-            报错($"MAX工具使用失败：{ex.Message}");
+            报错($"Max工具使用失败：{ex.Message}");
         }
     }
 

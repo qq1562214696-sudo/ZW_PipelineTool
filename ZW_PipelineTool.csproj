@@ -8,19 +8,19 @@
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <UseWindowsForms>true</UseWindowsForms>
 
-    <!-- ★ 关键：单文件 + 自包含 Runtime + 嵌入内容文件夹 -->
+    <!-- 单文件 + 自包含 Runtime + 嵌入内容文件夹 -->
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>true</SelfContained>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>  <!-- 64位 Windows，换 win-x86 如果目标是32位 -->
-    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>  <!-- 嵌入 MAX/ 等，运行时自动解压 -->
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
   </PropertyGroup>
 
+  <!-- NuGet 包引用 -->
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="11.3.12" />
     <PackageReference Include="Avalonia.Desktop" Version="11.3.12" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.12" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.12" />
-    <!-- Avalonia.Diagnostics 只在 Debug 保留 -->
     <PackageReference Include="Avalonia.Diagnostics" Version="11.3.12">
       <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
@@ -31,15 +31,26 @@
     </PackageReference>
     <PackageReference Include="MessageBox.Avalonia" Version="3.3.1.1" />
     <PackageReference Include="SocketIOClient" Version="4.0.1" />
-    <!-- <PackageReference Include="System.Text.Encoding.CodePages" Version="10.0.3" /> -->
   </ItemGroup>
 
-  <!-- 优化：统一复制 MAX/ 文件夹（包括 .ms/.mcr/其他文件），支持 publish -->
+  <!-- ===== 关键修改：排除四个文件夹中的 C# 源文件 ===== -->
   <ItemGroup>
-    <None Include="MAX\**\*.*">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </None>
+    <Compile Remove="MAX\**\*.cs" />
+    <Compile Remove="Blender\**\*.cs" />
+    <Compile Remove="Unity\**\*.cs" />
+    <Compile Remove="Ps\**\*.cs" />
+  </ItemGroup>
+  <!-- 如果您还担心其他语言（如 VB.NET、F#）的源文件，可扩展为：
+    <Compile Remove="MAX\**\*.vb" />
+    <Compile Remove="MAX\**\*.fs" /> 等
+  -->
+
+  <!-- ===== 确保四个文件夹中的所有文件（包括非代码文件）都被复制到输出目录 ===== -->
+  <ItemGroup>
+    <None Include="MAX\**\*.*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="Blender\**\*.*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="Unity\**\*.*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="Ps\**\*.*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
   <!-- Avalonia XAML 资源 -->

@@ -139,7 +139,7 @@ public partial class 主窗口 : Window ,INotifyPropertyChanged
     {
         try
         {
-            string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "MAX", "QF_Config.txt");
+            string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Max", "QF_Config.txt");
             if (!File.Exists(configPath)) return;
 
             var lines = await File.ReadAllLinesAsync(configPath);
@@ -173,7 +173,7 @@ public partial class 主窗口 : Window ,INotifyPropertyChanged
     private void InitializeAndStartLogWatcher()
     {
         string exeDir = AppDomain.CurrentDomain.BaseDirectory;
-        _logFilePath = Path.Combine(exeDir, "MAX", "Max_Log.txt");
+        _logFilePath = Path.Combine(exeDir, "Max", "Max_Log.txt");
         StartMaxLogWatcher();
     }
 
