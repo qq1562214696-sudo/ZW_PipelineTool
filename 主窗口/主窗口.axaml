@@ -72,191 +72,331 @@
 
             <!-- 工具基本设置 -->
             <Expander x:Name="工具基本设置" Header="工具基本设置" IsExpanded="True">
+                <ToolTip.Tip>
+                    <TextBlock TextWrapping="Wrap">全局工具设置，包括窗口置顶和开机自启////////////</TextBlock>
+                </ToolTip.Tip>
                 <StackPanel Margin="0,2,0,0" Spacing="2">
                     <CheckBox x:Name="置顶CheckBox"
                               Content="窗口始终置顶"
-                              IsChecked="{Binding Topmost, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                              IsChecked="{Binding Topmost, RelativeSource={RelativeSource AncestorType=Window}}">
+                        <ToolTip.Tip>
+                            <TextBlock TextWrapping="Wrap">置顶本窗口，自动保存此选项</TextBlock>
+                        </ToolTip.Tip>
+                    </CheckBox>
                     <CheckBox x:Name="开机自启CheckBox"
-                            Content="开机自动启动"
-                            IsChecked="{Binding 开机自启, Mode=TwoWay}"/>
-                        <StackPanel>
-                        <Button Content="打开文件复制器" 
-                                Click="打开文件复制器_Click" 
-                                HorizontalAlignment="Center" Margin="5">
-                            <ToolTip.Tip>
-                                <ToolTip>
-                                    <TextBlock TextWrapping="Wrap" MaxWidth="300">
-                                        用于代码开发使用，功能是一键将拖入的 任何格式 文本文件 的内容复制到剪切板
-                                    </TextBlock>
-                                </ToolTip>
-                            </ToolTip.Tip>
-                        </Button>
-                    </StackPanel>
+                              Content="开机自动启动"
+                              IsChecked="{Binding 开机自启, Mode=TwoWay}">
+                        <ToolTip.Tip>
+                            <TextBlock TextWrapping="Wrap">勾选开机自启，取消不再自启</TextBlock>
+                        </ToolTip.Tip>
+                    </CheckBox>
+                    <StackPanel />
                 </StackPanel>
             </Expander>
 
-            <!-- 运行日志（关键修复在这里） -->
+            <!-- 运行日志（支持复制） -->
             <Expander x:Name="运行日志" Header="运行日志（支持复制）" IsExpanded="False">
+                <ToolTip.Tip>
+                    <TextBlock TextWrapping="Wrap">显示工具运行过程中的日志信息，可多选复制</TextBlock>
+                </ToolTip.Tip>
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    
+
                     <!-- 日志列表 -->
-                    <ScrollViewer Grid.Column="0" 
-                                VerticalScrollBarVisibility="Auto"
-                                HorizontalScrollBarVisibility="Disabled"
-                                Height="160">
+                    <ScrollViewer Grid.Column="0"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  Height="160">
                         <ListBox x:Name="LogListBox"
-                                ItemsSource="{Binding 日志列表}"
-                                Background="Transparent"
-                                BorderThickness="0"
-                                SelectionMode="Multiple"          
-                                ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                 ItemsSource="{Binding 日志列表}"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 SelectionMode="Multiple"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                            <ToolTip.Tip>
+                                <TextBlock TextWrapping="Wrap">日志列表，可多选后右键复制选中内容</TextBlock>
+                            </ToolTip.Tip>
                             <ListBox.ItemTemplate>
                                 <DataTemplate x:DataType="local:日志数据">
                                     <TextBlock Text="{Binding Message}"
-                                            Foreground="{Binding Color}"
-                                            TextWrapping="Wrap"
-                                            FontFamily="Consolas, Courier New, monospace"
-                                            Margin="2,1"/> 
+                                               Foreground="{Binding Color}"
+                                               TextWrapping="Wrap"
+                                               FontFamily="Consolas, Courier New, monospace"
+                                               Margin="2,1" />
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
-                            
+
                             <!-- 右键菜单 -->
                             <ListBox.ContextMenu>
                                 <ContextMenu>
-                                    <MenuItem Header="复制选中日志" Click="复制选中日志_Click"/>
-                                    <MenuItem Header="清空全部日志" Click="清空日志_Click"/>
+                                    <MenuItem Header="复制选中日志" Click="复制选中日志_Click" />
+                                    <MenuItem Header="清空全部日志" Click="清空日志_Click" />
                                 </ContextMenu>
                             </ListBox.ContextMenu>
                         </ListBox>
                     </ScrollViewer>
-                    
+
                     <!-- 右侧按钮栏 -->
-                    <StackPanel Grid.Column="1" 
-                                Orientation="Vertical" 
-                                Spacing="4" 
+                    <StackPanel Grid.Column="1"
+                                Orientation="Vertical"
+                                Spacing="4"
                                 Margin="4,0,0,0"
                                 VerticalAlignment="Top">
-                        <Button Content="清空" 
-                                Width="60" Height="24" 
-                                Click="清空日志_Click"/>
-                        <Button Content="复制" 
-                                Width="60" Height="24" 
-                                Click="复制全部日志_Click"/>
+                        <Button Content="清空"
+                                Width="60" Height="24"
+                                Click="清空日志_Click">
+                            <ToolTip.Tip>
+                                <TextBlock TextWrapping="Wrap">清空日志列表中的所有内容</TextBlock>
+                            </ToolTip.Tip>
+                        </Button>
+                        <Button Content="复制"
+                                Width="60" Height="24"
+                                Click="复制全部日志_Click">
+                            <ToolTip.Tip>
+                                <TextBlock TextWrapping="Wrap">复制当前日志列表的全部内容到剪贴板</TextBlock>
+                            </ToolTip.Tip>
+                        </Button>
+                        <Button Content="复制器"
+                                Click="打开文件复制器_Click"
+                                HorizontalAlignment="Center" Margin="5">
+                            <ToolTip.Tip>
+                                <ToolTip>
+                                    <TextBlock TextWrapping="Wrap" MaxWidth="300">
+                                        用于代码开发使用，功能是一键将拖入的任何格式文本文件的内容复制到剪切板
+                                    </TextBlock>
+                                </ToolTip>
+                            </ToolTip.Tip>
+                        </Button>
                     </StackPanel>
                 </Grid>
             </Expander>
 
             <Expander Header="QF 项目" IsExpanded="True">
+                <ToolTip.Tip>
+                    <TextBlock TextWrapping="Wrap">QF 项目专用工具集</TextBlock>
+                </ToolTip.Tip>
                 <StackPanel Margin="0,2,0,0" Spacing="2">
                     <Expander Header="初始化（只需设置一次）" IsExpanded="True">
+                        <ToolTip.Tip>
+                            <TextBlock TextWrapping="Wrap">首次使用前必须设置 Max 和 Unity 路径并执行初始化</TextBlock>
+                        </ToolTip.Tip>
                         <StackPanel Spacing="2">
-                            <TextBox x:Name="QF_MaxPathInput" 
+                            <TextBox x:Name="QF_MaxPathInput"
                                      Watermark="Max 2014 快捷方式或exe（拖入或手动输入）"
-                                     Height="20" Padding="4,1"/>
-                            <TextBox x:Name="QF_UnityPathInput" 
+                                     Height="20" Padding="4,1">
+                                <ToolTip.Tip>
+                                    <TextBlock TextWrapping="Wrap">拖入或手动输入 3ds Max 2014 的快捷方式或可执行文件路径</TextBlock>
+                                </ToolTip.Tip>
+                            </TextBox>
+                            <TextBox x:Name="QF_UnityPathInput"
                                      Watermark="Unity Assets路径（拖入或手动输入）"
-                                     Height="20" Padding="4,1"/>
-                            <Button x:Name="QF_初始化按钮" 
+                                     Height="20" Padding="4,1">
+                                <ToolTip.Tip>
+                                    <TextBlock TextWrapping="Wrap">拖入或手动输入 Unity 项目的 Assets 文件夹路径</TextBlock>
+                                </ToolTip.Tip>
+                            </TextBox>
+                            <Button x:Name="QF_初始化按钮"
                                     Content="执行初始化"
-                                    Click="初始化按钮_点击"/>
+                                    Click="初始化按钮_点击">
+                                <ToolTip.Tip>
+                                    <TextBlock TextWrapping="Wrap">保存路径配置并生成必要的辅助文件</TextBlock>
+                                </ToolTip.Tip>
+                            </Button>
                         </StackPanel>
                     </Expander>
-                            <!-- ///////////////////////这里需要加一个处理文件储存列表，用于后续规范的使用 -->
+                    <!-- ///////////////////////这里需要加一个处理文件储存列表，用于后续规范的使用 -->
                     <Expander Header="3ds Max 常用工具" IsExpanded="True">
+                        <ToolTip.Tip>
+                            <TextBlock TextWrapping="Wrap">QF 项目专用的 Max 脚本工具集</TextBlock>
+                        </ToolTip.Tip>
                         <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto" Margin="0,2,0,0">
-
-                            <Button x:Name="规范模型Btn" Grid.Row="0" Grid.Column="0" 
+                            <Button x:Name="规范模型Btn" Grid.Row="0" Grid.Column="0"
                                     Content="规范模型" Tag="规范模型.ms" Click="脚本按钮_点击">
                                 <ToolTip.Tip>
                                     <ToolTip>
                                         <TextBlock TextWrapping="Wrap" MaxWidth="300">
                                             <Run Text="包含功能：" />
-                                            <LineBreak/>
+                                            <LineBreak />
                                             <Run Text="1.贴原画到&quot;原画&quot;Plane、自动调整宽高比例" />
-                                            <LineBreak/>
+                                            <LineBreak />
                                             <Run Text="2.清空、创建、命名材质" />
-                                            <LineBreak/>
+                                            <LineBreak />
                                             <Run Text="3.通道贴图、命名、贴图条带" />
-                                            <LineBreak/>
+                                            <LineBreak />
                                             <Run Text="4.重置轴心、缩放归一、90度旋转、纠正链接" />
-                                            <LineBreak/>
+                                            <LineBreak />
                                             <Run Text="5.删除模型动画、多余 UV 通道、模型贴材质" />
                                         </TextBlock>
                                     </ToolTip>
                                 </ToolTip.Tip>
                             </Button>
 
-                            <Button x:Name="导出FBXBtn" Grid.Row="0" Grid.Column="1" 
-                                    Content="导出FBX(当前)" Tag="导出FBX(当前).ms" Click="脚本按钮_点击"/>
+                            <Button x:Name="导出FBXBtn" Grid.Row="0" Grid.Column="1"
+                                    Content="导出FBX(当前)" Tag="导出FBX(当前).ms" Click="脚本按钮_点击">
+                                <ToolTip.Tip>
+                                    <TextBlock TextWrapping="Wrap">将当前 Max 场景导出为 FBX 文件</TextBlock>
+                                </ToolTip.Tip>
+                            </Button>
 
-                            <Button x:Name="导出贴图加FBXBtn" Grid.Row="0" Grid.Column="2" 
-                                    Content="导出（贴图+FBX）" Tag="导出（贴图+FBX）.ms" Click="脚本按钮_点击"/>
+                            <Button x:Name="导出贴图加FBXBtn" Grid.Row="0" Grid.Column="2"
+                                    Content="导出（贴图+FBX）" Tag="导出（贴图+FBX）.ms" Click="脚本按钮_点击">
+                                <ToolTip.Tip>
+                                    <TextBlock TextWrapping="Wrap">同时导出 FBX 和关联的贴图文件</TextBlock>
+                                </ToolTip.Tip>
+                            </Button>
 
-                            <Button x:Name="选择多边面Btn" Grid.Row="1" Grid.Column="0" 
-                                    Content="选择多边面" Tag="选择多边面.ms" Click="脚本按钮_点击"/>
+                            <Button x:Name="选择多边面Btn" Grid.Row="1" Grid.Column="0"
+                                    Content="选择多边面" Tag="选择多边面.ms" Click="脚本按钮_点击">
+                                <ToolTip.Tip>
+                                    <TextBlock TextWrapping="Wrap">选择模型中所有四边以上的面（多边面）</TextBlock>
+                                </ToolTip.Tip>
+                            </Button>
 
-                            <Button x:Name="选择法线翻转的面Btn" Grid.Row="1" Grid.Column="1" 
-                                    Content="选择法线翻转的面" Tag="选择法线翻转的面.ms" Click="脚本按钮_点击"/>
+                            <Button x:Name="选择法线翻转的面Btn" Grid.Row="1" Grid.Column="1"
+                                    Content="选择法线翻转的面" Tag="选择法线翻转的面.ms" Click="脚本按钮_点击">
+                                <ToolTip.Tip>
+                                    <TextBlock TextWrapping="Wrap">选择模型中法线方向错误的面（需要翻转的面）</TextBlock>
+                                </ToolTip.Tip>
+                            </Button>
 
-                            <Button x:Name="面数检查Btn" Grid.Row="1" Grid.Column="2" 
-                                    Content="面数检查" Tag="面数检查.ms" Click="脚本按钮_点击"/>
+                            <Button x:Name="面数检查Btn" Grid.Row="1" Grid.Column="2"
+                                    Content="面数检查" Tag="面数检查.ms" Click="脚本按钮_点击">
+                                <ToolTip.Tip>
+                                    <TextBlock TextWrapping="Wrap">统计并显示当前模型的总面数</TextBlock>
+                                </ToolTip.Tip>
+                            </Button>
 
-                            <Button x:Name="Mesh01_重命名Btn" Grid.Row="2" Grid.Column="0" 
-                                    Content="Mesh01_重命名" Tag="Mesh01_重命名.ms" Click="脚本按钮_点击"/>
-
+                            <Button x:Name="Mesh01_重命名Btn" Grid.Row="2" Grid.Column="0"
+                                    Content="Mesh01_重命名" Tag="Mesh01_重命名.ms" Click="脚本按钮_点击">
+                                <ToolTip.Tip>
+                                    <TextBlock TextWrapping="Wrap">将选中物体批量重命名为指定规则（例如 Mesh01, Mesh02...）</TextBlock>
+                                </ToolTip.Tip>
+                            </Button>
                         </Grid>
                     </Expander>
 
                     <Expander Header="Unity 常用工具" IsExpanded="True">
+                        <ToolTip.Tip>
+                            <TextBlock TextWrapping="Wrap">QF 项目专用的 Unity 工具集（需在 Unity 中配合使用）</TextBlock>
+                        </ToolTip.Tip>
                         <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,2,0,0">
-                            <Button x:Name="Unity初始化Btn" Grid.Row="0" Grid.Column="0" 
-                                    Content="Unity 初始化（待实现）" Click="初始化按钮_点击"/>
-                            <Button x:Name="打开头像编辑器Btn" Grid.Row="0" Grid.Column="1" 
-                                    Content="打开 Avatar 编辑器" Click="打开头像编辑器按钮_点击"/>
-                            <Button x:Name="复制并导出Btn" Grid.Row="0" Grid.Column="2" 
-                                    Content="复制选中并打开导出窗口" Click="复制并导出按钮_点击"/>
-                            <Button x:Name="粘贴Max名称Btn" Grid.Row="1" Grid.Column="0" 
-                                    Content="粘贴 Max 文件名到 Unity" Click="粘贴Max名称按钮_点击"/>
-                            <Button x:Name="文件标准化Btn" Grid.Row="1" Grid.Column="1" 
-                                    Content="一键规范文件结构" Click="文件标准化按钮_点击"/>
-                            <Button x:Name="批量导出Btn" Grid.Row="1" Grid.Column="2" 
-                                    Content="一键批量导出资产" Click="批量导出按钮_点击"/>
-                            <Button x:Name="清空Max名称Btn" Grid.Row="2" Grid.Column="0" 
-                                    Content="清空 Unity 中的 Max 名称列表" Click="清空Max名称按钮_点击"/>
+                            <Button x:Name="Unity初始化Btn" Grid.Row="0" Grid.Column="0"
+                                    Content="Unity 初始化（待实现）" Click="初始化按钮_点击">
+                                <ToolTip.Tip>
+                                    <TextBlock TextWrapping="Wrap">初始化 Unity 环境配置（功能待开发）</TextBlock>
+                                </ToolTip.Tip>
+                            </Button>
+                            <Button x:Name="打开头像编辑器Btn" Grid.Row="0" Grid.Column="1"
+                                    Content="打开 Avatar 编辑器" Click="打开头像编辑器按钮_点击">
+                                <ToolTip.Tip>
+                                    <TextBlock TextWrapping="Wrap">在 Unity 中打开头像编辑器窗口</TextBlock>
+                                </ToolTip.Tip>
+                            </Button>
+                            <Button x:Name="复制并导出Btn" Grid.Row="0" Grid.Column="2"
+                                    Content="复制选中并打开导出窗口" Click="复制并导出按钮_点击">
+                                <ToolTip.Tip>
+                                    <TextBlock TextWrapping="Wrap">复制选中的资源并打开导出面板</TextBlock>
+                                </ToolTip.Tip>
+                            </Button>
+                            <Button x:Name="粘贴Max名称Btn" Grid.Row="1" Grid.Column="0"
+                                    Content="粘贴 Max 文件名到 Unity" Click="粘贴Max名称按钮_点击">
+                                <ToolTip.Tip>
+                                    <TextBlock TextWrapping="Wrap">将 Max 文件名粘贴到 Unity 的输入框中</TextBlock>
+                                </ToolTip.Tip>
+                            </Button>
+                            <Button x:Name="文件标准化Btn" Grid.Row="1" Grid.Column="1"
+                                    Content="一键规范文件结构" Click="文件标准化按钮_点击">
+                                <ToolTip.Tip>
+                                    <TextBlock TextWrapping="Wrap">按照项目规范整理文件目录结构</TextBlock>
+                                </ToolTip.Tip>
+                            </Button>
+                            <Button x:Name="批量导出Btn" Grid.Row="1" Grid.Column="2"
+                                    Content="一键批量导出资产" Click="批量导出按钮_点击">
+                                <ToolTip.Tip>
+                                    <TextBlock TextWrapping="Wrap">批量导出所有符合条件的资产</TextBlock>
+                                </ToolTip.Tip>
+                            </Button>
+                            <Button x:Name="清空Max名称Btn" Grid.Row="2" Grid.Column="0"
+                                    Content="清空 Unity 中的 Max 名称列表" Click="清空Max名称按钮_点击">
+                                <ToolTip.Tip>
+                                    <TextBlock TextWrapping="Wrap">清空 Unity 工具中记录的 Max 文件名列表</TextBlock>
+                                </ToolTip.Tip>
+                            </Button>
                         </Grid>
                     </Expander>
                 </StackPanel>
             </Expander>
 
             <Expander Header="小岛植物 项目" IsExpanded="True">
+                <ToolTip.Tip>
+                    <TextBlock TextWrapping="Wrap">小岛植物项目专用工具集</TextBlock>
+                </ToolTip.Tip>
                 <StackPanel Margin="0,2,0,0" Spacing="2">
-                    <TextBox x:Name="Island_MaxPathInput" 
+                    <TextBox x:Name="Island_MaxPathInput"
                              Watermark="在此粘贴小岛植物 Max 主文件名"
-                             Height="20" Padding="4,1"/>
-                    <TextBox x:Name="Island_UnityPathInput" 
+                             Height="20" Padding="4,1">
+                        <ToolTip.Tip>
+                            <TextBlock TextWrapping="Wrap">输入或粘贴小岛植物项目的主 Max 文件名</TextBlock>
+                        </ToolTip.Tip>
+                    </TextBox>
+                    <TextBox x:Name="Island_UnityPathInput"
                              Watermark="在此粘贴小岛植物 Unity 主文件名"
-                             Height="20" Padding="4,1"/>
+                             Height="20" Padding="4,1">
+                        <ToolTip.Tip>
+                            <TextBlock TextWrapping="Wrap">输入或粘贴小岛植物项目的主 Unity 文件名</TextBlock>
+                        </ToolTip.Tip>
+                    </TextBox>
 
                     <Expander Header="3ds Max 工具（小岛植物专用）" IsExpanded="True">
+                        <ToolTip.Tip>
+                            <TextBlock TextWrapping="Wrap">小岛植物项目专用的 Max 脚本工具集（部分功能待实现）</TextBlock>
+                        </ToolTip.Tip>
                         <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto" Margin="0,2,0,0">
-                            <Button x:Name="小岛_规范模型命名Btn" Grid.Row="0" Grid.Column="0" 
-                                    Content="规范模型命名（待实现）" Tag="规范模型.ms" Click="脚本按钮_点击"/>
-                            <Button x:Name="小岛_导出当前为FBXBtn" Grid.Row="0" Grid.Column="1" 
-                                    Content="导出当前为FBX（待实现）" Tag="导出FBX(当前).ms" Click="脚本按钮_点击"/>
-                            <Button x:Name="小岛_导出贴图加FBXBtn" Grid.Row="0" Grid.Column="2" 
-                                    Content="导出贴图+FBX（待实现）" Tag="导出（贴图+FBX）.ms" Click="脚本按钮_点击"/>
-                            <Button x:Name="小岛_选择多边面Btn" Grid.Row="1" Grid.Column="0" 
-                                    Content="选择多边面（待实现）" Tag="选择多边面.ms" Click="脚本按钮_点击"/>
-                            <Button x:Name="小岛_选择法线翻转Btn" Grid.Row="1" Grid.Column="1" 
-                                    Content="选择法线翻转的面（待实现）" Tag="选择法线翻转的面.ms" Click="脚本按钮_点击"/>
-                            <Button x:Name="小岛_面数检查Btn" Grid.Row="1" Grid.Column="2" 
-                                    Content="面数检查（待实现）" Tag="面数检查.ms" Click="脚本按钮_点击"/>
-                            <Button x:Name="小岛_Mesh01重命名Btn" Grid.Row="2" Grid.Column="0" 
-                                    Content="Mesh01 批量重命名（待实现）" Tag="Mesh01_重命名.ms" Click="脚本按钮_点击"/>
+                            <Button x:Name="小岛_规范模型命名Btn" Grid.Row="0" Grid.Column="0"
+                                    Content="规范模型命名（待实现）" Tag="规范模型.ms" Click="脚本按钮_点击">
+                                <ToolTip.Tip>
+                                    <TextBlock TextWrapping="Wrap">规范模型命名规则（功能待开发）</TextBlock>
+                                </ToolTip.Tip>
+                            </Button>
+                            <Button x:Name="小岛_导出当前为FBXBtn" Grid.Row="0" Grid.Column="1"
+                                    Content="导出当前为FBX（待实现）" Tag="导出FBX(当前).ms" Click="脚本按钮_点击">
+                                <ToolTip.Tip>
+                                    <TextBlock TextWrapping="Wrap">将当前场景导出为 FBX（功能待开发）</TextBlock>
+                                </ToolTip.Tip>
+                            </Button>
+                            <Button x:Name="小岛_导出贴图加FBXBtn" Grid.Row="0" Grid.Column="2"
+                                    Content="导出贴图+FBX（待实现）" Tag="导出（贴图+FBX）.ms" Click="脚本按钮_点击">
+                                <ToolTip.Tip>
+                                    <TextBlock TextWrapping="Wrap">同时导出 FBX 和贴图（功能待开发）</TextBlock>
+                                </ToolTip.Tip>
+                            </Button>
+                            <Button x:Name="小岛_选择多边面Btn" Grid.Row="1" Grid.Column="0"
+                                    Content="选择多边面（待实现）" Tag="选择多边面.ms" Click="脚本按钮_点击">
+                                <ToolTip.Tip>
+                                    <TextBlock TextWrapping="Wrap">选择模型中的多边面（功能待开发）</TextBlock>
+                                </ToolTip.Tip>
+                            </Button>
+                            <Button x:Name="小岛_选择法线翻转Btn" Grid.Row="1" Grid.Column="1"
+                                    Content="选择法线翻转的面（待实现）" Tag="选择法线翻转的面.ms" Click="脚本按钮_点击">
+                                <ToolTip.Tip>
+                                    <TextBlock TextWrapping="Wrap">选择法线方向错误的面（功能待开发）</TextBlock>
+                                </ToolTip.Tip>
+                            </Button>
+                            <Button x:Name="小岛_面数检查Btn" Grid.Row="1" Grid.Column="2"
+                                    Content="面数检查（待实现）" Tag="面数检查.ms" Click="脚本按钮_点击">
+                                <ToolTip.Tip>
+                                    <TextBlock TextWrapping="Wrap">检查模型总面数（功能待开发）</TextBlock>
+                                </ToolTip.Tip>
+                            </Button>
+                            <Button x:Name="小岛_Mesh01重命名Btn" Grid.Row="2" Grid.Column="0"
+                                    Content="Mesh01 批量重命名（待实现）" Tag="Mesh01_重命名.ms" Click="脚本按钮_点击">
+                                <ToolTip.Tip>
+                                    <TextBlock TextWrapping="Wrap">批量重命名物体为 Mesh01、Mesh02...（功能待开发）</TextBlock>
+                                </ToolTip.Tip>
+                            </Button>
                         </Grid>
                     </Expander>
                 </StackPanel>

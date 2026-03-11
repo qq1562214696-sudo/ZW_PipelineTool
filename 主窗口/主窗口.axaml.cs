@@ -157,7 +157,6 @@ public partial class 主窗口 : Window ,INotifyPropertyChanged
                 if (unityBox == null) continue;
 
                 unityBox.Text = savedPath;
-                日志($"已自动加载上次保存的 Unity 路径：{savedPath}");
                 return;
             }
         }

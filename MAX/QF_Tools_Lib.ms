@@ -210,6 +210,7 @@ fn getExportFolder prefix playerID genderFolder isPetNum assetsBase =
         exportFolder = assetsBase + "\\ArtWork\\Avatar\\Character\\" + genderFolder + "\\07Glass\\Glass_" + playerID + "\\Model"
     )
     else if isPetNum == 27 then
+    (
         exportFolder = assetsBase + "\\ArtWork\\Avatar\\Hang\\21LeftHandChain\\LeftHandChain_" + playerID + "\\Model"
     )
     else if isPetNum == 28 then
@@ -279,6 +280,7 @@ fn getTexFolder prefix playerID genderFolder isPetNum assetsBase =
         texFolder = assetsBase + "\\ArtWork\\Avatar\\Character\\" + genderFolder + "\\07Glass\\Glass_" + playerID + "\\Textures"
     )
     else if isPetNum == 27 then
+    (
         texFolder = assetsBase + "\\ArtWork\\Avatar\\Hang\\21LeftHandChain\\LeftHandChain_" + playerID + "\\Textures"
     )
     else if isPetNum == 28 then
