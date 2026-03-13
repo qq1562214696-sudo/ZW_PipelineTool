@@ -125,8 +125,6 @@ public partial class 主窗口//Max区块
     private static extern bool SetForegroundWindow(IntPtr hWnd);
     [StructLayout(LayoutKind.Sequential)]
     private struct RECT { public int Left, Top, Right, Bottom; }
-    [StructLayout(LayoutKind.Sequential)]
-    private struct POINT { public int X, Y; }
     /// <summary>
     /// 用于模拟文件拖放的结构（WM_DROPFILES 消息需要）
     /// </summary>
