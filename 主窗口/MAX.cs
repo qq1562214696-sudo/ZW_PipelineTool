@@ -80,37 +80,30 @@ public partial class 主窗口//Max区块
     }
 
     /// <summary>
-    /// MaxScript 按钮点击事件：根据按钮的 Tag 属性找到对应的 .ms 文件并发送给 3ds Max
+    /// MaxScript 按钮点击事件：根据按钮的 Content 属性找到对应的 .ms 文件并发送给 3ds Max
     /// </summary>
     private async void 脚本按钮_点击(object? sender, RoutedEventArgs e)
     {
         if (sender is not Button button) return;
-        // Tag 属性存放脚本文件名（不含路径）
-        string? 脚本文件名 = button.Tag?.ToString()?.Trim();
-        if (string.IsNullOrWhiteSpace(脚本文件名))
+
+        string? 按钮文字 = button.Content?.ToString()?.Trim();
+        if (string.IsNullOrWhiteSpace(按钮文字))
         {
-            报错($"按钮缺少 Tag 属性，无法确定脚本：{button.Content}");
+            报错("按钮 Content 为空，无法确定脚本");
             return;
         }
-        try
+        
+        string 脚本文件名 = 按钮文字 + ".ms";
+
+        string 脚本路径 = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Max", 脚本文件名);
+
+        if (!File.Exists(脚本路径))
         {
-            // 脚本应放在程序目录下的 Max 文件夹
-            string 程序目录 = AppDomain.CurrentDomain.BaseDirectory;
-            string 脚本路径 = Path.Combine(程序目录, "Max", 脚本文件名);
-            if (!File.Exists(脚本路径))
-            {
-                报错("请检查：");
-                报错("1. 根目录下是否存在 Max 文件夹");
-                报错($"2. 其中是否包含文件：{脚本文件名}");
-                return;
-            }
-            // 核心发送逻辑
-            发送脚本到3dsMax(脚本路径);
+            报错($"找不到脚本：Max/{脚本文件名}");
+            return;
         }
-        catch (Exception ex)
-        {
-            报错($"Max工具使用失败：{ex.Message}");
-        }
+
+        发送脚本到3dsMax(脚本路径);
     }
 
     #region P/Invoke 定义 - 与 Windows 窗口和拖放消息交互

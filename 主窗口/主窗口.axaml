@@ -214,7 +214,7 @@
                         </ToolTip.Tip>
                         <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto" Margin="0,2,0,0">
                             <Button x:Name="规范模型Btn" Grid.Row="0" Grid.Column="0"
-                                    Content="规范模型" Tag="规范模型.ms" Click="脚本按钮_点击">
+                                    Content="规范模型" Click="脚本按钮_点击">
                                 <ToolTip.Tip>
                                     <ToolTip>
                                         <TextBlock TextWrapping="Wrap" MaxWidth="300">
@@ -235,42 +235,42 @@
                             </Button>
 
                             <Button x:Name="导出FBXBtn" Grid.Row="0" Grid.Column="1"
-                                    Content="导出FBX(当前)" Tag="导出FBX(当前).ms" Click="脚本按钮_点击">
+                                    Content="导出FBX(当前)" Click="脚本按钮_点击">
                                 <ToolTip.Tip>
                                     <TextBlock TextWrapping="Wrap">将当前 Max 场景导出为 FBX 文件</TextBlock>
                                 </ToolTip.Tip>
                             </Button>
 
                             <Button x:Name="导出贴图加FBXBtn" Grid.Row="0" Grid.Column="2"
-                                    Content="导出（贴图+FBX）" Tag="导出（贴图+FBX）.ms" Click="脚本按钮_点击">
+                                    Content="导出（贴图+FBX）" Click="脚本按钮_点击">
                                 <ToolTip.Tip>
                                     <TextBlock TextWrapping="Wrap">同时导出 FBX 和关联的贴图文件</TextBlock>
                                 </ToolTip.Tip>
                             </Button>
 
                             <Button x:Name="选择多边面Btn" Grid.Row="1" Grid.Column="0"
-                                    Content="选择多边面" Tag="选择多边面.ms" Click="脚本按钮_点击">
+                                    Content="选择多边面" Click="脚本按钮_点击">
                                 <ToolTip.Tip>
                                     <TextBlock TextWrapping="Wrap">选择模型中所有四边以上的面（多边面）</TextBlock>
                                 </ToolTip.Tip>
                             </Button>
 
                             <Button x:Name="选择法线翻转的面Btn" Grid.Row="1" Grid.Column="1"
-                                    Content="选择法线翻转的面" Tag="选择法线翻转的面.ms" Click="脚本按钮_点击">
+                                    Content="选择法线翻转的面" Click="脚本按钮_点击">
                                 <ToolTip.Tip>
                                     <TextBlock TextWrapping="Wrap">选择模型中法线方向错误的面（需要翻转的面）</TextBlock>
                                 </ToolTip.Tip>
                             </Button>
 
                             <Button x:Name="面数检查Btn" Grid.Row="1" Grid.Column="2"
-                                    Content="面数检查" Tag="面数检查.ms" Click="脚本按钮_点击">
+                                    Content="面数检查" Click="脚本按钮_点击">
                                 <ToolTip.Tip>
                                     <TextBlock TextWrapping="Wrap">统计并显示当前模型的总面数</TextBlock>
                                 </ToolTip.Tip>
                             </Button>
 
                             <Button x:Name="Mesh01_重命名Btn" Grid.Row="2" Grid.Column="0"
-                                    Content="Mesh01_重命名" Tag="Mesh01_重命名.ms" Click="脚本按钮_点击">
+                                    Content="Mesh01_重命名" Click="脚本按钮_点击">
                                 <ToolTip.Tip>
                                     <TextBlock TextWrapping="Wrap">将选中物体批量重命名为指定规则（例如 Mesh01, Mesh02...）</TextBlock>
                                 </ToolTip.Tip>
@@ -356,43 +356,43 @@
                         </ToolTip.Tip>
                         <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto" Margin="0,2,0,0">
                             <Button x:Name="小岛_规范模型命名Btn" Grid.Row="0" Grid.Column="0"
-                                    Content="规范模型命名（待实现）" Tag="规范模型.ms" Click="脚本按钮_点击">
+                                    Content="规范模型命名（待实现）" Click="脚本按钮_点击">
                                 <ToolTip.Tip>
                                     <TextBlock TextWrapping="Wrap">规范模型命名规则（功能待开发）</TextBlock>
                                 </ToolTip.Tip>
                             </Button>
                             <Button x:Name="小岛_导出当前为FBXBtn" Grid.Row="0" Grid.Column="1"
-                                    Content="导出当前为FBX（待实现）" Tag="导出FBX(当前).ms" Click="脚本按钮_点击">
+                                    Content="导出当前为FBX（待实现）" Click="脚本按钮_点击">
                                 <ToolTip.Tip>
                                     <TextBlock TextWrapping="Wrap">将当前场景导出为 FBX（功能待开发）</TextBlock>
                                 </ToolTip.Tip>
                             </Button>
                             <Button x:Name="小岛_导出贴图加FBXBtn" Grid.Row="0" Grid.Column="2"
-                                    Content="导出贴图+FBX（待实现）" Tag="导出（贴图+FBX）.ms" Click="脚本按钮_点击">
+                                    Content="导出贴图+FBX（待实现）" Click="脚本按钮_点击">
                                 <ToolTip.Tip>
                                     <TextBlock TextWrapping="Wrap">同时导出 FBX 和贴图（功能待开发）</TextBlock>
                                 </ToolTip.Tip>
                             </Button>
                             <Button x:Name="小岛_选择多边面Btn" Grid.Row="1" Grid.Column="0"
-                                    Content="选择多边面（待实现）" Tag="选择多边面.ms" Click="脚本按钮_点击">
+                                    Content="选择多边面（待实现）" Click="脚本按钮_点击">
                                 <ToolTip.Tip>
                                     <TextBlock TextWrapping="Wrap">选择模型中的多边面（功能待开发）</TextBlock>
                                 </ToolTip.Tip>
                             </Button>
                             <Button x:Name="小岛_选择法线翻转Btn" Grid.Row="1" Grid.Column="1"
-                                    Content="选择法线翻转的面（待实现）" Tag="选择法线翻转的面.ms" Click="脚本按钮_点击">
+                                    Content="选择法线翻转的面（待实现）" Click="脚本按钮_点击">
                                 <ToolTip.Tip>
                                     <TextBlock TextWrapping="Wrap">选择法线方向错误的面（功能待开发）</TextBlock>
                                 </ToolTip.Tip>
                             </Button>
                             <Button x:Name="小岛_面数检查Btn" Grid.Row="1" Grid.Column="2"
-                                    Content="面数检查（待实现）" Tag="面数检查.ms" Click="脚本按钮_点击">
+                                    Content="面数检查（待实现）" Click="脚本按钮_点击">
                                 <ToolTip.Tip>
                                     <TextBlock TextWrapping="Wrap">检查模型总面数（功能待开发）</TextBlock>
                                 </ToolTip.Tip>
                             </Button>
                             <Button x:Name="小岛_Mesh01重命名Btn" Grid.Row="2" Grid.Column="0"
-                                    Content="Mesh01 批量重命名（待实现）" Tag="Mesh01_重命名.ms" Click="脚本按钮_点击">
+                                    Content="Mesh01 批量重命名（待实现）" Click="脚本按钮_点击">
                                 <ToolTip.Tip>
                                     <TextBlock TextWrapping="Wrap">批量重命名物体为 Mesh01、Mesh02...（功能待开发）</TextBlock>
                                 </ToolTip.Tip>

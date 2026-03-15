@@ -127,7 +127,7 @@ public partial class 主窗口 : Window//日志区块
                         string content = "";
                         // 使用 GB2312 编码读取（MaxScript 默认写入 ANSI 中文）
                         using (var fs = new FileStream(_logFilePath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
-                        using (var sr = new StreamReader(fs, Encoding.GetEncoding("GB2312")))
+                        using (var sr = new StreamReader(fs, Encoding.UTF8))
                         {
                             content = await sr.ReadToEndAsync();
                             // 清空文件，以便下次只读新增内容

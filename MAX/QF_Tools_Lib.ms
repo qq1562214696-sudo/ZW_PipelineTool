@@ -10,7 +10,18 @@ fn qf_log msg =
 (
     try
     (
-        local f = openFile MAX_LOG_PATH mode:"a"
+        local f = undefined
+        
+        -- 确保文件存在，如果不存在则创建（指定 UTF-8 编码）
+        if not (doesFileExist MAX_LOG_PATH) then
+        (
+            f = createFile MAX_LOG_PATH encoding:#utf8
+            if f != undefined then close f  -- 关闭刚刚创建的空文件
+        )
+        
+        -- 以追加模式打开文件，指定 UTF-8 编码
+        f = openFile MAX_LOG_PATH mode:"a" encoding:#utf8
+        
         if f != undefined then
         (
             format "%\n" msg to:f
