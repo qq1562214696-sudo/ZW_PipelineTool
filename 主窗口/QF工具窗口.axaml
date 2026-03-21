@@ -1,0 +1,91 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="using:ZW_PipelineTool"
+        x:Class="ZW_PipelineTool.QF工具窗口"
+        Title="QF 项目 - 专用工具集"
+        Width="520" Height="680"
+        WindowStartupLocation="CenterOwner"
+        FontSize="12"
+        CanResize="True">
+
+    <Window.Styles>
+        <!-- 可以复用主窗口的部分样式，或者全部复制过来 -->
+        <Style Selector="Button">
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="Padding" Value="8,-5"/>
+            <Setter Property="Margin" Value="1"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <!-- ... 其他需要的样式可以继续复制主窗口的 Button/TextBox 等 ... -->
+    </Window.Styles>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="8" Spacing="2">
+
+            <!-- 原 QF 项目内容（去掉外层 Expander） -->
+            <Expander Header="初始化（只需设置一次）" IsExpanded="True">
+                <ToolTip.Tip>
+                    <TextBlock TextWrapping="Wrap">首次使用前必须设置 Max 和 Unity 路径并执行初始化</TextBlock>
+                </ToolTip.Tip>
+                <StackPanel Spacing="2">
+                    <TextBox x:Name="QF_MaxPathInput"
+                             Watermark="Max 2014 快捷方式或exe（拖入或手动输入）"
+                             Height="20" Padding="4,1"/>
+                    <TextBox x:Name="QF_UnityPathInput"
+                             Watermark="Unity Assets路径（拖入或手动输入）"
+                             Height="20" Padding="4,1"/>
+                    <Button x:Name="QF_初始化按钮"
+                            Content="执行初始化"
+                            Click="初始化按钮_点击"/>
+                </StackPanel>
+            </Expander>
+
+            <!-- 这里你可以加注释：后续文件存储列表 -->
+            <!-- <TextBlock Text="（后续计划：添加处理文件存储列表）" Margin="0,8,0,4" FontWeight="Bold"/> -->
+
+            <Expander Header="3ds Max 常用工具" IsExpanded="True">
+                <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto" Margin="0,2,0,0">
+                    <Button x:Name="规范模型Btn" Grid.Row="0" Grid.Column="0"
+                            Content="规范模型" Click="脚本按钮_点击"/>
+                    <Button x:Name="导出FBXBtn" Grid.Row="0" Grid.Column="1"
+                            Content="导出FBX(当前)" Click="脚本按钮_点击"/>
+                    <Button x:Name="导出贴图加FBXBtn" Grid.Row="0" Grid.Column="2"
+                            Content="导出（贴图+FBX）" Click="脚本按钮_点击"/>
+
+                    <Button x:Name="选择多边面Btn" Grid.Row="1" Grid.Column="0"
+                            Content="选择多边面" Click="脚本按钮_点击"/>
+                    <Button x:Name="选择法线翻转的面Btn" Grid.Row="1" Grid.Column="1"
+                            Content="选择法线翻转的面" Click="脚本按钮_点击"/>
+                    <Button x:Name="面数检查Btn" Grid.Row="1" Grid.Column="2"
+                            Content="面数检查" Click="脚本按钮_点击"/>
+
+                    <Button x:Name="Mesh01_重命名Btn" Grid.Row="2" Grid.Column="0"
+                            Content="Mesh01_重命名" Click="脚本按钮_点击"/>
+                </Grid>
+            </Expander>
+
+            <Expander Header="Unity 常用工具" IsExpanded="True">
+                <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,2,0,0">
+                    <Button x:Name="Unity初始化Btn" Grid.Row="0" Grid.Column="0"
+                            Content="Unity 初始化（待实现）" Click="初始化按钮_点击"/>
+                    <Button x:Name="打开头像编辑器Btn" Grid.Row="0" Grid.Column="1"
+                            Content="打开 Avatar 编辑器" Click="打开头像编辑器按钮_点击"/>
+                    <Button x:Name="复制并导出Btn" Grid.Row="0" Grid.Column="2"
+                            Content="复制选中并打开导出窗口" Click="复制并导出按钮_点击"/>
+
+                    <Button x:Name="粘贴Max名称Btn" Grid.Row="1" Grid.Column="0"
+                            Content="粘贴 Max 文件名到 Unity" Click="粘贴Max名称按钮_点击"/>
+                    <Button x:Name="文件标准化Btn" Grid.Row="1" Grid.Column="1"
+                            Content="一键规范文件结构" Click="文件标准化按钮_点击"/>
+                    <Button x:Name="批量导出Btn" Grid.Row="1" Grid.Column="2"
+                            Content="一键批量导出资产" Click="批量导出按钮_点击"/>
+
+                    <Button x:Name="清空Max名称Btn" Grid.Row="2" Grid.Column="0"
+                            Content="清空 Unity 中的 Max 名称列表" Click="清空Max名称按钮_点击"/>
+                </Grid>
+            </Expander>
+
+        </StackPanel>
+    </ScrollViewer>
+</Window>

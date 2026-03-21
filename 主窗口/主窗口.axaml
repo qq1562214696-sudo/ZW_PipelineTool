@@ -174,6 +174,19 @@
                 </Grid>
             </Expander>
 
+            <Expander Header="QF 项目小分块" IsExpanded="True">
+                <ToolTip.Tip>
+                    <TextBlock TextWrapping="Wrap">QF 项目专用工具集（已独立成窗口）</TextBlock>
+                </ToolTip.Tip>
+                
+                <StackPanel Margin="0,8,0,0" Spacing="8" HorizontalAlignment="Center">
+                    <TextBlock Text="QF 工具已移至独立窗口" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                    <Button Content="打开 QF 工具集窗口"
+                            Width="220" Height="36" FontSize="14"
+                            Click="打开QF工具窗口_Click"/>
+                </StackPanel>
+            </Expander>
+
             <Expander Header="QF 项目" IsExpanded="True">
                 <ToolTip.Tip>
                     <TextBlock TextWrapping="Wrap">QF 项目专用工具集</TextBlock>
@@ -327,6 +340,20 @@
                             </Button>
                         </Grid>
                     </Expander>
+                </StackPanel>
+            </Expander>
+
+
+            <Expander Header="小岛植物 项目" IsExpanded="True">
+                <ToolTip.Tip>
+                    <TextBlock TextWrapping="Wrap">小岛植物项目专用工具集（已独立成窗口）</TextBlock>
+                </ToolTip.Tip>
+                
+                <StackPanel Margin="0,8,0,0" Spacing="8" HorizontalAlignment="Center">
+                    <TextBlock Text="小岛植物工具已移至独立窗口" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                    <Button Content="打开 小岛植物 工具集窗口"
+                            Width="220" Height="36" FontSize="14"
+                            Click="打开小岛植物工具窗口_Click"/>
                 </StackPanel>
             </Expander>
 

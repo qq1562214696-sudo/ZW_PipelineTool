@@ -1,3 +1,4 @@
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -20,6 +21,38 @@ namespace ZW_PipelineTool
             var 收集器窗口 = new FileCollectorWindow();
             收集器窗口.Show();          // 非模态打开
             // 或者使用 ShowDialog(this) 作为模态对话框
+        }
+
+        // 在 主窗口.axaml.cs 中添加
+        private void 打开QF工具窗口_Click(object? sender, RoutedEventArgs e)
+        {
+            var qfWindow = new QF工具窗口
+            {
+                // 可选：如果想让它跟随主窗口位置
+                Position = new PixelPoint(
+                    (int)(Position.X + (Bounds.Width - 520)/2),
+                    (int)(Position.Y + (Bounds.Height - 680)/2)
+                )
+            };
+            
+            qfWindow.Show();           // 非模态（可同时开多个）
+            // qfWindow.ShowDialog(this); // 模态（阻塞主窗口直到关闭）
+        }
+
+        // 添加这个方法
+        private void 打开小岛植物工具窗口_Click(object? sender, RoutedEventArgs e)
+        {
+            var islandWindow = new 小岛植物工具窗口
+            {
+                // 可选：居中于主窗口
+                Position = new PixelPoint(
+                    (int)(Position.X + (Bounds.Width - 520)/2),
+                    (int)(Position.Y + (Bounds.Height - 620)/2)
+                )
+            };
+            
+            islandWindow.Show();           // 非模态
+            // islandWindow.ShowDialog(this); // 如果想要模态阻塞
         }
     }
 

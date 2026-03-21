@@ -1,0 +1,61 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="using:ZW_PipelineTool"
+        x:Class="ZW_PipelineTool.小岛植物工具窗口"
+        Title="小岛植物 项目 - 专用工具集"
+        Width="520" Height="620"
+        WindowStartupLocation="CenterOwner"
+        FontSize="12"
+        CanResize="True">
+
+    <Window.Styles>
+        <!-- 复用主窗口的按钮/文本框样式（建议统一抽取成共享资源文件，后续优化） -->
+        <Style Selector="Button">
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="Padding" Value="8,-5"/>
+            <Setter Property="Margin" Value="1"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <!-- 可以继续添加 TextBox、Expander 等其他样式 -->
+    </Window.Styles>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="8" Spacing="2">
+
+            <!-- 原小岛植物项目内容（去掉外层 Expander） -->
+            <StackPanel Spacing="2">
+                <TextBox x:Name="Island_MaxPathInput"
+                         Watermark="在此粘贴小岛植物 Max 主文件名"
+                         Height="20" Padding="4,1"/>
+                <TextBox x:Name="Island_UnityPathInput"
+                         Watermark="在此粘贴小岛植物 Unity 主文件名"
+                         Height="20" Padding="4,1"/>
+
+                <Expander Header="3ds Max 工具（小岛植物专用）" IsExpanded="True">
+                    <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto" Margin="0,2,0,0">
+                        <Button x:Name="小岛_规范模型命名Btn" Grid.Row="0" Grid.Column="0"
+                                Content="规范模型命名（待实现）" Click="脚本按钮_点击"/>
+                        <Button x:Name="小岛_导出当前为FBXBtn" Grid.Row="0" Grid.Column="1"
+                                Content="导出当前为FBX（待实现）" Click="脚本按钮_点击"/>
+                        <Button x:Name="小岛_导出贴图加FBXBtn" Grid.Row="0" Grid.Column="2"
+                                Content="导出贴图+FBX（待实现）" Click="脚本按钮_点击"/>
+
+                        <Button x:Name="小岛_选择多边面Btn" Grid.Row="1" Grid.Column="0"
+                                Content="选择多边面（待实现）" Click="脚本按钮_点击"/>
+                        <Button x:Name="小岛_选择法线翻转Btn" Grid.Row="1" Grid.Column="1"
+                                Content="选择法线翻转的面（待实现）" Click="脚本按钮_点击"/>
+                        <Button x:Name="小岛_面数检查Btn" Grid.Row="1" Grid.Column="2"
+                                Content="面数检查（待实现）" Click="脚本按钮_点击"/>
+
+                        <Button x:Name="小岛_Mesh01重命名Btn" Grid.Row="2" Grid.Column="0"
+                                Content="Mesh01 批量重命名（待实现）" Click="脚本按钮_点击"/>
+                    </Grid>
+                </Expander>
+
+                <!-- 如果未来有其他子模块，可以继续在这里加 Expander 或 StackPanel -->
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+</Window>
