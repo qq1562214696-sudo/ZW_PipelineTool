@@ -106,32 +106,6 @@ public partial class 主窗口//Max区块
         发送脚本到3dsMax(脚本路径);
     }
 
-    #region P/Invoke 定义 - 与 Windows 窗口和拖放消息交互
-    [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-    private static extern IntPtr FindWindow(string? lpClassName, string? lpWindowName);
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
-    [DllImport("user32.dll")]
-    private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
-    [DllImport("user32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool SetForegroundWindow(IntPtr hWnd);
-    [StructLayout(LayoutKind.Sequential)]
-    private struct RECT { public int Left, Top, Right, Bottom; }
-    /// <summary>
-    /// 用于模拟文件拖放的结构（WM_DROPFILES 消息需要）
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    private struct DROPFILES
-    {
-        public uint 文件列表偏移; // 文件列表相对于结构开头的偏移
-        public POINT 拖放点; // 拖放点（屏幕坐标）
-        public int 是否非客户区; // 是否非客户区（通常为0）
-        public int 是否宽字符; // 是否使用宽字符路径（我们用 Unicode）
-    }
-    private const uint WM_DROPFILES = 0x0233;
-    #endregion
-
     /// <summary>
     /// 核心方法：通过模拟“拖放 .ms 文件到 3ds Max 窗口”来执行 MaxScript
     /// 这是目前最可靠的外部调用 MaxScript 的方式之一（无需开启 MaxScript Listener）

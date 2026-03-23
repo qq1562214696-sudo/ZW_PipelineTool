@@ -110,12 +110,12 @@
                                   VerticalScrollBarVisibility="Auto"
                                   HorizontalScrollBarVisibility="Disabled"
                                   Height="160">
-                        <ListBox x:Name="LogListBox"
-                                 ItemsSource="{Binding 日志列表}"
-                                 Background="Transparent"
-                                 BorderThickness="0"
-                                 SelectionMode="Multiple"
-                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                            <ListBox x:Name="LogListBox"
+                                    ItemsSource="{Binding 日志列表}"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    SelectionMode="Multiple,Toggle"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                             <ToolTip.Tip>
                                 <TextBlock TextWrapping="Wrap">日志列表，可多选后右键复制选中内容</TextBlock>
                             </ToolTip.Tip>

@@ -8,10 +8,6 @@ namespace ZW_PipelineTool;
 
 public partial class 主窗口
 {
-    private const string 设置文件名 = "主窗口数据.json";
-    private static readonly string 存储路径;
-    private 窗口数据 _窗口数据 = new 窗口数据();
-
     static 主窗口()
     {
         string appData目录 = Path.Combine(AppContext.BaseDirectory, "AppData");

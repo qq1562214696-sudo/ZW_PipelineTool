@@ -1,68 +1,17 @@
 using System;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
-using Avalonia.Media;
-using Avalonia.Platform;
 using Avalonia.Threading;
-using Avalonia.Win32;           // Win32Properties
 
 namespace ZW_PipelineTool
 {
     public partial class 主窗口 : Window, INotifyPropertyChanged
     {
-        private ListBox? 日志列表框;
-        private Expander? 运行日志Expander;
-        private Expander? 工具基本设置Expander;
-        private static readonly SemaphoreSlim _logFileSemaphore = new(1, 1);
-        public ObservableCollection<日志数据> 日志列表 { get; } = new();
-
-        // MaxScript 日志监控相关字段
-        private FileSystemWatcher? _logWatcher;
-        private string _logFilePath = string.Empty;
-
-        // 自启动常量
-        private const string StartupRegistryKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run";
-        private const string AppStartupName = "ZW_PipelineTool";
-
-        // 自启动属性（绑定用）
-        private bool _开机自启;
-        public bool 开机自启
-        {
-            get => _开机自启;
-            set
-            {
-                if (_开机自启 != value)
-                {
-                    _开机自启 = value;
-                    SetStartupEnabled(value);
-                    OnPropertyChanged(nameof(开机自启));
-                }
-            }
-        }
-
-        // INotifyPropertyChanged 实现
-        public new event PropertyChangedEventHandler? PropertyChanged;
-
-        // 全局热键相关（仅 Windows）
-#if WINDOWS
-        private IntPtr? _windowHandle;
-        private const int HotKeyId_F5 = 9001;
-        private const uint HotKeyMessage = 0x0312;     // WM_HOTKEY
-        private const uint ModifierNone = 0x0000;
-        private const uint VK_F5 = 0x74;
-
-        // 保存 callback 以便移除
-        private Win32Properties.CustomWndProcHookCallback? _wndProcCallback;
-#endif
-
         public 主窗口()
         {
             InitializeComponent();
@@ -183,25 +132,6 @@ namespace ZW_PipelineTool
                 日志($"全局 F5 处理失败：{ex.Message}");
             }
         }
-
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
-
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
-
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool GetCursorPos(out POINT lpPoint);
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct POINT
-        {
-            public int X;
-            public int Y;
-        }
 #endif
 
         // ────────────────────────────────────────────────
@@ -304,20 +234,5 @@ namespace ZW_PipelineTool
             else
                 确保窗口在可见区域内();
         }
-
-        // // 以下是方法声明（实现体应在其他分部文件中，或移到这里）
-        // // 如果实现已在其他文件，就在这里只声明（无{}），其他文件保留实现
-        // private partial void SetStartupEnabled(bool enabled);
-        // private partial void 保存窗口设置();
-        // private partial void 加载窗口设置();
-        // private partial void 应用窗口设置();
-        // private partial void StartMaxLogWatcher();
-        // private partial void StopMaxLogWatcher();
-        // private partial void 日志(string message);
-
-        // // 拖拽事件处理程序（实现体应在一个地方）
-        // private void 窗口_拖入(object? sender, DragEventArgs e) { /* 实现 */ }
-        // private void 窗口_拖拽中(object? sender, DragEventArgs e) { /* 实现 */ }
-        // private void 窗口_放下(object? sender, DragEventArgs e) { /* 实现 */ }
     }
 }
