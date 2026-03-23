@@ -9,7 +9,7 @@ using Avalonia.Interactivity;
 
 namespace ZW_PipelineTool;
 
-public partial class 主窗口 : Window//日志区块
+public partial class 主窗口//日志区块
 {
     protected void 日志(string 消息)
     {

@@ -4,7 +4,7 @@ using Microsoft.Win32;
 
 namespace ZW_PipelineTool;
 
-public partial class 主窗口
+public partial class 主窗口 //自启动区块
 {
     protected virtual void OnPropertyChanged(string propertyName)
     {
@@ -26,12 +26,12 @@ public partial class 主窗口
                     string exePath = GetExePath();
                     if (exePath.Contains(" ")) exePath = "\"" + exePath + "\"";
                     key.SetValue(AppStartupName, exePath);
-                    日志("已启用开机自启（注册表）");
+                    日志("启用 自启（注册表）");
                 }
                 else
                 {
                     key.DeleteValue(AppStartupName, false);
-                    日志("已取消开机自启");
+                    日志("删除 自启（注册表）");
                 }
             }
             catch (Exception ex)

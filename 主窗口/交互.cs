@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace ZW_PipelineTool;
 
-public partial class 主窗口 : Window//交互区块
+public partial class 主窗口//交互区块
 {
     private void 窗口_拖入(object? sender, DragEventArgs e)
     {
