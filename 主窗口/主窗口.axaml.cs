@@ -24,6 +24,8 @@ namespace ZW_PipelineTool
 
             Opened += OnWindowOpened;
             Closing += OnWindowClosing;
+
+            SetupDrinkReminder();//喝水提醒，后续想办法解耦1111111111111111111111111111111
         }
 
         private void InitializeComponent() => AvaloniaXamlLoader.Load(this);

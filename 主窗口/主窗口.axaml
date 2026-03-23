@@ -94,6 +94,65 @@
                 </StackPanel>
             </Expander>
 
+                        <!-- 喝水提醒 -->
+            <Expander x:Name="喝水提醒" Header="喝水提醒" IsExpanded="True">
+                <ToolTip.Tip>
+                    <TextBlock TextWrapping="Wrap">喝水提醒设置，包括提醒间隔和每日目标////////////</TextBlock>
+                </ToolTip.Tip>
+                <StackPanel Margin="0,2,0,0" Spacing="2">
+                    <!-- 喝水提醒设置 -->
+                    <StackPanel Margin="0,12,0,0" Spacing="6">
+                        <TextBlock Text="喝水提醒设置" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+
+                        <!-- 目标饮水量 -->
+                        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                            <TextBlock Text="每日目标：" VerticalAlignment="Center"/>
+                            <NumericUpDown x:Name="DrinkTargetNumeric" 
+                                        Minimum="500" Maximum="5000" Increment="100" 
+                                        Value="2000" Width="120" 
+                                        FormatString="F0" VerticalAlignment="Center"/>
+                            <TextBlock Text="ml" VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <!-- 提醒间隔 -->
+                        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                            <TextBlock Text="提醒间隔：" VerticalAlignment="Center"/>
+                            <NumericUpDown x:Name="ReminderIntervalNumeric" 
+                                        Minimum="0.05" Maximum="120" Increment="1" 
+                                        Value="10" Width="100" 
+                                        FormatString="F0" VerticalAlignment="Center"/>
+                            <TextBlock Text="分钟" VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <!-- 应用按钮 + 当前进度显示 -->
+                        <Button Content="应用设置 &amp; 重置计时" 
+                                Click="ApplyDrinkSettings_Click" 
+                                HorizontalAlignment="Center" Margin="0,8,0,0"/>
+
+                        <!-- 当前进度显示 -->
+                        <StackPanel Spacing="4" Margin="0,8,0,0">
+                            <TextBlock Text="当前进度：" HorizontalAlignment="Center"/>
+                            <ProgressBar x:Name="DrinkProgressBar" 
+                                        Height="10" Minimum="0" Maximum="2000" Value="0" 
+                                        Foreground="#10B981" Background="#E5E7EB"/>
+                            <TextBlock x:Name="DrinkProgressText" 
+                                    Text="0 / 2000 ml (0%)" 
+                                    HorizontalAlignment="Center" FontSize="11"/>
+                        </StackPanel>
+                    </StackPanel>                   
+
+                    <Button x:Name="测试喝水弹窗Btn"
+                            Margin="0,8,0,4"
+                            Content="喝水添加"
+                            Click="手动喝水弹窗_Click"
+                            HorizontalAlignment="Center" 
+                            ToolTip.Tip="立即弹出喝水提醒小窗口" />
+        
+                    <StackPanel />
+                </StackPanel>
+            </Expander>
+
+
             <!-- 运行日志（支持复制） -->
             <Expander x:Name="运行日志" Header="运行日志（支持复制）" IsExpanded="False">
                 <ToolTip.Tip>

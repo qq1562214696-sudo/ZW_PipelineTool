@@ -1,0 +1,55 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ZW_PipelineTool.喝水提醒"
+        x:CompileBindings="False"
+        Title="该喝水啦～ 已喝 {Binding TotalDrunk, StringFormat={}{0:0} ml} / {Binding DailyTarget, StringFormat={}{0:0} ml}"
+        Width="380" Height="300"
+        WindowStartupLocation="CenterScreen"
+        Topmost="True"
+        CanResize="False"
+        Background="#F8FAFC">
+
+    <StackPanel Margin="28" Spacing="24">
+        <TextBlock Text="该喝水啦！" 
+                   FontSize="22" FontWeight="Bold" 
+                   HorizontalAlignment="Center"/>
+
+        <!-- 总体进度 -->
+        <StackPanel Spacing="8">
+            <TextBlock Text="今日累计饮水进度" 
+                       FontSize="15" HorizontalAlignment="Center"/>
+            <ProgressBar Height="14" 
+                         Minimum="0"
+                         Maximum="{Binding DailyTarget}"  
+                         Value="{Binding TotalDrunk}"
+                         Foreground="#10B981"
+                         Background="#E5E7EB"
+                         ShowProgressText="True"
+                         ProgressTextFormat="{}{1:0}%  ({0:0} / {2:0} ml)" 
+                         Margin="0,4,0,12"/>
+        </StackPanel>
+
+        <!-- 本次选择 -->
+        <StackPanel Spacing="10">
+            <TextBlock Text="本次喝多少？" 
+                       FontSize="15" HorizontalAlignment="Center"/>
+            
+            <Grid ColumnDefinitions="90,*" VerticalAlignment="Center">
+                <TextBlock Grid.Column="0" 
+                           Text="{Binding #slider.Value, StringFormat={}{0:0} ml}"
+                           FontSize="17" FontWeight="SemiBold"
+                           VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                
+                <Slider x:Name="slider" Grid.Column="1"
+                        Minimum="0" Maximum="500" Value="50"
+                        TickFrequency="10" IsSnapToTickEnabled="True"
+                        Height="28"/>
+            </Grid>
+        </StackPanel>
+
+        <Button Content="确定（记录本次饮水）" 
+                HorizontalAlignment="Center" Width="200" Height="40"
+                Click="OnConfirmClick"
+                FontSize="15" FontWeight="Medium"/>
+    </StackPanel>
+</Window>
