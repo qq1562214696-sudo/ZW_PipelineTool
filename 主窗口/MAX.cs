@@ -8,7 +8,7 @@ using Avalonia.Interactivity;
 namespace ZW_PipelineTool;
 public partial class 主窗口//Max区块
 {
-    private async void 初始化按钮_点击(object? sender, RoutedEventArgs e)
+    private async void 初始化按钮_点击(object? sender, RoutedEventArgs e)//QF逻辑，后续想办法单独分离
     {
         // 动态查找 Unity 路径输入框（防止字段为 null）
         var unityPathBox = this.FindControl<TextBox>("QF_UnityPathInput");

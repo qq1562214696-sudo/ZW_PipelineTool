@@ -3,40 +3,12 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Avalonia.Controls;
-using Avalonia.Interactivity;
-using Avalonia.Platform.Storage;
 
 namespace ZW_PipelineTool;
 
 public partial class 主窗口//Main区块，暂时存放着QF文件整理逻辑
 {
-    /// <summary>
-    /// “浏览”按钮点击 → 打开文件夹选择对话框 → 执行规范整理
-    /// </summary>
-    private async void 浏览文件夹按钮_点击(object? sender, RoutedEventArgs e)
-    {
-        var options = new FolderPickerOpenOptions
-        {
-            Title = "请选择要规范整理的总文件夹",
-            AllowMultiple = false
-        };
-
-        var folders = await StorageProvider.OpenFolderPickerAsync(options);
-        if (folders.Count == 0) return;
-
-        var 选择结果 = folders[0].TryGetLocalPath();
-        if (string.IsNullOrEmpty(选择结果)) return;
-
-        var 路径文本框 = this.FindControl<TextBox>("FolderPathTextBox");
-        if (路径文本框 != null)
-            路径文本框.Text = 选择结果;
-
-        日志($"用户手动选择文件夹：{选择结果}");
-
-        await 规范整理文件夹(选择结果);
-    }
-
+    
     /// <summary>
     /// 核心业务逻辑：规范 PSD 命名 → 提取公共贴图 → 清理旧模板 → 按命名批量创建规范文件夹
     /// </summary>

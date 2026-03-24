@@ -18,6 +18,7 @@ namespace ZW_PipelineTool
             DataContext = this;
 
             工具基本设置Expander = this.FindControl<Expander>("工具基本设置");
+            饮水提醒Expander = this.FindControl<Expander>("饮水提醒");
             日志列表框 = this.FindControl<ListBox>("LogListBox");
 
             EnableDragAndDrop();
@@ -25,28 +26,26 @@ namespace ZW_PipelineTool
             Opened += OnWindowOpened;
             Closing += OnWindowClosing;
 
-            SetupDrinkReminder();//喝水提醒，后续想办法解耦1111111111111111111111111111111
+            SetupDrinkReminder();
         }
 
         private void InitializeComponent() => AvaloniaXamlLoader.Load(this);
 
-        private void EnableDragAndDrop()
-        {
-            DragDrop.SetAllowDrop(this, true);
-            this.AddHandler(DragDrop.DragEnterEvent, 窗口_拖入);
-            this.AddHandler(DragDrop.DragOverEvent, 窗口_拖拽中);
-            this.AddHandler(DragDrop.DropEvent, 窗口_放下);
-        }
-
         private async void OnWindowOpened(object? sender, EventArgs e)
         {
             LoadAndApplyWindowSettings();
+            CheckAndResetDrinkData();
+            UpdateDrinkProgressUI();
+
+            // 新增：强制触发一次喝水提醒判断（确保程序启动至少有一次判断）
+            await PerformInitialDrinkCheck();
+
             await TryLoadLastUnityPathAsync();
             InitializeAndStartLogWatcher();
 
-#if WINDOWS
+        #if WINDOWS
             RegisterGlobalHotKey();
-#endif
+        #endif
         }
 
         private void OnWindowClosing(object? sender, WindowClosingEventArgs e)
@@ -70,7 +69,7 @@ namespace ZW_PipelineTool
             {
                 _wndProcCallback = WndProcHook;
                 Win32Properties.AddWndProcHookCallback(this, _wndProcCallback);
-                日志("全局热键 F5 已注册（Windows）");
+                日志("按下F5弹出该工具");
             }
             else
             {
@@ -135,6 +134,31 @@ namespace ZW_PipelineTool
             }
         }
 #endif
+
+        private void OpenSettingsWindow_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+{
+    try
+    {
+        var settingsWindow = new 设置窗口
+        {
+            // 可选：让设置窗口和主窗口保持相同的置顶状态
+            Topmost = this.Topmost,
+            // 可选：窗口大小或位置微调
+            Width = 520,
+            Height = 780
+        };
+
+        // 非模态弹出（推荐，两个窗口可以同时操作）
+        settingsWindow.Show(this);
+
+        // 如果希望模态（阻塞主窗口），使用下面这行代替上面一行：
+        // await settingsWindow.ShowDialog(this);
+    }
+    catch (Exception ex)
+    {
+        日志($"打开设置窗口失败：{ex.Message}");
+    }
+}
 
         // ────────────────────────────────────────────────
         // 以下是原有方法（实现体只在这里，其他文件删除重复）
@@ -228,8 +252,25 @@ namespace ZW_PipelineTool
             if (工具基本设置Expander != null)
                 工具基本设置Expander.IsExpanded = _窗口数据.工具基本设置展开;
 
+                // 加载饮水提醒Expander状态
+            if (饮水提醒Expander != null)
+                饮水提醒Expander.IsExpanded = _窗口数据.饮水提醒展开;
+
             if (运行日志Expander != null)
                 运行日志Expander.IsExpanded = _窗口数据.运行日志展开;
+
+                // ========== 新增：加载饮水提醒设置到UI ==========
+            var targetNumeric = this.FindControl<NumericUpDown>("DrinkTargetNumeric");
+            if (targetNumeric != null)
+                targetNumeric.Value = (decimal?)_窗口数据.每日饮水量;
+
+            var intervalNumeric = this.FindControl<NumericUpDown>("ReminderIntervalNumeric");
+            if (intervalNumeric != null)
+                intervalNumeric.Value = (decimal?)_窗口数据.饮水提醒间隔;
+
+                // 在加载其他设置后添加
+            开启饮水提醒 = _窗口数据.开启饮水提醒;
+            OnPropertyChanged(nameof(开启饮水提醒));
 
             if (_窗口数据.X坐标 <= 0 && _窗口数据.Y坐标 <= 0)
                 自动定位到右下角();

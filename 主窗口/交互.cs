@@ -8,6 +8,14 @@ namespace ZW_PipelineTool;
 
 public partial class 主窗口//交互区块
 {
+    private void EnableDragAndDrop()
+    {
+        DragDrop.SetAllowDrop(this, true);
+        this.AddHandler(DragDrop.DragEnterEvent, 窗口_拖入);
+        this.AddHandler(DragDrop.DragOverEvent, 窗口_拖拽中);
+        this.AddHandler(DragDrop.DropEvent, 窗口_放下);
+    }
+
     private void 窗口_拖入(object? sender, DragEventArgs e)
     {
         e.DragEffects = DragDropEffects.Copy;

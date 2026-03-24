@@ -5,11 +5,38 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Avalonia.Controls;
+using Avalonia.Threading;
 
 namespace ZW_PipelineTool
 {
     public partial class 主窗口
     {
+        
+        //-------------------------窗口组件-------------------------
+        private ListBox? 日志列表框;
+        private Expander? 运行日志Expander;
+        private Expander? 饮水提醒Expander;
+        private Expander? 工具基本设置Expander;
+
+
+        // -------------------------饮水提醒-------------------------
+        private DispatcherTimer? 饮水提醒定时器;
+        private 饮水提醒? 饮水提醒弹窗;
+        private bool _开启饮水提醒;
+        public bool 开启饮水提醒
+        {
+            get => _开启饮水提醒;
+            set
+            {
+                if (_开启饮水提醒 != value)
+                {
+                    _开启饮水提醒 = value;
+                    _窗口数据.开启饮水提醒 = value;   // 同步到存储数据
+                    OnPropertyChanged(nameof(开启饮水提醒));
+                }
+            }
+        }
+        
         // -------------------------自启动-------------------------
         private const string StartupRegistryKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run";
         private const string AppStartupName = "ZW_PipelineTool";
@@ -23,9 +50,6 @@ namespace ZW_PipelineTool
         private 窗口数据 _窗口数据 = new 窗口数据();
 
         //-------------------------日志-------------------------
-        private ListBox? 日志列表框;
-        private Expander? 运行日志Expander;
-        private Expander? 工具基本设置Expander;
         private static readonly SemaphoreSlim _logFileSemaphore = new(1, 1);
         public ObservableCollection<日志数据> 日志列表 { get; } = new();
 
@@ -112,4 +136,26 @@ namespace ZW_PipelineTool
 
     #endregion
     }
+}
+
+public class 窗口数据
+{
+    //窗口基本数据储存
+    public double 宽度 { get; set; } = 500;
+    public double 高度 { get; set; } = 750;
+    public double X坐标 { get; set; }
+    public double Y坐标 { get; set; }
+    public WindowState 窗口状态 { get; set; } = WindowState.Normal;
+    public bool 置顶 { get; set; } = true;
+    public bool 开机自启 { get; set; } = false;
+    public bool 工具基本设置展开 { get; set; } = true;
+    public bool 运行日志展开 { get; set; } = false;
+
+    //饮水提醒数据储存
+    public bool 饮水提醒展开 { get; set; } = false;
+    public bool 开启饮水提醒 { get; set; } = false;   // 新增，默认不开启
+    public double 每日饮水量 { get; set; } = 2000;
+    public double 饮水提醒间隔 { get; set; } = 10;
+    public double 累计饮水量 { get; set; } = 0;
+    public DateTime? 上次饮水日期 { get; set; }
 }

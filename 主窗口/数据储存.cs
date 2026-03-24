@@ -51,6 +51,8 @@ public partial class 主窗口
 
             if (工具基本设置Expander != null)
                 _窗口数据.工具基本设置展开 = 工具基本设置Expander.IsExpanded;
+            if (饮水提醒Expander != null)
+                _窗口数据.饮水提醒展开 = 饮水提醒Expander.IsExpanded;
             if (运行日志Expander != null)
                 _窗口数据.运行日志展开 = 运行日志Expander.IsExpanded;
 
@@ -79,17 +81,4 @@ public partial class 主窗口
             _窗口数据 = new 窗口数据();
         }
     }
-}
-
-public class 窗口数据
-{
-    public double 宽度 { get; set; } = 500;
-    public double 高度 { get; set; } = 750;
-    public double X坐标 { get; set; }
-    public double Y坐标 { get; set; }
-    public WindowState 窗口状态 { get; set; } = WindowState.Normal;
-    public bool 置顶 { get; set; } = true;
-    public bool 开机自启 { get; set; } = false;
-    public bool 工具基本设置展开 { get; set; } = true;
-    public bool 运行日志展开 { get; set; } = false;
 }

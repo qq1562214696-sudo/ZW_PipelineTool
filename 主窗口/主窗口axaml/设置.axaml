@@ -1,0 +1,143 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="using:ZW_PipelineTool"
+        x:Class="ZW_PipelineTool.设置窗口"
+        x:Name="ThisWindow"
+        x:CompileBindings="False"
+        Title="工具设置面板 - 饮水提醒等"
+        Width="500" Height="750"
+        WindowStartupLocation="CenterOwner"
+        FontSize="12">
+
+    <Window.Styles>
+        <Style Selector="Button">
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="Padding" Value="8,-5"/>
+            <Setter Property="Margin" Value="1"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style Selector="Expander">
+            <Setter Property="Margin" Value="0,2,0,4"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="MinHeight" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+
+        <!-- 让 Expander 的标题文字居中显示 -->
+        <Style Selector="Expander TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style Selector="TextBox">
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Padding" Value="4,1"/>
+        </Style>
+
+        <Style Selector="TextBox /template/ TextPresenter">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style Selector="TextBox /template/ TextBlock#PART_Watermark">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Opacity" Value="0.5"/>
+        </Style>
+    </Window.Styles>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                  HorizontalScrollBarVisibility="Disabled">
+        
+        <StackPanel Margin="8" Spacing="2">
+
+            <!-- 置顶 -->
+            <CheckBox x:Name="置顶CheckBox"
+                      Content="窗口始终置顶"
+                      IsChecked="{Binding Topmost, RelativeSource={RelativeSource AncestorType=Window}}">
+                <ToolTip.Tip>
+                    <TextBlock TextWrapping="Wrap">置顶本窗口，自动保存此选项</TextBlock>
+                </ToolTip.Tip>
+            </CheckBox>
+
+            <!-- 开机自启 -->
+            <CheckBox x:Name="开机自启CheckBox"
+                      Content="开机自动启动"
+                      IsChecked="{Binding 开机自启, Mode=TwoWay}">
+                <ToolTip.Tip>
+                    <TextBlock TextWrapping="Wrap">勾选开机自启，取消不再自启</TextBlock>
+                </ToolTip.Tip>
+            </CheckBox>
+
+            <!-- 饮水提醒开关 -->
+            <CheckBox x:Name="EnableDrinkReminderCheckBox"
+                      Content="开启饮水提醒"
+                      IsChecked="{Binding 开启饮水提醒, Mode=TwoWay}"
+                      Checked="OnDrinkReminderCheckChanged"
+                      Unchecked="OnDrinkReminderCheckChanged"
+                      Margin="0,4,0,8">
+                <ToolTip.Tip>
+                    <TextBlock TextWrapping="Wrap">勾选开启喝水提醒弹窗</TextBlock>
+                </ToolTip.Tip>
+            </CheckBox>
+
+            <!-- 饮水提醒设置 -->
+            <Expander x:Name="饮水提醒" 
+                      Header="饮水提醒设置" 
+                      IsExpanded="True">
+                
+                <StackPanel Margin="0,8,0,0" Spacing="6">
+
+                    <!-- 每日目标饮水量 -->
+                    <StackPanel Orientation="Horizontal" 
+                                Spacing="8" 
+                                HorizontalAlignment="Center">
+                        <TextBlock Text="每日目标：" VerticalAlignment="Center"/>
+                        <NumericUpDown x:Name="DrinkTargetNumeric" 
+                                       Minimum="1500" Maximum="3500" Increment="100" 
+                                       Value="2000" Width="120" 
+                                       FormatString="F0" VerticalAlignment="Center"/>
+                        <TextBlock Text="ml" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- 提醒间隔 -->
+                    <StackPanel Orientation="Horizontal" 
+                                Spacing="8" 
+                                HorizontalAlignment="Center">
+                        <TextBlock Text="提醒间隔：" VerticalAlignment="Center"/>
+                        <NumericUpDown x:Name="ReminderIntervalNumeric" 
+                                       Minimum="5" Maximum="60" Increment="1" 
+                                       Value="10" Width="100" 
+                                       FormatString="F0" VerticalAlignment="Center"/>
+                        <TextBlock Text="分钟" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- 应用按钮 -->
+                    <Button Content="应用设置" 
+                            Click="ApplyDrinkSettings_Click" 
+                            HorizontalAlignment="Center" 
+                            Margin="0,12,0,4"/>
+
+                    <!-- 当前饮水进度 -->
+                    <StackPanel Spacing="4" Margin="0,8,0,0">
+                        <TextBlock Text="当前进度：" HorizontalAlignment="Center"/>
+                        <ProgressBar x:Name="DrinkProgressBar" 
+                                     Height="10" 
+                                     Minimum="0" Maximum="2000" 
+                                     Value="0" 
+                                     Foreground="#10B981" 
+                                     Background="#E5E7EB"/>
+                        <TextBlock x:Name="DrinkProgressText" 
+                                   Text="0 / 2000 ml (0%)" 
+                                   HorizontalAlignment="Center" 
+                                   FontSize="11"/>
+                    </StackPanel>
+
+                </StackPanel>
+            </Expander>
+
+        </StackPanel>
+    </ScrollViewer>
+</Window>

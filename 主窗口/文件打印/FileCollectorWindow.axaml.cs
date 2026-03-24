@@ -14,20 +14,19 @@ namespace ZW_PipelineTool
 
     public partial class 主窗口//调试分块
     {
-        private void 打开文件复制器_Click(object? sender, RoutedEventArgs e)
+        private void 打开文件打印器_Click(object? sender, RoutedEventArgs e)
         {
-            var 收集器窗口 = new FileCollectorWindow();
-            收集器窗口.Show();          // 非模态打开
-            // 或者使用 ShowDialog(this) 作为模态对话框
+            var 收集器窗口 = new 文件打印器();
+            收集器窗口.Show();
         }
     }
 
-    public partial class FileCollectorWindow : Window
+    public partial class 文件打印器 : Window
     {
         public ObservableCollection<FileItem> Items { get; } = new();
         public FileItem? SelectedItem { get; set; }
 
-        public FileCollectorWindow()
+        public 文件打印器()
         {
             InitializeComponent();
             DataContext = this;

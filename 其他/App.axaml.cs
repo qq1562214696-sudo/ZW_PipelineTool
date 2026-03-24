@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
@@ -16,7 +17,7 @@ namespace ZW_PipelineTool
 
         public override void OnFrameworkInitializationCompleted()
         {
-            // 捕获 AppDomain 级别的未处理异常（后台线程异常）
+            // 捕获 AppDomain 级别的未处理异常
             AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
             {
                 string log = $"UnhandledException: {e.ExceptionObject}";
@@ -28,13 +29,15 @@ namespace ZW_PipelineTool
             {
                 string log = $"Dispatcher UnhandledException: {e.Exception}";
                 File.AppendAllText("crash_dispatcher.log", log + Environment.NewLine);
-                e.Handled = true; // 阻止程序崩溃
+                e.Handled = true;
             };
 
             // 处理桌面应用程序生命周期
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
                 desktop.MainWindow = new 主窗口();
+                // 设置主窗口关闭时应用程序退出
+                desktop.ShutdownMode = ShutdownMode.OnMainWindowClose;
             }
 
             base.OnFrameworkInitializationCompleted();
